@@ -1,0 +1,40 @@
+<script lang="ts">
+	import type { Category } from "$lib/db";
+	import type { Selection } from "$lib/types";
+	import CategoryPill from "./CategoryPill.svelte";
+	import Dropdown from "./Dropdown.svelte";
+	import MultiSelector from "./MultiSelector.svelte";
+
+  let { selections = $bindable(), 'aria-label': ariaLabel }: { selections: Selection<Category>[], 'aria-label'?: string } = $props();
+
+	let label = $derived(
+		(() => {
+			const selected = selections.filter((s) => s.selected);
+
+			switch (selected.length) {
+				case selections.length:
+					return 'All Categories';
+				case 0:
+					return 'No Categories';
+				case 1:
+					return selected[0]!.value.name;
+        case 2:
+          return `${selected[0]!.value.name} & ${selected[1]!.value.name}`;
+				default: {
+					return `${selected.length} Categories`;
+        }
+			}
+		})()
+	);
+</script>
+
+{#snippet item(selection: Selection<Category>)}
+	<span class="text-sm">
+		<CategoryPill category={selection.value} />
+	</span>
+{/snippet}
+
+<Dropdown aria-label={ariaLabel} {label}>
+  <MultiSelector bind:selections {item} allToggle />
+  <div class="text-xs text-gray-400 mt-4">Tip: alt+click for just one</div>
+</Dropdown>
