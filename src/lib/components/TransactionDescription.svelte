@@ -38,7 +38,7 @@
 
 	<span
 		title={bankDescription.text}
-		class="overflow-hidden font-mono text-sm overflow-ellipsis text-gray-500 dark:text-gray-300"
+		class="overflow-hidden font-mono text-sm overflow-ellipsis text-gray-600 dark:text-gray-300"
 	>
 		{bankDescription.text}
 	</span>

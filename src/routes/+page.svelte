@@ -79,10 +79,10 @@
 	</div>
 
 	<div class="flex min-h-0 flex-row gap-6">
-		<div class="flex w-9/12 flex-col gap-2 overflow-y-scroll">
+		<div class="flex w-9/12 grow-1 flex-col gap-2 overflow-y-scroll">
 			{#each data.transactions as transaction (transaction.id)}
 				<div class="flex grow-0 flex-row items-center gap-2">
-					<div class="text-xs text-gray-400">
+					<div class="text-xs text-gray-600">
 						<div class="w-12 text-center">
 							{transaction.date.toLocaleDateString(undefined, { month: 'short' })}
 							{transaction.date.toLocaleDateString(undefined, { day: 'numeric' })}<br />
@@ -97,7 +97,7 @@
 				</div>
 			{/each}
 		</div>
-		<div class="w-3/12 max-w-45">
+		<div class="w-3/12 max-w-60 grow-2">
 			<h3 class="font-bold">Total by Year</h3>
 			{#each data.totalByYear as { year, total } (year)}
 				<div class="flex flex-row items-baseline gap-4">
