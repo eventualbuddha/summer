@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "budgets-svelte",
+      "name": "allot",
       "dependencies": {
         "surrealdb": "^1.2.1",
       },
