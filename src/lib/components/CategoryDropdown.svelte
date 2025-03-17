@@ -1,11 +1,14 @@
 <script lang="ts">
-	import type { Category } from "$lib/db";
-	import type { Selection } from "$lib/types";
-	import CategoryPill from "./CategoryPill.svelte";
-	import Dropdown from "./Dropdown.svelte";
-	import MultiSelector from "./MultiSelector.svelte";
+	import type { Category } from '$lib/db';
+	import type { Selection } from '$lib/types';
+	import CategoryPill from './CategoryPill.svelte';
+	import Dropdown from './Dropdown.svelte';
+	import MultiSelector from './MultiSelector.svelte';
 
-  let { selections = $bindable(), 'aria-label': ariaLabel }: { selections: Selection<Category>[], 'aria-label'?: string } = $props();
+	let {
+		selections = $bindable(),
+		'aria-label': ariaLabel
+	}: { selections: Selection<Category>[]; 'aria-label'?: string } = $props();
 
 	let label = $derived(
 		(() => {
@@ -18,11 +21,11 @@
 					return 'No Categories';
 				case 1:
 					return selected[0]!.value.name;
-        case 2:
-          return `${selected[0]!.value.name} & ${selected[1]!.value.name}`;
+				case 2:
+					return `${selected[0]!.value.name} & ${selected[1]!.value.name}`;
 				default: {
 					return `${selected.length} Categories`;
-        }
+				}
 			}
 		})()
 	);
@@ -35,6 +38,6 @@
 {/snippet}
 
 <Dropdown aria-label={ariaLabel} {label}>
-  <MultiSelector bind:selections {item} allToggle />
-  <div class="text-xs text-gray-400 mt-4">Tip: alt+click for just one</div>
+	<MultiSelector bind:selections {item} allToggle />
+	<div class="mt-4 text-xs text-gray-400">Tip: alt+click for just one</div>
 </Dropdown>

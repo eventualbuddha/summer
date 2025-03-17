@@ -1,7 +1,11 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	let { label, 'aria-label': ariaLabel, children }: { label: string; 'aria-label'?: string ; children: Snippet} = $props();
+	let {
+		label,
+		'aria-label': ariaLabel,
+		children
+	}: { label: string; 'aria-label'?: string; children: Snippet } = $props();
 
 	let expanded = $state(false);
 	let self: HTMLElement | null = $state(null);
@@ -45,11 +49,11 @@
 	});
 </script>
 
-<div bind:this={self} class="relative inline-block text-left bg-white dark:bg-gray-800">
+<div bind:this={self} class="relative inline-block bg-white text-left dark:bg-gray-800">
 	<div>
 		<button
 			type="button"
-			class="inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-1 text-sm font-semibold shadow-xs ring-1 ring-gray-300 dark:ring-gray-600 ring-inset hover:bg-gray-50 hover:dark:bg-gray-950"
+			class="inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-1 text-sm font-semibold shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50 dark:ring-gray-600 hover:dark:bg-gray-950"
 			id="menu-button"
 			aria-label={ariaLabel}
 			aria-expanded={expanded}
@@ -85,7 +89,7 @@
      -->
 	{#if expanded}
 		<div
-			class="absolute left-0 z-10 mt-2 min-w-45 origin-top-left rounded-md px-2 pb-2 shadow-lg dark:shadow-gray-600 bg-white dark:bg-gray-800 ring-1 ring-black/5 dark:ring-gray-600 focus:outline-hidden"
+			class="absolute left-0 z-10 mt-2 min-w-45 origin-top-left rounded-md bg-white px-2 pb-2 shadow-lg ring-1 ring-black/5 focus:outline-hidden dark:bg-gray-800 dark:shadow-gray-600 dark:ring-gray-600"
 			role="menu"
 			aria-orientation="vertical"
 			aria-labelledby="menu-button"

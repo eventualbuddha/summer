@@ -1,10 +1,13 @@
 <script lang="ts">
-	import type { Selection } from "$lib/types";
-	import { getSelectionRange } from "$lib/utils/getSelectionRange";
-	import Dropdown from "./Dropdown.svelte";
-	import MultiSelector from "./MultiSelector.svelte";
+	import type { Selection } from '$lib/types';
+	import { getSelectionRange } from '$lib/utils/getSelectionRange';
+	import Dropdown from './Dropdown.svelte';
+	import MultiSelector from './MultiSelector.svelte';
 
-  let { selections = $bindable(), 'aria-label': ariaLabel  }: { selections: Selection<number>[], 'aria-label'?: string } = $props();
+	let {
+		selections = $bindable(),
+		'aria-label': ariaLabel
+	}: { selections: Selection<number>[]; 'aria-label'?: string } = $props();
 
 	let label = $derived(
 		(() => {
@@ -24,7 +27,7 @@
 						return `${formatMonth(Math.min(start.value, end.value))}–${formatMonth(Math.max(start.value, end.value))}`;
 					}
 					return `${selected.length} Months`;
-        }
+				}
 			}
 		})()
 	);
@@ -44,6 +47,6 @@
 {/snippet}
 
 <Dropdown aria-label={ariaLabel} {label}>
-  <MultiSelector bind:selections {item} allToggle />
-  <div class="text-xs text-gray-400 mt-4">Tip: alt+click for just one</div>
+	<MultiSelector bind:selections {item} allToggle />
+	<div class="mt-4 text-xs text-gray-400">Tip: alt+click for just one</div>
 </Dropdown>
