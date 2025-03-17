@@ -44,6 +44,7 @@
 		"vitest": "^3.0.0"
 	},
 	"dependencies": {
-		"surrealdb": "^1.2.1"
+		"surrealdb": "^1.2.1",
+		"virtua": "^0.40.3"
 	}
 }

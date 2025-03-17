@@ -1,21 +1,18 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import AccountDropdown from '$lib/components/AccountDropdown.svelte';
-	import CategoryDropdown from '$lib/components/CategoryDropdown.svelte';
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
-	import MonthDropdown from '$lib/components/MonthDropdown.svelte';
+	import Filters from '$lib/components/Filters.svelte';
 	import TransactionDescription from '$lib/components/TransactionDescription.svelte';
-	import YearDropdown from '$lib/components/YearDropdown.svelte';
-	import { type Account, type Category } from '$lib/db';
-	import type { Selection } from '$lib/types';
+	import { type Snippet } from 'svelte';
+	import { VList } from 'virtua/svelte';
 	import type { PageProps } from './$types';
 	import type { QueryParams } from './+page';
 
 	let { data }: PageProps = $props();
-	let monthSelections: Selection<number>[] = $state(data.monthSelections);
-	let yearSelections: Selection<number>[] = $state(data.yearSelections);
-	let categorySelections: Selection<Category>[] = $state(data.categorySelections);
-	let accountSelections: Selection<Account>[] = $state(data.accountSelections);
+	let monthSelections = $state(data.filters.months);
+	let yearSelections = $state(data.filters.years);
+	let categorySelections = $state(data.filters.categories);
+	let accountSelections = $state(data.filters.accounts);
 
 	$effect(() => {
 		let url = new URL(location.href);
@@ -66,65 +63,110 @@
 
 <div class="flex h-screen w-screen flex-col gap-4 overflow-hidden p-4">
 	<div class="flex flex-row items-center gap-4">
-		<h1 class="text-xl font-bold">Transactions</h1>
-		<span class="text-sm">𝍤 {data.count.toLocaleString()}</span>
-		<span class="text-sm">∑ {formatWholeDollarAmount(data.total)}</span>
+		<h1 class="text-2xl font-bold">Transactions</h1>
+		{#await data.transactions then { count, total }}
+			<span class="text-sm">𝍤 {count.toLocaleString()}</span>
+			<span class="text-sm">∑ {formatWholeDollarAmount(total)}</span>
+		{/await}
 	</div>
-	<div class="flex flex-row items-center gap-1">
-		<span class="font-bold">Filters:</span>
-		<YearDropdown aria-label="Year Filter" bind:selections={yearSelections} />
-		<MonthDropdown aria-label="Month Filter" bind:selections={monthSelections} />
-		<CategoryDropdown aria-label="Category Filter" bind:selections={categorySelections} />
-		<AccountDropdown aria-label="Account Filter" bind:selections={accountSelections} />
-	</div>
+	<Filters
+		bind:yearSelections
+		bind:monthSelections
+		bind:categorySelections
+		bind:accountSelections
+	/>
 
 	<div class="flex min-h-0 flex-row gap-6">
 		<div class="flex w-9/12 grow-1 flex-col gap-2 overflow-y-scroll">
-			{#each data.transactions as transaction (transaction.id)}
-				<div class="flex grow-0 flex-row items-center gap-2">
-					<div class="text-xs text-gray-600">
-						<div class="w-12 text-center">
-							{transaction.date.toLocaleDateString(undefined, { month: 'short' })}
-							{transaction.date.toLocaleDateString(undefined, { day: 'numeric' })}<br />
-							{transaction.date.toLocaleDateString(undefined, { year: 'numeric' })}
+			{#await data.transactions}
+				<div class="flex flex-col items-center justify-center">
+					<div class="text-2xl font-bold">Loading…</div>
+				</div>
+			{:then { list: transactions }}
+				<VList data={transactions} getKey={(transaction) => transaction.id}>
+					{#snippet children(transaction)}
+						<div class="flex grow-0 flex-row items-center gap-2">
+							<div class="text-xs text-gray-600">
+								<div class="w-12 text-center">
+									{transaction.date.toLocaleDateString(undefined, { month: 'short' })}
+									{transaction.date.toLocaleDateString(undefined, { day: 'numeric' })}<br />
+									{transaction.date.toLocaleDateString(undefined, { year: 'numeric' })}
+								</div>
+							</div>
+							<CategoryPill category={transaction.category} style="short" />
+							<div class="flex-1 overflow-hidden text-lg overflow-ellipsis whitespace-nowrap">
+								<TransactionDescription {transaction} />
+							</div>
+							<div>{formatTransactionAmount(transaction.amount)}</div>
 						</div>
-					</div>
-					<CategoryPill category={transaction.category} style="short" />
-					<div class="flex-1 overflow-hidden text-lg overflow-ellipsis whitespace-nowrap">
-						<TransactionDescription {transaction} />
-					</div>
-					<div>{formatTransactionAmount(transaction.amount)}</div>
-				</div>
-			{/each}
+					{/snippet}
+				</VList>
+			{/await}
 		</div>
-		<div class="w-3/12 max-w-60 grow-2">
-			<h3 class="font-bold">Total by Year</h3>
-			{#each data.totalByYear as { year, total } (year)}
-				<div class="flex flex-row items-baseline gap-4">
-					<span>{year}</span>
-					<span class="grow-1 text-right">{formatWholeDollarAmount(total)}</span>
+
+		<div class="h-dvh w-3/12 max-w-60 grow-2">
+			{#snippet summaryRow(label: Snippet, value: string)}
+				<div class="flex flex-row items-baseline gap-0">
+					<span class="overflow-hidden overflow-ellipsis whitespace-nowrap">{@render label()}</span>
+					<span class="grow-1 text-right">{value}</span>
 				</div>
-			{/each}
+			{/snippet}
+			<h3 class="font-bold">Total by Year</h3>
+			{#await data.transactions}
+				{#each data.filters.years as { value: year, selected } (year)}
+					{#if selected}
+						{#snippet label()}{year}{/snippet}
+						{@render summaryRow(label, '$-')}
+					{/if}
+				{/each}
+			{:then { totalByYear }}
+				{#each totalByYear as { year, total } (year)}
+					{#snippet label()}{year}{/snippet}
+					{@render summaryRow(label, formatWholeDollarAmount(total))}
+				{/each}
+			{/await}
 
 			<h3 class="mt-4 font-bold">Total by Category</h3>
-			{#each data.totalByCategory as { category, total } (category)}
-				<div class="flex flex-row items-baseline gap-0">
-					<CategoryPill
-						{category}
-						style="full"
-						class="overflow-hidden overflow-ellipsis whitespace-nowrap"
-					/>
-					<span class="grow-2 text-right">{formatWholeDollarAmount(total)}</span>
-				</div>
-			{/each}
+			{#await data.transactions}
+				{#each data.filters.categories as { value: category, selected } (category.id)}
+					{#if selected}
+						{#snippet label()}
+							<CategoryPill
+								{category}
+								style="full"
+								class="overflow-hidden overflow-ellipsis whitespace-nowrap"
+							/>
+						{/snippet}
+						{@render summaryRow(label, '$–')}
+					{/if}
+				{/each}
+			{:then { totalByCategory }}
+				{#each totalByCategory as { category, total } (category.id)}
+					{#snippet label()}
+						<CategoryPill
+							{category}
+							style="full"
+							class="overflow-hidden overflow-ellipsis whitespace-nowrap"
+						/>
+					{/snippet}
+					{@render summaryRow(label, formatWholeDollarAmount(total))}
+				{/each}
+			{/await}
 
 			<h3 class="mt-4 font-bold">Total by Account</h3>
-			{#each data.totalByAccount as { account, total } (account)}
-				<div class="flex flex-row items-baseline gap-4">
-					<span class="overflow-hidden overflow-ellipsis whitespace-nowrap">{account.name}</span>
-					<span class="grow-1 text-right">{formatWholeDollarAmount(total)}</span>
-				</div>
-			{/each}
+			{#await data.transactions}
+				{#each data.filters.accounts as { value: account, selected } (account.id)}
+					{#if selected}
+						{#snippet label()}{account.name}{/snippet}
+						{@render summaryRow(label, '$–')}
+					{/if}
+				{/each}
+			{:then { totalByAccount }}
+				{#each totalByAccount as { account, total } (account.id)}
+					{#snippet label()}{account.name}{/snippet}
+					{@render summaryRow(label, formatWholeDollarAmount(total))}
+				{/each}
+			{/await}
 		</div>
 	</div>
 </div>

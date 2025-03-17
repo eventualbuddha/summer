@@ -15,7 +15,7 @@ export async function getTransactions(filters: FilterOptions): Promise<{
 	totalByYear: Array<{ year: number; total: number }>;
 	totalByCategory: Array<{ category: Category; total: number }>;
 	totalByAccount: Array<{ account: Account; total: number }>;
-	transactions: Transaction[];
+	list: Transaction[];
 }> {
 	const surreal = await connect();
 	const [, total, transactions, totalByYear, totalByCategoryId, totalByAccountId] =
@@ -66,24 +66,19 @@ export async function getTransactions(filters: FilterOptions): Promise<{
 	return {
 		count: transactions.length,
 		total,
-		totalByYear: totalByYear.sort((a, b) => b.year - a.year),
-		totalByCategory: totalByCategoryId
-			.sort((a, b) => a.categoryOrdinal - b.categoryOrdinal)
-			.map(({ categoryId, total }) => ({
-				category: filters.categories.find((category) => category.id === categoryId)!,
-				total
-			})),
-		totalByAccount: totalByAccountId
-			.map(({ accountId, total }) => ({
-				account: filters.accounts.find((account) => account.id === accountId)!,
-				total
-			}))
-			.sort(
-				(a, b) =>
-					a.account.type.localeCompare(b.account.type) ||
-					a.account.name.localeCompare(b.account.name)
-			),
-		transactions: transactions.map((t) => ({
+		totalByYear: filters.years.map((year) => ({
+			year,
+			total: totalByYear.find((item) => item.year === year)?.total ?? 0
+		})),
+		totalByCategory: filters.categories.map((category) => ({
+			category,
+			total: totalByCategoryId.find((item) => item.categoryId === category.id)?.total ?? 0
+		})),
+		totalByAccount: filters.accounts.map((account) => ({
+			account,
+			total: totalByAccountId.find((item) => item.accountId === account.id)?.total ?? 0
+		})),
+		list: transactions.map((t) => ({
 			id: t.id,
 			date: t.date,
 			amount: t.amount,
