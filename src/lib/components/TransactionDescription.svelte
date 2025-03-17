@@ -31,7 +31,10 @@
 	{/if}
 
 	{#if ownDescription}
-		<span title={bankDescription.text} class="font-semibold text-gray-900 dark:text-gray-200">
+		<span
+			title={bankDescription.text}
+			class="text-sm font-semibold text-gray-900 dark:text-gray-200"
+		>
 			{ownDescription}
 		</span>
 	{/if}
