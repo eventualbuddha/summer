@@ -5,11 +5,13 @@ import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
 	test('should render "All Years" button', () => {
-		render(Page, { data: {
-			monthSelections: [],
-			yearSelections: [],
-			categorySelections: [],
-		}});
-		expect(screen.getByRole('button', { name: 'Year Filter'})).toBeInTheDocument();
+		render(Page, {
+			data: {
+				monthSelections: [],
+				yearSelections: [],
+				categorySelections: []
+			}
+		});
+		expect(screen.getByRole('button', { name: 'Year Filter' })).toBeInTheDocument();
 	});
 });
