@@ -1,4 +1,4 @@
-import { Surreal } from 'surrealdb';
+import type { Surreal } from 'surrealdb';
 
 export interface Transactions {
 	count: number;
@@ -19,6 +19,37 @@ function amountsToMatchForSearchTerm(searchTerm: string): Array<number> {
 		: sign === '+'
 			? [amountNumber]
 			: [-amountNumber, amountNumber];
+}
+
+export async function use(
+	surreal: Surreal,
+	{ namespace, database, init }: { namespace: string; database: string; init: boolean }
+): Promise<boolean> {
+	let hasNamespace = false;
+	let hasDatabase = false;
+
+	const [{ namespaces }] =
+		await surreal.query<[{ namespaces: Record<string, string> }]>('INFO FOR ROOT;');
+
+	if (Object.prototype.hasOwnProperty.call(namespaces, namespace)) {
+		hasNamespace = true;
+		await surreal.use({ namespace });
+
+		const [{ databases }] =
+			await surreal.query<[{ databases: Record<string, string> }]>('INFO FOR NS;');
+		if (Object.prototype.hasOwnProperty.call(databases, database)) {
+			hasDatabase = true;
+		}
+	}
+
+	await surreal.use({ namespace, database });
+
+	if ((init && !hasNamespace) || !hasDatabase) {
+		const schema = await (await fetch('/schema.surql')).text();
+		await surreal.query(schema);
+	}
+
+	return true;
 }
 
 export async function getTransactions(

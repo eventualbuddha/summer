@@ -1,7 +1,8 @@
-import Surreal from 'surrealdb';
+import { Surreal } from 'surrealdb';
 import {
 	getFilterOptions,
 	getTransactions,
+	use,
 	type Account,
 	type Category,
 	type Transactions
@@ -50,7 +51,7 @@ export class State {
 					? await (async ({ url, namespace, database }: DatabaseConnectionInfo) => {
 							const surreal = new Surreal();
 							await surreal.connect(url);
-							await surreal.use({ namespace, database });
+							await use(surreal, { namespace, database, init: true });
 
 							// if we've successfully connected, set the lastDb and save it to local storage
 							this.lastDb = db;

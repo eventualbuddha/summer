@@ -108,7 +108,7 @@ if (options.values.username) {
 
 await db.use({ namespace: options.values.namespace, database: options.values.database });
 
-const schema = await readFile(join(import.meta.dirname, '../schema.surql'), 'utf8');
+const schema = await readFile(join(import.meta.dirname, '../static/schema.surql'), 'utf8');
 
 stdout.write('Restoring schema…');
 await db.query(schema);
