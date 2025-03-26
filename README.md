@@ -1,38 +1,22 @@
-# sv
+# Summer
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Summer is a terrible pun, and also the app I use to track my spending. You probably should not use it.
 
-## Creating a project
+## Setup
 
-If you're seeing this, you've probably already done this step. Congrats!
+### Self-Hosted
 
-```bash
-# create a new project in the current directory
-npx sv create
+1. Clone the repository: `git clone https://github.com/eventualbuddha/summer.git`
+2. Install [Bun](https://bun.sh/)
+3. Install [SurrealDB](https://surrealdb.com/)
+4. Install dependencies: `bun install`
+5. Run the app: `bun run dev --open`
+6. Enter the URL and namespace/database for the your SurrealDB instance. This can just be `ws://localhost:8000/rpc` if you're running SurrealDB locally, and the namespace and database can be whatever you want.
 
-# create a new project in my-app
-npx sv create my-app
-```
+### Cloud
 
-## Developing
+TBD. I'd like to host it somewhere static and just connect directly to SurrealDB from the browser, but haven't worked out exactly how to do that yet.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## License
 
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+MIT License
