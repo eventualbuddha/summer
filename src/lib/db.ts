@@ -1,23 +1,18 @@
 import { Surreal } from 'surrealdb';
 
-export async function connect(): Promise<Surreal> {
-	const surreal = new Surreal();
-
-	await surreal.connect('ws://localhost:8000');
-	await surreal.use({ namespace: 'test', database: 'test' });
-
-	return surreal;
-}
-
-export async function getTransactions(filters: FilterOptions): Promise<{
+export interface Transactions {
 	count: number;
 	total: number;
 	totalByYear: Array<{ year: number; total: number }>;
 	totalByCategory: Array<{ category: Category; total: number }>;
 	totalByAccount: Array<{ account: Account; total: number }>;
 	list: Transaction[];
-}> {
-	const surreal = await connect();
+}
+
+export async function getTransactions(
+	filters: FilterOptions,
+	surreal: Surreal
+): Promise<Transactions> {
 	const [, total, transactions, totalByYear, totalByCategoryId, totalByAccountId] =
 		await surreal.query<
 			[
@@ -130,8 +125,7 @@ export interface FilterOptions {
 	accounts: Account[];
 }
 
-export async function getFilterOptions(): Promise<FilterOptions> {
-	const surreal = await connect();
+export async function getFilterOptions(surreal: Surreal): Promise<FilterOptions> {
 	const [years, months, categories, accounts] = await surreal.query<
 		[number[], number[], Category[], Account[]]
 	>(`
