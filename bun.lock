@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "allot",
+      "name": "summer",
       "dependencies": {
         "surrealdb": "^1.2.1",
         "virtua": "^0.40.3",
