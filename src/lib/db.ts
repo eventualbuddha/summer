@@ -9,6 +9,18 @@ export interface Transactions {
 	list: Transaction[];
 }
 
+function amountsToMatchForSearchTerm(searchTerm: string): Array<number> {
+	const match = searchTerm.match(/^([-+])?(\d{1,10}\.\d{2})$/);
+	if (!match) return [];
+	const [, sign, amount] = match;
+	const amountNumber = parseFloat(amount as string) * 100;
+	return sign === '-'
+		? [-amountNumber]
+		: sign === '+'
+			? [amountNumber]
+			: [-amountNumber, amountNumber];
+}
+
 export async function getTransactions(
 	filters: FilterOptions,
 	surreal: Surreal
@@ -40,6 +52,12 @@ export async function getTransactions(
            AND statement.date.month() IN $months
            AND category AND category.id() IN $categories
 					 AND statement.account AND statement.account.id() IN $accounts
+					 AND (
+						  (!$searchTerm AND !$amounts)
+						  OR (description AND description.lowercase().contains($searchTerm))
+						  OR (statementDescription AND statementDescription.lowercase().contains($searchTerm))
+							OR (amount IN $amounts)
+			     )
 			ORDER BY date DESC
 		);
 
@@ -54,7 +72,9 @@ export async function getTransactions(
 				years: filters.years,
 				months: filters.months,
 				categories: filters.categories.map((category) => category.id),
-				accounts: filters.accounts.map((account) => account.id)
+				accounts: filters.accounts.map((account) => account.id),
+				searchTerm: filters.searchTerm.toLowerCase(),
+				amounts: amountsToMatchForSearchTerm(filters.searchTerm)
 			}
 		);
 
@@ -123,6 +143,7 @@ export interface FilterOptions {
 	months: number[];
 	categories: Category[];
 	accounts: Account[];
+	searchTerm: string;
 }
 
 export async function getFilterOptions(surreal: Surreal): Promise<FilterOptions> {
@@ -138,6 +159,7 @@ export async function getFilterOptions(surreal: Surreal): Promise<FilterOptions>
 		years,
 		months,
 		categories,
-		accounts
+		accounts,
+		searchTerm: ''
 	};
 }

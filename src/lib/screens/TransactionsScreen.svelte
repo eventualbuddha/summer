@@ -31,6 +31,7 @@
 			bind:monthSelections={s.filters.months}
 			bind:categorySelections={s.filters.categories}
 			bind:accountSelections={s.filters.accounts}
+			bind:searchTerm={s.filters.searchTerm}
 		/>
 	{/if}
 

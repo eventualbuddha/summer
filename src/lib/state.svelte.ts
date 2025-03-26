@@ -19,6 +19,7 @@ export interface FilterState {
 	months: Selection<number>[];
 	categories: Selection<Category>[];
 	accounts: Selection<Account>[];
+	searchTerm: string;
 }
 
 export class State {
@@ -92,7 +93,8 @@ export class State {
 						key: account.id,
 						value: account,
 						selected: true
-					}))
+					})),
+					searchTerm: ''
 				};
 			})();
 		});
@@ -117,7 +119,8 @@ export class State {
 							.map((selection) => selection.value),
 						accounts: filters.accounts
 							.filter((selection) => selection.selected)
-							.map((selection) => selection.value)
+							.map((selection) => selection.value),
+						searchTerm: filters.searchTerm
 					},
 					db
 				);
