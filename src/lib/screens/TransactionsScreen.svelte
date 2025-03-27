@@ -6,6 +6,8 @@
 	import type { State } from '$lib/state.svelte';
 	import { type Snippet } from 'svelte';
 	import { VList } from 'virtua/svelte';
+	import IconTallyMark5 from '~icons/mdi/tally-mark-5';
+	import IconDollarCoinSolid from '~icons/streamline/dollar-coin-solid';
 
 	let { state: s }: { state: State } = $props();
 
@@ -22,8 +24,14 @@
 	<div class="flex flex-row items-center gap-4">
 		<h1 class="text-2xl font-bold">Transactions</h1>
 		{#if s.transactions}
-			<span class="text-sm">𝍤 {s.transactions.count.toLocaleString()}</span>
-			<span class="text-sm">∑ {formatWholeDollarAmount(s.transactions.total)}</span>
+			<span class="flex items-center gap-1 text-sm">
+				<IconTallyMark5 />
+				{s.transactions.count.toLocaleString()}
+			</span>
+			<span class="flex items-center gap-1 text-sm">
+				<IconDollarCoinSolid />
+				{formatWholeDollarAmount(s.transactions.total)}
+			</span>
 		{/if}
 	</div>
 	{#if s.filters}
