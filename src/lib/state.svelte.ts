@@ -49,7 +49,7 @@ export class Sorting {
 	}
 
 	fieldSort(field: SortingField): 'asc' | 'desc' | undefined {
-		return $derived(this.#field === field ? this.#direction : undefined);
+		return this.#field === field ? this.#direction : undefined;
 	}
 
 	get field(): SortingField {

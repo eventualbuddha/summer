@@ -6,9 +6,9 @@
 	import IconSortNumericDescending from '~icons/mdi/sort-numeric-descending';
 
 	let { sort }: { sort: Sorting } = $props();
-	let dateSort = sort.fieldSort('date');
-	let descriptionSort = sort.fieldSort('statementDescription');
-	let amountSort = sort.fieldSort('amount');
+	let dateSort = $derived(sort.fieldSort('date'));
+	let descriptionSort = $derived(sort.fieldSort('statementDescription'));
+	let amountSort = $derived(sort.fieldSort('amount'));
 </script>
 
 <div class="flex w-full flex-row text-sm font-bold">
