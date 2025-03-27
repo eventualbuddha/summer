@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
 	import Filters from '$lib/components/Filters.svelte';
+	import SortHeader from '$lib/components/SortHeader.svelte';
 	import TransactionDescription from '$lib/components/TransactionDescription.svelte';
 	import type { State } from '$lib/state.svelte';
 	import { type Snippet } from 'svelte';
@@ -43,6 +44,7 @@
 				</div>
 			{:else}
 				{@const transactions = s.transactions.list}
+				<SortHeader sort={s.sort} />
 				<VList data={transactions} getKey={(transaction) => transaction.id}>
 					{#snippet children(transaction)}
 						<div class="flex grow-0 flex-row items-center gap-2">

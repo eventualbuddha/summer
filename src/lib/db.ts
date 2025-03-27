@@ -1,4 +1,5 @@
 import { Gap, PreparedQuery, Surreal } from 'surrealdb';
+import type { Sorting, SortingDirection } from './state.svelte';
 
 export interface Transactions {
 	count: number;
@@ -58,11 +59,13 @@ const getTransactionsQueryBindings = {
 	categories: new Gap<Category['id'][]>(),
 	accounts: new Gap<Account['id'][]>(),
 	searchTerm: new Gap<string>(),
-	amounts: new Gap<number[]>()
+	amounts: new Gap<number[]>(),
+	orderByField: new Gap<string>()
 } as const;
 
-const getTransactionsQuery = new PreparedQuery(
-	`
+function buildGetTransactionQuery(sortDirection: SortingDirection) {
+	return new PreparedQuery(
+		`
 		let $transactions = (
           SELECT id,
 							 date,
@@ -72,7 +75,8 @@ const getTransactionsQuery = new PreparedQuery(
 							 statement.account.id() as accountId,
 							 description,
 							 statementDescription,
-							 statement.date.year() as year
+							 statement.date.year() as year,
+							 type::field($orderByField) as orderField
             FROM transaction
            WHERE statement.date.year() IN $years
              AND statement.date.month() IN $months
@@ -84,7 +88,7 @@ const getTransactionsQuery = new PreparedQuery(
 						  OR (statementDescription AND statementDescription.lowercase().contains($searchTerm))
 							OR (amount IN $amounts)
 			     )
-			ORDER BY date DESC
+			ORDER BY orderField COLLATE ${sortDirection === 'asc' ? 'ASC' : 'DESC'}
 		);
 
 		$transactions.fold(0, |$amount, $transaction| $amount + $transaction.amount);
@@ -94,11 +98,15 @@ const getTransactionsQuery = new PreparedQuery(
 		SELECT categoryId, categoryOrdinal, math::sum(amount) as total FROM $transactions GROUP BY categoryId;
 		SELECT accountId, math::sum(amount) as total FROM $transactions GROUP BY accountId;
     `,
-	getTransactionsQueryBindings
-);
+		getTransactionsQueryBindings
+	);
+}
+
+const getTransactionsAscendingQuery = buildGetTransactionQuery('asc');
+const getTransactionsDescendingQuery = buildGetTransactionQuery('desc');
 
 export async function getTransactions(
-	filters: FilterOptions,
+	options: GetTransactionsOptions,
 	surreal: Surreal
 ): Promise<Transactions> {
 	const b = getTransactionsQueryBindings;
@@ -112,27 +120,33 @@ export async function getTransactions(
 				Array<{ categoryId: string; categoryOrdinal: number; total: number }>,
 				Array<{ accountId: string; total: number }>
 			]
-		>(getTransactionsQuery, [
-			b.years.fill(filters.years),
-			b.months.fill(filters.months),
-			b.categories.fill(filters.categories.map((c) => c.id)),
-			b.accounts.fill(filters.accounts.map((c) => c.id)),
-			b.searchTerm.fill(filters.searchTerm),
-			b.amounts.fill(amountsToMatchForSearchTerm(filters.searchTerm))
-		]);
+		>(
+			options.sort.direction === 'asc'
+				? getTransactionsAscendingQuery
+				: getTransactionsDescendingQuery,
+			[
+				b.years.fill(options.years),
+				b.months.fill(options.months),
+				b.categories.fill(options.categories.map((c) => c.id)),
+				b.accounts.fill(options.accounts.map((c) => c.id)),
+				b.searchTerm.fill(options.searchTerm),
+				b.amounts.fill(amountsToMatchForSearchTerm(options.searchTerm)),
+				b.orderByField.fill(options.sort.field)
+			]
+		);
 
 	return {
 		count: transactions.length,
 		total,
-		totalByYear: filters.years.map((year) => ({
+		totalByYear: options.years.map((year) => ({
 			year,
 			total: totalByYear.find((item) => item.year === year)?.total ?? 0
 		})),
-		totalByCategory: filters.categories.map((category) => ({
+		totalByCategory: options.categories.map((category) => ({
 			category,
 			total: totalByCategoryId.find((item) => item.categoryId === category.id)?.total ?? 0
 		})),
-		totalByAccount: filters.accounts.map((account) => ({
+		totalByAccount: options.accounts.map((account) => ({
 			account,
 			total: totalByAccountId.find((item) => item.accountId === account.id)?.total ?? 0
 		})),
@@ -140,8 +154,8 @@ export async function getTransactions(
 			id: t.id,
 			date: t.date,
 			amount: t.amount,
-			category: filters.categories.find((category) => category.id === t.categoryId)!,
-			account: filters.accounts.find((account) => account.id === t.accountId)!,
+			category: options.categories.find((category) => category.id === t.categoryId)!,
+			account: options.accounts.find((account) => account.id === t.accountId)!,
 			description: t.description,
 			statementDescription: t.statementDescription
 		}))
@@ -187,6 +201,10 @@ export interface FilterOptions {
 	categories: Category[];
 	accounts: Account[];
 	searchTerm: string;
+}
+
+export interface GetTransactionsOptions extends FilterOptions {
+	sort: Sorting;
 }
 
 const getFilterOptionsQuery = new PreparedQuery(

@@ -23,6 +23,44 @@ export interface FilterState {
 	searchTerm: string;
 }
 
+export type SortingField = 'date' | 'amount' | 'statementDescription';
+export type SortingDirection = 'asc' | 'desc';
+
+export class Sorting {
+	#defaultField: SortingField;
+	#field = $state<SortingField>();
+	#direction = $state<SortingDirection>();
+	#fields: Record<SortingField, SortingDirection>;
+
+	constructor(fields: Record<SortingField, SortingDirection>, defaultField: SortingField) {
+		this.#defaultField = defaultField;
+		this.#field = defaultField;
+		this.#direction = fields[defaultField];
+		this.#fields = fields;
+	}
+
+	sortBy(field: SortingField): void {
+		if (field === this.#field) {
+			this.#direction = this.#direction === 'asc' ? 'desc' : 'asc';
+		} else {
+			this.#field = field;
+			this.#direction = this.#fields[field];
+		}
+	}
+
+	fieldSort(field: SortingField): 'asc' | 'desc' | undefined {
+		return $derived(this.#field === field ? this.#direction : undefined);
+	}
+
+	get field(): SortingField {
+		return this.#field ?? this.#defaultField;
+	}
+
+	get direction(): SortingDirection {
+		return this.#direction ?? this.#fields[this.#defaultField];
+	}
+}
+
 export class State {
 	db = $state<DatabaseConnectionInfo>();
 	lastDb = $state<DatabaseConnectionInfo>();
@@ -30,6 +68,16 @@ export class State {
 	#surreal = $state<Surreal>();
 
 	filters = $state<FilterState>();
+	sort = $state(
+		new Sorting(
+			{
+				date: 'desc',
+				amount: 'asc',
+				statementDescription: 'asc'
+			},
+			'date'
+		)
+	);
 	transactions = $state<Transactions>();
 
 	get isConnected() {
@@ -103,7 +151,7 @@ export class State {
 		// fetch transactions when the connection or filters change
 		$effect(() => {
 			const db = this.#surreal;
-			const { filters } = this;
+			const { filters, sort } = this;
 			if (!db || !filters) return;
 
 			void (async () => {
@@ -121,7 +169,8 @@ export class State {
 						accounts: filters.accounts
 							.filter((selection) => selection.selected)
 							.map((selection) => selection.value),
-						searchTerm: filters.searchTerm
+						searchTerm: filters.searchTerm,
+						sort
 					},
 					db
 				);
