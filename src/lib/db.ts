@@ -1,4 +1,4 @@
-import type { Surreal } from 'surrealdb';
+import { Gap, PreparedQuery, Surreal } from 'surrealdb';
 
 export interface Transactions {
 	count: number;
@@ -52,24 +52,19 @@ export async function use(
 	return true;
 }
 
-export async function getTransactions(
-	filters: FilterOptions,
-	surreal: Surreal
-): Promise<Transactions> {
-	const [, total, transactions, totalByYear, totalByCategoryId, totalByAccountId] =
-		await surreal.query<
-			[
-				void,
-				number,
-				TransactionRecord[],
-				Array<{ year: number; total: number }>,
-				Array<{ categoryId: string; categoryOrdinal: number; total: number }>,
-				Array<{ accountId: string; total: number }>
-			]
-		>(
-			`
+const getTransactionsQueryBindings = {
+	years: new Gap<number[]>(),
+	months: new Gap<number[]>(),
+	categories: new Gap<Category['id'][]>(),
+	accounts: new Gap<Account['id'][]>(),
+	searchTerm: new Gap<string>(),
+	amounts: new Gap<number[]>()
+} as const;
+
+const getTransactionsQuery = new PreparedQuery(
+	`
 		let $transactions = (
-        SELECT id,
+          SELECT id,
 							 date,
 							 amount,
 							 category.id() as categoryId,
@@ -78,10 +73,10 @@ export async function getTransactions(
 							 description,
 							 statementDescription,
 							 statement.date.year() as year
-          FROM transaction
-         WHERE statement.date.year() IN $years
-           AND statement.date.month() IN $months
-           AND category AND category.id() IN $categories
+            FROM transaction
+           WHERE statement.date.year() IN $years
+             AND statement.date.month() IN $months
+             AND category AND category.id() IN $categories
 					 AND statement.account AND statement.account.id() IN $accounts
 					 AND (
 						  (!$searchTerm AND !$amounts)
@@ -98,16 +93,33 @@ export async function getTransactions(
 		SELECT year, math::sum(amount) as total FROM $transactions GROUP BY year;
 		SELECT categoryId, categoryOrdinal, math::sum(amount) as total FROM $transactions GROUP BY categoryId;
 		SELECT accountId, math::sum(amount) as total FROM $transactions GROUP BY accountId;
-  `,
-			{
-				years: filters.years,
-				months: filters.months,
-				categories: filters.categories.map((category) => category.id),
-				accounts: filters.accounts.map((account) => account.id),
-				searchTerm: filters.searchTerm.toLowerCase(),
-				amounts: amountsToMatchForSearchTerm(filters.searchTerm)
-			}
-		);
+    `,
+	getTransactionsQueryBindings
+);
+
+export async function getTransactions(
+	filters: FilterOptions,
+	surreal: Surreal
+): Promise<Transactions> {
+	const b = getTransactionsQueryBindings;
+	const [, total, transactions, totalByYear, totalByCategoryId, totalByAccountId] =
+		await surreal.query<
+			[
+				void,
+				number,
+				TransactionRecord[],
+				Array<{ year: number; total: number }>,
+				Array<{ categoryId: string; categoryOrdinal: number; total: number }>,
+				Array<{ accountId: string; total: number }>
+			]
+		>(getTransactionsQuery, [
+			b.years.fill(filters.years),
+			b.months.fill(filters.months),
+			b.categories.fill(filters.categories.map((c) => c.id)),
+			b.accounts.fill(filters.accounts.map((c) => c.id)),
+			b.searchTerm.fill(filters.searchTerm),
+			b.amounts.fill(amountsToMatchForSearchTerm(filters.searchTerm))
+		]);
 
 	return {
 		count: transactions.length,
@@ -177,15 +189,18 @@ export interface FilterOptions {
 	searchTerm: string;
 }
 
-export async function getFilterOptions(surreal: Surreal): Promise<FilterOptions> {
-	const [years, months, categories, accounts] = await surreal.query<
-		[number[], number[], Category[], Account[]]
-	>(`
+const getFilterOptionsQuery = new PreparedQuery(
+	`
     (SELECT date.year() as year FROM statement ORDER BY year DESC).year.distinct();
     (SELECT date.month() as month FROM statement ORDER BY month ASC).month.distinct();
     SELECT id.id(), name, emoji, color, ordinal FROM category ORDER BY ordinal ASC;
 		SELECT id.id(), type, name FROM account ORDER BY type ASC, name ASC;
-  `);
+    `
+);
+
+export async function getFilterOptions(surreal: Surreal): Promise<FilterOptions> {
+	const [years, months, categories, accounts] =
+		await surreal.query<[number[], number[], Category[], Account[]]>(getFilterOptionsQuery);
 	return {
 		years,
 		months,
