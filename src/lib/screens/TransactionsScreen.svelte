@@ -20,6 +20,8 @@
 	}
 </script>
 
+<title>Transactions – Summer</title>
+
 <div class="flex h-screen w-screen flex-col gap-4 overflow-hidden p-4">
 	<div class="flex flex-row items-center gap-4">
 		<h1 class="text-2xl font-bold">Transactions</h1>

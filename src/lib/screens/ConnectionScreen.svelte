@@ -42,6 +42,8 @@
 	});
 </script>
 
+<title>Connections – Summer</title>
+
 <div class="flex h-screen w-screen flex-col items-center justify-center gap-4">
 	{#if !isSettingUpNewConnection}
 		{#if s.lastDb}
