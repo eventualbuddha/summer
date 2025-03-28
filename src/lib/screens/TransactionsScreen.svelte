@@ -50,7 +50,11 @@
 				<SortHeader sort={s.sort} />
 				<VList data={transactions} getKey={(transaction) => transaction.id}>
 					{#snippet children(transaction)}
-						<TransactionRow {transaction} />
+						<TransactionRow
+							state={s}
+							{transaction}
+							categories={s.filters?.categories.map(({ value }) => value) ?? []}
+						/>
 					{/snippet}
 				</VList>
 			{/if}

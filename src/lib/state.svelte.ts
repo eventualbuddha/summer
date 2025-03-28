@@ -1,10 +1,11 @@
-import { Surreal } from 'surrealdb';
+import { RecordId, Surreal } from 'surrealdb';
 import {
 	getFilterOptions,
 	getTransactions,
 	use,
 	type Account,
 	type Category,
+	type Transaction,
 	type Transactions
 } from './db';
 import type { Selection } from './types';
@@ -63,7 +64,7 @@ export class Sorting {
 
 export class State {
 	lastDb = $state<DatabaseConnectionInfo>();
-	connectionError = $state<Error>();
+	lastError = $state<Error>();
 	#surreal = $state<Surreal>();
 
 	filters = $state<FilterState>();
@@ -165,5 +166,24 @@ export class State {
 		await surreal.connect(url);
 		await use(surreal, { namespace, database, init: true });
 		this.#surreal = surreal;
+	}
+
+	async setCategory(transaction: Transaction, category: Category) {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+
+		const oldCategory = transaction.category;
+		transaction.category = category;
+		try {
+			await this.#surreal.query(`UPDATE $transaction SET category = $category`, {
+				transaction: new RecordId('transaction', transaction.id),
+				category: new RecordId('category', category.id)
+			});
+		} catch (error) {
+			console.error(error);
+			this.lastError = error as Error;
+			transaction.category = oldCategory;
+		}
 	}
 }

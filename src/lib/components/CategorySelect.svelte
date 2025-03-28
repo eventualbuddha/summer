@@ -31,13 +31,13 @@
 	);
 </script>
 
-{#snippet item(selection: Selection<Category>)}
-	<span class="text-sm">
-		<CategoryPill category={selection.value} />
-	</span>
-{/snippet}
-
 <Select aria-label={ariaLabel} {label}>
-	<MultiSelector bind:selections {item} allToggle />
+	<MultiSelector bind:selections allToggle>
+		{#snippet item(selection: Selection<Category>)}
+			<span class="text-sm">
+				<CategoryPill category={selection.value} />
+			</span>
+		{/snippet}
+	</MultiSelector>
 	<div class="mt-4 text-xs text-gray-400">Tip: alt+click for just one</div>
 </Select>

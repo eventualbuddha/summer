@@ -4,14 +4,19 @@
 	let {
 		root,
 		trigger,
-		portal
-	}: { root: Snippet<[Snippet]>; trigger: Snippet<[boolean]>; portal: Snippet } = $props();
+		portal,
+		open = $bindable(false)
+	}: {
+		root: Snippet<[Snippet]>;
+		trigger: Snippet<[boolean]>;
+		portal: Snippet;
+		open: boolean;
+	} = $props();
 
-	let expanded = $state(false);
 	let self: HTMLElement | null = $state(null);
 
 	$effect(() => {
-		if (expanded) {
+		if (open) {
 			function onclick(e: MouseEvent) {
 				const element = e.target;
 				if (element instanceof HTMLElement) {
@@ -25,7 +30,7 @@
 
 					if (!isInsideSelf) {
 						e.preventDefault();
-						expanded = false;
+						open = false;
 						document.removeEventListener('click', onclick);
 						document.removeEventListener('keydown', onkeydown);
 					}
@@ -35,7 +40,7 @@
 			function onkeydown(e: KeyboardEvent) {
 				if (e.key === 'Escape') {
 					e.preventDefault();
-					expanded = false;
+					open = false;
 				}
 			}
 
@@ -51,11 +56,11 @@
 
 {#snippet rootContents()}
 	<div bind:this={self}>
-		<button onclick={() => (expanded = !expanded)}>
-			{@render trigger(expanded)}
+		<button onclick={() => (open = !open)}>
+			{@render trigger(open)}
 		</button>
 
-		{#if expanded}
+		{#if open}
 			{@render portal()}
 		{/if}
 	</div>
