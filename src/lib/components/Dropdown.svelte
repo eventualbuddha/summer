@@ -10,7 +10,7 @@
 		root: Snippet<[Snippet]>;
 		trigger: Snippet<[boolean]>;
 		portal: Snippet;
-		open: boolean;
+		open?: boolean;
 	} = $props();
 
 	let self: HTMLElement | null = $state(null);
