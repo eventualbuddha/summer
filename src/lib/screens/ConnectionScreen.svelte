@@ -2,7 +2,6 @@
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
 	import type { State } from '$lib/state.svelte';
 	import BigButton from '../components/BigButton.svelte';
-	import Bolt from '../components/icons/Bolt.svelte';
 	import CircleStack from '../components/icons/CircleStack.svelte';
 
 	let { state: s }: { state: State } = $props();
@@ -12,19 +11,15 @@
 	let database = $state('');
 	let isDisplayingError = $state(false);
 
-	function onConnectDatabase(event: Event) {
+	async function onConnectDatabase(event: Event) {
 		event.preventDefault();
 		if (url && namespace && database) {
-			s.db = {
+			await s.connect({
 				url,
 				namespace,
 				database
-			};
+			});
 		}
-	}
-
-	function launchDemo() {
-		alert('Not yet implemented');
 	}
 
 	$effect(() => {
@@ -63,12 +58,6 @@
 		<BigButton title="New Connection" onclick={() => (isSettingUpNewConnection = true)}>
 			{#snippet icon()}
 				<CircleStack />
-			{/snippet}
-		</BigButton>
-
-		<BigButton title="Launch Demo" subtitle="Try it with sample data" onclick={launchDemo}>
-			{#snippet icon()}
-				<Bolt />
 			{/snippet}
 		</BigButton>
 	{:else}

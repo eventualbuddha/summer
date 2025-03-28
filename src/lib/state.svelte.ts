@@ -62,7 +62,6 @@ export class Sorting {
 }
 
 export class State {
-	db = $state<DatabaseConnectionInfo>();
 	lastDb = $state<DatabaseConnectionInfo>();
 	connectionError = $state<Error>();
 	#surreal = $state<Surreal>();
@@ -80,48 +79,19 @@ export class State {
 	);
 	transactions = $state<Transactions>();
 
-	get isConnected() {
-		return !!this.#surreal;
-	}
-
 	constructor() {
 		const lastDb = localStorage.getItem('lastDb');
 		if (lastDb) {
 			this.lastDb = JSON.parse(lastDb);
 		}
 
-		// re-create connection when db info changes
-		$effect(() => {
-			const { db } = this;
-
-			void (async () => {
-				this.#surreal = db
-					? await (async ({ url, namespace, database }: DatabaseConnectionInfo) => {
-							const surreal = new Surreal();
-							await surreal.connect(url);
-							await use(surreal, { namespace, database, init: true });
-
-							// if we've successfully connected, set the lastDb and save it to local storage
-							this.lastDb = db;
-							localStorage.setItem('lastDb', JSON.stringify(db));
-							this.connectionError = undefined;
-
-							return surreal;
-						})(db)
-					: undefined;
-			})().catch((error) => {
-				this.connectionError = error;
-				this.#surreal = undefined;
-			});
-		});
-
 		// re-create filters when the connection changes
 		$effect(() => {
-			const db = this.#surreal;
-			if (!db) return;
+			const surreal = this.#surreal;
+			if (!surreal) return;
 
 			void (async () => {
-				const filters = await getFilterOptions(db);
+				const filters = await getFilterOptions(surreal);
 				this.filters = {
 					years: filters.years.map((year) => ({
 						key: year.toString(),
@@ -150,9 +120,9 @@ export class State {
 
 		// fetch transactions when the connection or filters change
 		$effect(() => {
-			const db = this.#surreal;
+			const surreal = this.#surreal;
 			const { filters, sort } = this;
-			if (!db || !filters) return;
+			if (!surreal || !filters) return;
 
 			void (async () => {
 				this.transactions = await getTransactions(
@@ -172,10 +142,14 @@ export class State {
 						searchTerm: filters.searchTerm,
 						sort
 					},
-					db
+					surreal
 				);
 			})();
 		});
+	}
+
+	get isConnected() {
+		return !!this.#surreal;
 	}
 
 	async connect({
@@ -187,9 +161,9 @@ export class State {
 		namespace: string;
 		database: string;
 	}) {
-		const db = new Surreal();
-		await db.connect(url);
-		await db.use({ namespace, database });
-		this.#surreal = db;
+		const surreal = new Surreal();
+		await surreal.connect(url);
+		await use(surreal, { namespace, database, init: true });
+		this.#surreal = surreal;
 	}
 }
