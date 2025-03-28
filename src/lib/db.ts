@@ -75,6 +75,7 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
 							 statement.account.id() as accountId,
 							 description,
 							 statementDescription,
+							 statement.id() as statementId,
 							 statement.date.year() as year,
 							 type::field($orderByField) as orderField
             FROM transaction
@@ -155,11 +156,24 @@ export async function getTransactions(
 			date: t.date,
 			amount: t.amount,
 			category: options.categories.find((category) => category.id === t.categoryId)!,
-			account: options.accounts.find((account) => account.id === t.accountId)!,
+			statementId: t.statementId,
 			description: t.description,
 			statementDescription: t.statementDescription
 		}))
 	};
+}
+
+export interface File {
+	id: string;
+	name: string;
+	data: Buffer;
+}
+
+export interface Statement {
+	id: string;
+	account: Account;
+	date: Date;
+	file: File;
 }
 
 export interface Transaction {
@@ -167,7 +181,7 @@ export interface Transaction {
 	date: Date;
 	amount: number;
 	category: Category;
-	account: Account;
+	statementId: string;
 	description?: string;
 	statementDescription: string;
 }
@@ -177,7 +191,7 @@ interface TransactionRecord {
 	date: Date;
 	amount: number;
 	categoryId: string;
-	accountId: string;
+	statementId: string;
 	description?: string;
 	statementDescription: string;
 }
@@ -193,6 +207,7 @@ export interface Category {
 	name: string;
 	emoji: string;
 	color: string;
+	ordinal: number;
 }
 
 export interface FilterOptions {

@@ -45,7 +45,7 @@
 			{@const url = new URL(s.lastDb.url)}
 			{@const lastDb = s.lastDb}
 
-			<BigButton title="Last Connection" onclick={() => (s.db = s.lastDb)}>
+			<BigButton title="Last Connection" onclick={() => s.connect(lastDb)}>
 				{#snippet icon()}
 					<CircleStack />
 				{/snippet}
