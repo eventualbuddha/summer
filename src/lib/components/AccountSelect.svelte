@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Account } from '$lib/db';
 	import type { Selection } from '$lib/types';
-	import Dropdown from './Dropdown.svelte';
+	import Select from './Select.svelte';
 	import MultiSelector from './MultiSelector.svelte';
 
 	let {
@@ -34,7 +34,7 @@
 	{selection.value.name}
 {/snippet}
 
-<Dropdown aria-label={ariaLabel} {label}>
+<Select aria-label={ariaLabel} {label}>
 	<MultiSelector bind:selections {item} allToggle />
 	<div class="mt-4 text-xs text-gray-400">Tip: alt+click for just one</div>
-</Dropdown>
+</Select>

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import AccountDropdown from './AccountDropdown.svelte';
-	import CategoryDropdown from './CategoryDropdown.svelte';
-	import MonthDropdown from './MonthDropdown.svelte';
-	import YearDropdown from './YearDropdown.svelte';
+	import AccountSelect from './AccountSelect.svelte';
+	import CategorySelect from './CategorySelect.svelte';
+	import MonthSelect from './MonthSelect.svelte';
+	import YearSelect from './YearSelect.svelte';
 
 	let {
 		yearSelections = $bindable(),
@@ -25,10 +25,10 @@
 
 <div class="flex flex-row items-center gap-1">
 	<span class="font-bold">Filters:</span>
-	<YearDropdown aria-label="Year Filter" bind:selections={yearSelections} />
-	<MonthDropdown aria-label="Month Filter" bind:selections={monthSelections} />
-	<CategoryDropdown aria-label="Category Filter" bind:selections={categorySelections} />
-	<AccountDropdown aria-label="Account Filter" bind:selections={accountSelections} />
+	<YearSelect aria-label="Year Filter" bind:selections={yearSelections} />
+	<MonthSelect aria-label="Month Filter" bind:selections={monthSelections} />
+	<CategorySelect aria-label="Category Filter" bind:selections={categorySelections} />
+	<AccountSelect aria-label="Account Filter" bind:selections={accountSelections} />
 	<input
 		type="text"
 		placeholder="Search"
