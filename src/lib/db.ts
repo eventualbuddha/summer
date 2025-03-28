@@ -67,7 +67,7 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
 	return new PreparedQuery(
 		`
 		let $transactions = (
-          SELECT id,
+          SELECT id.id(),
 							 date,
 							 amount,
 							 category.id() as categoryId,
