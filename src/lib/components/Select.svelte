@@ -1,56 +1,21 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import Dropdown from './Dropdown.svelte';
 
 	let {
 		label,
 		'aria-label': ariaLabel,
 		children
 	}: { label: string; 'aria-label'?: string; children: Snippet } = $props();
-
-	let expanded = $state(false);
-	let self: HTMLElement | null = $state(null);
-
-	$effect(() => {
-		if (expanded) {
-			function onclick(e: MouseEvent) {
-				const element = e.target;
-				if (element instanceof HTMLElement) {
-					let isInsideSelf = false;
-					for (let parent = element.parentElement; parent; parent = parent.parentElement) {
-						if (parent === self) {
-							isInsideSelf = true;
-							break;
-						}
-					}
-
-					if (!isInsideSelf) {
-						e.preventDefault();
-						expanded = false;
-						document.removeEventListener('click', onclick);
-						document.removeEventListener('keydown', onkeydown);
-					}
-				}
-			}
-
-			function onkeydown(e: KeyboardEvent) {
-				if (e.key === 'Escape') {
-					e.preventDefault();
-					expanded = false;
-				}
-			}
-
-			document.addEventListener('click', onclick);
-			document.addEventListener('keydown', onkeydown);
-			return () => {
-				document.removeEventListener('click', onclick);
-				document.removeEventListener('keydown', onkeydown);
-			};
-		}
-	});
 </script>
 
-<div bind:this={self} class="relative inline-block bg-white text-left dark:bg-gray-800">
-	<div>
+<Dropdown>
+	{#snippet root(contents)}
+		<div class="relative inline-block bg-white text-left dark:bg-gray-800">
+			{@render contents()}
+		</div>
+	{/snippet}
+	{#snippet trigger(expanded)}
 		<button
 			type="button"
 			class="inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-1 text-sm font-semibold shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50 dark:ring-gray-600 hover:dark:bg-gray-950"
@@ -58,7 +23,6 @@
 			aria-label={ariaLabel}
 			aria-expanded={expanded}
 			aria-haspopup="true"
-			onclick={() => (expanded = !expanded)}
 		>
 			{label}
 			<svg
@@ -75,9 +39,8 @@
 				/>
 			</svg>
 		</button>
-	</div>
-
-	{#if expanded}
+	{/snippet}
+	{#snippet portal()}
 		<div
 			class="absolute left-0 z-10 mt-2 min-w-45 origin-top-left rounded-md bg-white px-2 pb-2 shadow-lg ring-1 ring-black/5 focus:outline-hidden dark:bg-gray-800 dark:shadow-gray-600 dark:ring-gray-600"
 			role="menu"
@@ -89,5 +52,5 @@
 				{@render children()}
 			</div>
 		</div>
-	{/if}
-</div>
+	{/snippet}
+</Dropdown>
