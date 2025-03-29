@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
-    branches: ["main"]
+    branches: ['main']
 
 jobs:
   build:
@@ -12,6 +12,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Start SurrealDB
+        uses: surrealdb/setup-surreal@v2
+        with:
+          surrealdb_version: latest
+          surrealdb_port: 8000
+          surrealdb_username: root
+          surrealdb_password: root
+          surrealdb_auth: false
+          surrealdb_strict: false
+          surrealdb_log: info
+          surrealdb_additional_args: --allow-all
+          surrealdb_retry_count: 30
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - name: Install Playwright Browsers
