@@ -165,6 +165,16 @@ export class State {
 		const surreal = new Surreal();
 		await surreal.connect(url);
 		await use(surreal, { namespace, database, init: true });
+
+		localStorage.setItem(
+			'lastDb',
+			JSON.stringify({
+				url,
+				namespace,
+				database
+			})
+		);
+
 		this.#surreal = surreal;
 	}
 
