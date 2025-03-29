@@ -1,6 +1,8 @@
-# Summer
+# <img src="static/icon-transparent.png" alt="Summer Logo" width="36"> Summer
 
-Summer is a terrible pun, and also the app I use to track my spending. You probably should not use it.
+Summer is a terrible pun, and also the app I use to track my spending. You probably should not use it. In case you're curious, here's what it looks like:
+
+<img src="static/screenshot.png" alt="Screenshot of Summer app interface with demo data" width="800">
 
 ## Setup
 
