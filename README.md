@@ -1,10 +1,10 @@
-# Summer
+<h1>
+  <img src="static/icon-transparent.png" alt="Summer Logo" width="36"> Summer
+</h1>
 
-<img src="static/icon-transparent.png" alt="Summer Logo" width="100">
+Summer is a terrible pun, and also the app I use to track my spending. You probably should not use it. In case you're curious, here's what it looks like:
 
-Summer is a terrible pun, and also the app I use to track my spending. You probably should not use it.
-
-<img src="static/screenshot.png" alt="Screenshot" width="300">
+<img src="static/screenshot.png" alt="Screenshot" width="800">
 
 ## Setup
 
