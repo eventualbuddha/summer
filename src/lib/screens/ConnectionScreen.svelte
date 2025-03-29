@@ -23,7 +23,7 @@
 	}
 
 	$effect(() => {
-		if (s.connectionError) {
+		if (s.lastError) {
 			isDisplayingError = true;
 			const timeout = setTimeout(() => {
 				isDisplayingError = false;
@@ -98,8 +98,8 @@
 			<button type="submit" class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
 				Connect
 			</button>
-			{#if s.connectionError && isDisplayingError}
-				<ErrorAlert title="Connection Error" body={s.connectionError.message} />
+			{#if s.lastError && isDisplayingError}
+				<ErrorAlert title="Connection Error" body={s.lastError.message} />
 			{/if}
 		</form>
 	{/if}
