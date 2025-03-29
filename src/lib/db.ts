@@ -1,4 +1,5 @@
 import { Gap, PreparedQuery, Surreal } from 'surrealdb';
+import { z } from 'zod';
 import type { Sorting, SortingDirection } from './state.svelte';
 
 export interface Transactions {
@@ -111,30 +112,34 @@ export async function getTransactions(
 	surreal: Surreal
 ): Promise<Transactions> {
 	const b = getTransactionsQueryBindings;
-	const [, total, transactions, totalByYear, totalByCategoryId, totalByAccountId] =
-		await surreal.query<
-			[
-				void,
-				number,
-				TransactionRecord[],
-				Array<{ year: number; total: number }>,
-				Array<{ categoryId: string; categoryOrdinal: number; total: number }>,
-				Array<{ accountId: string; total: number }>
-			]
-		>(
-			options.sort.direction === 'asc'
-				? getTransactionsAscendingQuery
-				: getTransactionsDescendingQuery,
-			[
-				b.years.fill(options.years),
-				b.months.fill(options.months),
-				b.categories.fill(options.categories.map((c) => c.id)),
-				b.accounts.fill(options.accounts.map((c) => c.id)),
-				b.searchTerm.fill(options.searchTerm),
-				b.amounts.fill(amountsToMatchForSearchTerm(options.searchTerm)),
-				b.orderByField.fill(options.sort.field)
-			]
-		);
+	console.time('getTransactions: fetch from surrealdb');
+	const data = await surreal.query(
+		options.sort.direction === 'asc'
+			? getTransactionsAscendingQuery
+			: getTransactionsDescendingQuery,
+		[
+			b.years.fill(options.years),
+			b.months.fill(options.months),
+			b.categories.fill(options.categories.map((c) => c.id)),
+			b.accounts.fill(options.accounts.map((c) => c.id)),
+			b.searchTerm.fill(options.searchTerm),
+			b.amounts.fill(amountsToMatchForSearchTerm(options.searchTerm)),
+			b.orderByField.fill(options.sort.field)
+		]
+	);
+	console.timeEnd('getTransactions: fetch from surrealdb');
+	console.time('getTransactions: parse response');
+	const [, total, transactions, totalByYear, totalByCategoryId, totalByAccountId] = z
+		.tuple([
+			z.any(),
+			z.number(),
+			z.array(TransactionRecordSchema),
+			z.array(z.object({ year: z.number(), total: z.number() })),
+			z.array(z.object({ categoryId: z.string(), categoryOrdinal: z.number(), total: z.number() })),
+			z.array(z.object({ accountId: z.string(), total: z.number() }))
+		])
+		.parse(data);
+	console.timeEnd('getTransactions: parse response');
 
 	return {
 		count: transactions.length,
@@ -166,8 +171,14 @@ export async function getTransactions(
 export interface File {
 	id: string;
 	name: string;
-	data: Buffer;
+	data: ArrayBuffer;
 }
+
+export const FileSchema = z.object({
+	id: z.string().nonempty(),
+	name: z.string().nonempty(),
+	data: z.instanceof(ArrayBuffer)
+});
 
 export interface Statement {
 	id: string;
@@ -175,6 +186,13 @@ export interface Statement {
 	date: Date;
 	file: File;
 }
+
+export const StatementSchema = z.object({
+	id: z.string().nonempty(),
+	account: z.string().nonempty(),
+	date: z.instanceof(Date),
+	file: z.string().nonempty()
+});
 
 export interface Transaction {
 	id: string;
@@ -186,21 +204,27 @@ export interface Transaction {
 	statementDescription: string;
 }
 
-interface TransactionRecord {
-	id: string;
-	date: Date;
-	amount: number;
-	categoryId: string;
-	statementId: string;
-	description?: string;
-	statementDescription: string;
-}
+export const TransactionRecordSchema = z.object({
+	id: z.string().nonempty(),
+	date: z.instanceof(Date),
+	amount: z.number(),
+	categoryId: z.string(),
+	statementId: z.string(),
+	description: z.string().optional(),
+	statementDescription: z.string()
+});
 
 export interface Account {
 	id: string;
 	type: string;
 	name: string;
 }
+
+export const AccountSchema = z.object({
+	id: z.string().nonempty(),
+	type: z.string().nonempty(),
+	name: z.string().nonempty()
+});
 
 export interface Category {
 	id: string;
@@ -210,6 +234,14 @@ export interface Category {
 	ordinal: number;
 }
 
+export const CategorySchema = z.object({
+	id: z.string().nonempty(),
+	name: z.string().nonempty(),
+	emoji: z.string(),
+	color: z.string(),
+	ordinal: z.number().min(0)
+});
+
 export interface FilterOptions {
 	years: number[];
 	months: number[];
@@ -217,6 +249,14 @@ export interface FilterOptions {
 	accounts: Account[];
 	searchTerm: string;
 }
+
+export const FilterOptionsSchema = z.object({
+	years: z.array(z.number().min(0)),
+	months: z.array(z.number().min(0)),
+	categories: z.array(CategorySchema),
+	accounts: z.array(AccountSchema),
+	searchTerm: z.string()
+});
 
 export interface GetTransactionsOptions extends FilterOptions {
 	sort: Sorting;
@@ -232,13 +272,12 @@ const getFilterOptionsQuery = new PreparedQuery(
 );
 
 export async function getFilterOptions(surreal: Surreal): Promise<FilterOptions> {
-	const [years, months, categories, accounts] =
-		await surreal.query<[number[], number[], Category[], Account[]]>(getFilterOptionsQuery);
-	return {
+	const [years, months, categories, accounts] = await surreal.query(getFilterOptionsQuery);
+	return FilterOptionsSchema.parse({
 		years,
 		months,
 		categories,
 		accounts,
 		searchTerm: ''
-	};
+	});
 }
