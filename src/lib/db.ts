@@ -184,7 +184,7 @@ export interface Statement {
 	id: string;
 	account: Account;
 	date: Date;
-	file: File;
+	file: string;
 }
 
 export const StatementSchema = z.object({
