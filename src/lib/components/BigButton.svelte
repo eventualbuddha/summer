@@ -21,19 +21,17 @@
 	<span>
 		<Icon />
 	</span>
-	<div>
+	<div class="overflow-hidden overflow-ellipsis">
 		<h3 class="flex flex-row items-center gap-2 text-xl whitespace-nowrap">
-			<span class="overflow-hidden overflow-ellipsis">
-				{#if typeof title === 'string'}
-					{title}
-				{:else}
-					{@render title()}
-				{/if}
-			</span>
+			{#if typeof title === 'string'}
+				{title}
+			{:else}
+				{@render title()}
+			{/if}
 		</h3>
 
 		{#if subtitle}
-			<span class="overflow-hidden overflow-ellipsis whitespace-nowrap">
+			<span class="whitespace-nowrap">
 				{#if typeof subtitle === 'string'}
 					{subtitle}
 				{:else}
