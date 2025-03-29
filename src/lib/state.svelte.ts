@@ -10,6 +10,8 @@ import {
 } from './db';
 import type { Selection } from './types';
 
+const LOCAL_STORAGE_KEY = 'lastDb';
+
 export interface DatabaseConnectionInfo {
 	url: string;
 	namespace: string;
@@ -81,7 +83,7 @@ export class State {
 	transactions = $state<Transactions>();
 
 	constructor() {
-		const lastDb = localStorage.getItem('lastDb');
+		const lastDb = localStorage.getItem(LOCAL_STORAGE_KEY);
 		if (lastDb) {
 			this.lastDb = JSON.parse(lastDb);
 		}
@@ -167,7 +169,7 @@ export class State {
 		await use(surreal, { namespace, database, init: true });
 
 		localStorage.setItem(
-			'lastDb',
+			LOCAL_STORAGE_KEY,
 			JSON.stringify({
 				url,
 				namespace,
