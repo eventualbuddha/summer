@@ -26,6 +26,7 @@ jobs:
           surrealdb_retry_count: 30
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+      - run: bun run lint && bun tsc --build
       - name: Install Playwright Browsers
         run: bun playwright install --with-deps
       - run: bun run test
