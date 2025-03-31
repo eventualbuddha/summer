@@ -8,6 +8,9 @@ export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), Icons({ compiler: 'svelte' })],
 
 	test: {
+		coverage: {
+			exclude: ['build', '.svelte-kit', '**/*.d.ts', '**/*.config.{ts,js}', 'e2e']
+		},
 		workspace: [
 			{
 				extends: './vite.config.ts',
