@@ -1,0 +1,4168 @@
+[
+	{
+		"pageNumber": 1,
+		"texts": [
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Statement Period",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 65.79200000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "WEASLEY, GINEVRA",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 79.49700000000003,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "October 31, 2020 to",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 92.25999999999993,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Account Number",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 64.44800000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "POTTER, HARRY",
+				"x": 201.6,
+				"y": 542.65,
+				"width": 98.00100000000002,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "829475629059",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 66.72000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "November 30, 2020",
+				"x": 622.8,
+				"y": 531.85,
+				"width": 90.59999999999997,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "GINEVRA MOLLY WEASLEY AND HARRY JAMES",
+				"x": 201.6,
+				"y": 531.6,
+				"width": 218.98800000000006,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Customer Service Information",
+				"x": 432,
+				"y": 485.8,
+				"width": 171.372,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 432,
+				"y": 465.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Call Toll Free:",
+				"x": 432,
+				"y": 465.85,
+				"width": 62.22999999999995,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 494.2300000000001,
+				"y": 465.85,
+				"width": 5.919999999999902,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "(888) 403-9000",
+				"x": 500.15,
+				"y": 465.85,
+				"width": 68.36999999999999,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Visit the Schwab Website:",
+				"x": 432,
+				"y": 451.45,
+				"width": 115.8299999999999,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 547.8299999999998,
+				"y": 451.45,
+				"width": 6.070000000000164,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "www.schwab.com",
+				"x": 553.9,
+				"y": 451.45,
+				"width": 86.14,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Send Written Inquiries to:",
+				"x": 432,
+				"y": 429.85,
+				"width": 121.67999999999992,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Send Deposits to:",
+				"x": 612,
+				"y": 429.85,
+				"width": 85.00999999999995,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 432,
+				"y": 418.1,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Charles Schwab Bank",
+				"x": 432,
+				"y": 418.1,
+				"width": 98.36999999999996,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 612,
+				"y": 417.4,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Charles Schwab Bank",
+				"x": 612,
+				"y": 417.4,
+				"width": 98.36999999999996,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "P.O. Box 982605",
+				"x": 432,
+				"y": 406.8,
+				"width": 76.15999999999995,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "P.O. Box 982605",
+				"x": 612,
+				"y": 406.1,
+				"width": 76.15999999999995,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "EI Paso, TX 79998-2605",
+				"x": 432,
+				"y": 395.55,
+				"width": 109.50999999999993,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "EI Paso, TX 79998-2605",
+				"x": 612,
+				"y": 394.8,
+				"width": 109.50999999999993,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 432,
+				"y": 269.8,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Schwab Bank News",
+				"x": 432,
+				"y": 269.8,
+				"width": 112.70400000000001,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 432,
+				"y": 252,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Receive alerts for transactions on your Charles Schwab Bank Visa",
+				"x": 432,
+				"y": 252,
+				"width": 284.1029999999997,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Platinum Debit Card (\"Debit Card\") and lock your Debit Card anytime.",
+				"x": 432,
+				"y": 241,
+				"width": 296.58599999999973,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 432,
+				"y": 226.8,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "You can monitor your debit card transactions and lock your card by using",
+				"x": 432,
+				"y": 226.8,
+				"width": 290.62799999999964,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Schwab Bank's Debit Card Transaction Alerts and the Card Lock/Unlock",
+				"x": 432,
+				"y": 216.5,
+				"width": 287.82899999999967,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Feature. Here's how:",
+				"x": 432,
+				"y": 206.2,
+				"width": 83.25000000000003,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 432,
+				"y": 195.39999999999998,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Transaction Alerts:",
+				"x": 432,
+				"y": 195.39999999999998,
+				"width": 82.01700000000002,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 514.0170000000002,
+				"y": 195.39999999999998,
+				"width": 3.7349999999997863,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "You can enroll in email, SMS Text, and Mobile App (Push)",
+				"x": 517.752,
+				"y": 195.39999999999998,
+				"width": 232.0919999999995,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "notification alerts to monitor activities on your Debit Cards like these:",
+				"x": 432,
+				"y": 184.8,
+				"width": 272.6009999999996,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 450,
+				"y": 174.5,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": "•",
+				"x": 450,
+				"y": 174.5,
+				"width": 4.140000000000001,
+				"height": 9,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": " ",
+				"x": 454.14,
+				"y": 174.5,
+				"width": 13.860000000000014,
+				"height": 0,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": "Purchases over a dollar threshold (Minimum $1)",
+				"x": 468,
+				"y": 174.5,
+				"width": 191.55599999999976,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 450,
+				"y": 164.2,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": "•",
+				"x": 450,
+				"y": 164.2,
+				"width": 4.140000000000001,
+				"height": 9,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": " ",
+				"x": 454.14,
+				"y": 164.2,
+				"width": 13.860000000000014,
+				"height": 0,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": "ATM withdrawals over a dollar threshold (Minimum $1)",
+				"x": 468,
+				"y": 164.2,
+				"width": 217.54799999999975,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 450,
+				"y": 153.85000000000002,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": "•",
+				"x": 450,
+				"y": 153.85000000000002,
+				"width": 4.140000000000001,
+				"height": 9,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": " ",
+				"x": 454.14,
+				"y": 153.85000000000002,
+				"width": 13.860000000000014,
+				"height": 0,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": "International Purchases",
+				"x": 468,
+				"y": 153.85000000000002,
+				"width": 94.54499999999996,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 450,
+				"y": 143.55,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": "•",
+				"x": 450,
+				"y": 143.55,
+				"width": 4.140000000000001,
+				"height": 9,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": " ",
+				"x": 454.14,
+				"y": 143.55,
+				"width": 13.860000000000014,
+				"height": 0,
+				"fontName": "g_d1_f3"
+			},
+			{
+				"str": "Online, phone, mail purchases",
+				"x": 468,
+				"y": 143.55,
+				"width": 121.55399999999996,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Set up these transaction alerts and stay aware of debit card activity on your",
+				"x": 432,
+				"y": 133.2,
+				"width": 299.6459999999996,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "account. To learn more, visit: Schwab.com and click on Service/Alerts (",
+				"x": 432,
+				"y": 122.39999999999998,
+				"width": 283.0949999999997,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 715.0950000000001,
+				"y": 122.39999999999998,
+				"width": 4.404999999999859,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "See page",
+				"x": 719.5,
+				"y": 122.39999999999998,
+				"width": 39.518999999999956,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "2 for more details.)",
+				"x": 432,
+				"y": 111.39999999999998,
+				"width": 80.52300000000002,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Thank you for choosing Schwab Bank.",
+				"x": 432,
+				"y": 100.35000000000002,
+				"width": 165.5369999999999,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 432,
+				"y": 89.79999999999995,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Your business is important to us, and we look forward to serving your banking",
+				"x": 432,
+				"y": 89.79999999999995,
+				"width": 309.1319999999996,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "needs. If you have any questions or need assistance, please call a Schwab Bank",
+				"x": 432,
+				"y": 79.45000000000005,
+				"width": 322.1729999999996,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Customer Service Representative at 1-888-403-9000. We're available 7:00 a.m.",
+				"x": 432,
+				"y": 69.14999999999998,
+				"width": 317.3489999999999,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "to 11:00 p.m. ET, Monday through Friday, and 9:00 a.m. to 10:30 p.m. ET on",
+				"x": 432,
+				"y": 58.799999999999955,
+				"width": 305.66699999999963,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 250.8,
+				"y": 57.60000000000002,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "30/11-NC92P402-984284-SNL-94835757395 834751 *",
+				"x": 250.8,
+				"y": 57.60000000000002,
+				"width": 148.75200000000007,
+				"height": 6,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 264.45,
+				"y": 57.60000000000002,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "WEASLEY, GINEVRA",
+				"x": 264.45,
+				"y": 57.60000000000002,
+				"width": 86.67999999999998,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "POTTER, HARRY",
+				"x": 275.75,
+				"y": 57.60000000000002,
+				"width": 107.23999999999998,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "GINEVRA MOLLY WEASLEY AND HARRY JAMES",
+				"x": 287,
+				"y": 57.60000000000002,
+				"width": 238.3699999999998,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "THE BURROW",
+				"x": 298.3,
+				"y": 57.60000000000002,
+				"width": 65.57999999999996,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "OTTERY ST CATCHPOLE",
+				"x": 309.6,
+				"y": 57.60000000000002,
+				"width": 120.60999999999996,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "weekends. (0912-6109)",
+				"x": 432,
+				"y": 48.5,
+				"width": 94.54500000000003,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Page 1 of 6",
+				"x": 702.7,
+				"y": 40.10000000000002,
+				"width": 52.79999999999992,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "© 2020 Charles Schwab Bank. All rights reserved. Member FDIC.",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 203.16799999999992,
+				"height": 7,
+				"fontName": "g_d1_f2"
+			}
+		]
+	},
+	{
+		"pageNumber": 2,
+		"texts": [
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Statement Period",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 65.79200000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "WEASLEY, GINEVRA",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 79.49700000000003,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "October 31, 2020 to",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 92.25999999999993,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Account Number",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 64.44800000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "POTTER, HARRY",
+				"x": 201.6,
+				"y": 542.65,
+				"width": 98.00100000000002,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "829475629059",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 66.72000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "November 30, 2020",
+				"x": 622.8,
+				"y": 531.85,
+				"width": 90.59999999999997,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "GINEVRA MOLLY WEASLEY AND HARRY JAMES",
+				"x": 201.6,
+				"y": 531.6,
+				"width": 218.98800000000006,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Schwab Bank News",
+				"x": 39.6,
+				"y": 476.2,
+				"width": 112.70399999999998,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 152.30399999999997,
+				"y": 476.2,
+				"width": 2.9460000000000264,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "(continued)",
+				"x": 155.25,
+				"y": 476.2,
+				"width": 50.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": "",
+				"x": 40.55,
+				"y": 455.8,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Receive alerts for transactions on your Charles Schwab Bank Visa Platinum",
+				"x": 40.55,
+				"y": 455.8,
+				"width": 324.6120000000001,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Debit Card (\"Debit Card\") and lock your Debit Card",
+				"x": 36,
+				"y": 444.75,
+				"width": 217.062,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Schwab Bank Debit Card Lock/Unlock:",
+				"x": 36,
+				"y": 423.4,
+				"width": 165.53699999999998,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 201.53699999999995,
+				"y": 423.4,
+				"width": 4.21500000000006,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Misplaced your card? With the card",
+				"x": 205.752,
+				"y": 423.4,
+				"width": 141.04800000000006,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "lock/unlock feature, you can block transactions on your Debit Card right from your",
+				"x": 36,
+				"y": 412.8,
+				"width": 324.6300000000002,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "computer or mobile device. Found your Debit Card? Simply unlock it and start using it",
+				"x": 36,
+				"y": 402.5,
+				"width": 340.1280000000002,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "again. Go to Schwab.com and click on Service/Account Servicing/Lock/Unlock Card.",
+				"x": 36,
+				"y": 392.2,
+				"width": 336.1320000000002,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Requires a wireless signal or mobile connection. Access to Electronic Services may",
+				"x": 36,
+				"y": 371.55,
+				"width": 332.6040000000001,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "be limited or unavailable during periods of peak demand, market volatility, systems",
+				"x": 36,
+				"y": 361.2,
+				"width": 328.62600000000015,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "upgrade, maintenance, or for other reasons. Functionality may vary by operating",
+				"x": 36,
+				"y": 350.9,
+				"width": 319.6440000000002,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "system and/or device.",
+				"x": 36,
+				"y": 340.6,
+				"width": 87.534,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 36,
+				"y": 319.45,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Brokerage",
+				"x": 36,
+				"y": 319.45,
+				"width": 44.514,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 80.51400000000001,
+				"y": 319.45,
+				"width": 2.8379999999999797,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Products: Not FDIC-Insured · No Bank Guarantee · May Lose Value",
+				"x": 83.35199999999999,
+				"y": 319.45,
+				"width": 270.11700000000013,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "(0419-9X5U)",
+				"x": 36,
+				"y": 298.6,
+				"width": 51.516000000000005,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 702.7,
+				"y": 40.10000000000002,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Page 2 of 6",
+				"x": 702.7,
+				"y": 40.10000000000002,
+				"width": 52.79999999999992,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "© 2020 Charles Schwab Bank. All rights reserved. Member FDIC.",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 203.16799999999992,
+				"height": 7,
+				"fontName": "g_d1_f2"
+			}
+		]
+	},
+	{
+		"pageNumber": 3,
+		"texts": [
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Statement Period",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 65.79200000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "WEASLEY, GINEVRA",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 79.49700000000003,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "October 31, 2020 to",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 92.25999999999993,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Account Number",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 64.44800000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "POTTER, HARRY",
+				"x": 201.6,
+				"y": 542.65,
+				"width": 98.00100000000002,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "829475629059",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 66.72000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "November 30, 2020",
+				"x": 622.8,
+				"y": 531.85,
+				"width": 90.59999999999997,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "GINEVRA MOLLY WEASLEY AND HARRY JAMES",
+				"x": 201.6,
+				"y": 531.6,
+				"width": 218.98800000000006,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "®",
+				"x": 205.4,
+				"y": 479.3,
+				"width": 6.633000000000001,
+				"height": 9,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 212.03300000000002,
+				"y": 479.3,
+				"width": 356.01699999999994,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 475,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "High Yield Investor Checking",
+				"x": 39.6,
+				"y": 475,
+				"width": 166.04399999999998,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Account Number: 829475629059",
+				"x": 568.05,
+				"y": 473.55,
+				"width": 184.06799999999998,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 455.05,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Summary",
+				"x": 39.6,
+				"y": 455.05,
+				"width": 45.57000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 85.17,
+				"y": 455.05,
+				"width": 629.2800000000001,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Amount",
+				"x": 714.45,
+				"y": 455.05,
+				"width": 37.769999999999996,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 438.75,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Beginning Balance",
+				"x": 39.6,
+				"y": 438.75,
+				"width": 83.38000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 122.98000000000002,
+				"y": 438.75,
+				"width": 585.02,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,782.95",
+				"x": 708,
+				"y": 438.75,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Deposits and Credits",
+				"x": 39.6,
+				"y": 420.25,
+				"width": 92.81000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 132.41000000000003,
+				"y": 420.25,
+				"width": 575.5899999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "1,804.24",
+				"x": 708,
+				"y": 420.25,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Interest Paid",
+				"x": 39.6,
+				"y": 401.8,
+				"width": 56.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 95.74000000000001,
+				"y": 401.8,
+				"width": 637.21,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "0.37",
+				"x": 732.95,
+				"y": 401.8,
+				"width": 19.46,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Withdrawals and Other Debits",
+				"x": 39.6,
+				"y": 383.3,
+				"width": 132.82000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 172.42000000000002,
+				"y": 383.3,
+				"width": 528.8299999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "(3,993.48)",
+				"x": 701.25,
+				"y": 383.3,
+				"width": 51.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Other Fees",
+				"x": 39.6,
+				"y": 364.8,
+				"width": 50.02,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 89.62000000000002,
+				"y": 364.8,
+				"width": 643.33,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "0.00",
+				"x": 732.95,
+				"y": 364.8,
+				"width": 19.46,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 346.1,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Ending Balance",
+				"x": 39.6,
+				"y": 346.1,
+				"width": 75.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 114.62000000000002,
+				"y": 346.1,
+				"width": 587.83,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "$1,594.08",
+				"x": 702.45,
+				"y": 346.1,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Nonsufficient Funds Fees",
+				"x": 39.6,
+				"y": 308.2,
+				"width": 122.24000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 161.84000000000003,
+				"y": 308.2,
+				"width": 391.11,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "This Period",
+				"x": 552.95,
+				"y": 308.2,
+				"width": 54.45999999999998,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 607.4099999999999,
+				"y": 308.2,
+				"width": 86.3900000000001,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Year to Date",
+				"x": 693.8,
+				"y": 308.2,
+				"width": 58.349999999999945,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 291.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Total Overdraft Fees",
+				"x": 39.6,
+				"y": 291.85,
+				"width": 91.7,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 131.3,
+				"y": 291.85,
+				"width": 452.09999999999997,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$0.00",
+				"x": 583.4,
+				"y": 291.85,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 608.4199999999997,
+				"y": 291.85,
+				"width": 118.98000000000025,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$0.00",
+				"x": 727.4,
+				"y": 291.85,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Total Returned Item Fees",
+				"x": 39.6,
+				"y": 273.4,
+				"width": 113.38,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 152.98000000000002,
+				"y": 273.4,
+				"width": 430.41999999999996,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$0.00",
+				"x": 583.4,
+				"y": 273.4,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 608.4199999999997,
+				"y": 273.4,
+				"width": 118.98000000000025,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$0.00",
+				"x": 727.4,
+				"y": 273.4,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 233.8,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Activity",
+				"x": 39.6,
+				"y": 233.8,
+				"width": 36.120000000000005,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Date",
+				"x": 39.6,
+				"y": 217.2,
+				"width": 21.67,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Posted",
+				"x": 39.6,
+				"y": 205.2,
+				"width": 33.34,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 72.94,
+				"y": 205.2,
+				"width": 8.659999999999997,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Description",
+				"x": 81.6,
+				"y": 205.2,
+				"width": 55.010000000000005,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 136.61,
+				"y": 205.2,
+				"width": 324.89,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Debits",
+				"x": 461.5,
+				"y": 205.2,
+				"width": 30.560000000000002,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 492.06,
+				"y": 205.2,
+				"width": 96.14000000000004,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Credits",
+				"x": 588.2,
+				"y": 205.2,
+				"width": 34.45,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 622.65,
+				"y": 205.2,
+				"width": 91.35000000000002,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Balance",
+				"x": 714,
+				"y": 205.2,
+				"width": 38.35000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 188.89999999999998,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "10/31",
+				"x": 39.6,
+				"y": 188.89999999999998,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 188.89999999999998,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Beginning Balance",
+				"x": 81.6,
+				"y": 188.89999999999998,
+				"width": 83.38,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 164.98,
+				"y": 188.89999999999998,
+				"width": 542.78,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,782.95",
+				"x": 707.76,
+				"y": 188.89999999999998,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/02",
+				"x": 39.6,
+				"y": 170.39999999999998,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 170.39999999999998,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Electronic Withdrawal",
+				"x": 81.6,
+				"y": 170.39999999999998,
+				"width": 96.13000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$284.50",
+				"x": 456.13,
+				"y": 170.39999999999998,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.27,
+				"y": 170.39999999999998,
+				"width": 215.49,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,498.45",
+				"x": 707.76,
+				"y": 170.39999999999998,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "MUGGLECARD GGANK PAYMENT 103120",
+				"x": 81.6,
+				"y": 159.14999999999998,
+				"width": 192.29000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/02",
+				"x": 39.6,
+				"y": 140.64999999999998,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 140.64999999999998,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Check",
+				"x": 81.6,
+				"y": 140.64999999999998,
+				"width": 28.340000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$75.00",
+				"x": 456.13,
+				"y": 140.64999999999998,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.27,
+				"y": 140.64999999999998,
+				"width": 215.49,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,423.45",
+				"x": 707.76,
+				"y": 140.64999999999998,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Check Paid #995070",
+				"x": 81.6,
+				"y": 129.39999999999998,
+				"width": 92.83000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/02",
+				"x": 39.6,
+				"y": 110.89999999999998,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 110.89999999999998,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Visa Debit Card Purchase",
+				"x": 81.6,
+				"y": 110.89999999999998,
+				"width": 115.04,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$108.22",
+				"x": 456.13,
+				"y": 110.89999999999998,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.27,
+				"y": 110.89999999999998,
+				"width": 215.49,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,315.23",
+				"x": 707.76,
+				"y": 110.89999999999998,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "CASH APP*RON WEASL8472364892, CA #000000822048472",
+				"x": 81.6,
+				"y": 99.60000000000002,
+				"width": 276.28000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/02",
+				"x": 39.6,
+				"y": 81.14999999999998,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 81.14999999999998,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Money Transfer",
+				"x": 81.6,
+				"y": 81.14999999999998,
+				"width": 70.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$1,500.00",
+				"x": 577.78,
+				"y": 81.14999999999998,
+				"width": 45.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 622.8199999999995,
+				"y": 81.14999999999998,
+				"width": 79.44000000000051,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$4,815.23",
+				"x": 702.26,
+				"y": 81.14999999999998,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Transfer from High Yield Checking -5125",
+				"x": 81.6,
+				"y": 69.85000000000002,
+				"width": 181.17000000000004,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Page 3 of 6",
+				"x": 702.7,
+				"y": 40.10000000000002,
+				"width": 52.79999999999992,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "© 2020 Charles Schwab Bank. All rights reserved. Member FDIC.",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 203.16799999999992,
+				"height": 7,
+				"fontName": "g_d1_f2"
+			}
+		]
+	},
+	{
+		"pageNumber": 4,
+		"texts": [
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Statement Period",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 65.79200000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "WEASLEY, GINEVRA",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 79.49700000000003,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "October 31, 2020 to",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 92.25999999999993,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Account Number",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 64.44800000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "POTTER, HARRY",
+				"x": 201.6,
+				"y": 542.65,
+				"width": 98.00100000000002,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "829475629059",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 66.72000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "November 30, 2020",
+				"x": 622.8,
+				"y": 531.85,
+				"width": 90.59999999999997,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "GINEVRA MOLLY WEASLEY AND HARRY JAMES",
+				"x": 201.6,
+				"y": 531.6,
+				"width": 218.98800000000006,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 476.2,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "High Yield Investor Checking",
+				"x": 39.6,
+				"y": 476.2,
+				"width": 166.04399999999998,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 205.64399999999998,
+				"y": 476.2,
+				"width": 3.1560000000000343,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "(continued)",
+				"x": 208.8,
+				"y": 476.2,
+				"width": 50.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": " ",
+				"x": 258.82000000000005,
+				"y": 476.2,
+				"width": 309.2299999999999,
+				"height": 0,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": "Account Number: 829475629059",
+				"x": 568.05,
+				"y": 476.2,
+				"width": 184.06799999999998,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 457.95,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Activity",
+				"x": 39.6,
+				"y": 457.95,
+				"width": 36.120000000000005,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 75.72,
+				"y": 457.95,
+				"width": 2.730000000000004,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "(continued)",
+				"x": 78.45,
+				"y": 457.95,
+				"width": 50.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 441.4,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Date",
+				"x": 39.6,
+				"y": 441.4,
+				"width": 21.67,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Posted",
+				"x": 39.6,
+				"y": 429.4,
+				"width": 33.34,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 72.94,
+				"y": 429.4,
+				"width": 8.659999999999997,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Description",
+				"x": 81.6,
+				"y": 429.4,
+				"width": 55.010000000000005,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 136.61,
+				"y": 429.4,
+				"width": 324.89,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Debits",
+				"x": 461.5,
+				"y": 429.4,
+				"width": 30.560000000000002,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 492.06,
+				"y": 429.4,
+				"width": 96.14000000000004,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Credits",
+				"x": 588.2,
+				"y": 429.4,
+				"width": 34.45,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 622.65,
+				"y": 429.4,
+				"width": 91.35000000000002,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Balance",
+				"x": 714,
+				"y": 429.4,
+				"width": 38.35000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 413.05,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/03",
+				"x": 39.6,
+				"y": 413.05,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 413.05,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Electronic Withdrawal",
+				"x": 81.6,
+				"y": 413.05,
+				"width": 96.13000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$1,111.11",
+				"x": 447.72999999999996,
+				"y": 413.05,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.2099999999999,
+				"y": 413.05,
+				"width": 210.05000000000007,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,704.12",
+				"x": 707.26,
+				"y": 413.05,
+				"width": 45.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "QUICKEN LOANS MTG PYMTS 832047",
+				"x": 81.6,
+				"y": 401.8,
+				"width": 180.61000000000004,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/09",
+				"x": 39.6,
+				"y": 383.3,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 383.3,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Check",
+				"x": 81.6,
+				"y": 383.3,
+				"width": 28.340000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$80.00",
+				"x": 461.63,
+				"y": 383.3,
+				"width": 30.580000000000005,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.21,
+				"y": 383.3,
+				"width": 210.05,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,624.12",
+				"x": 707.26,
+				"y": 383.3,
+				"width": 45.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Check Paid #995071",
+				"x": 81.6,
+				"y": 372,
+				"width": 92.83000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/13",
+				"x": 39.6,
+				"y": 353.55,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 353.55,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Electronic Deposit",
+				"x": 81.6,
+				"y": 353.55,
+				"width": 80.58000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$304.24",
+				"x": 586.68,
+				"y": 353.55,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 622.8199999999996,
+				"y": 353.55,
+				"width": 79.4400000000004,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,928.36",
+				"x": 707.26,
+				"y": 353.55,
+				"width": 45.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Square Inc * Cash App 949257",
+				"x": 81.6,
+				"y": 342.25,
+				"width": 137.86000000000004,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/17",
+				"x": 39.6,
+				"y": 323.8,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 323.8,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Electronic Withdrawal",
+				"x": 81.6,
+				"y": 323.8,
+				"width": 96.13000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$494.01",
+				"x": 457.72999999999996,
+				"y": 323.8,
+				"width": 34.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.2099999999999,
+				"y": 323.8,
+				"width": 215.55000000000007,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,434.35",
+				"x": 707.76,
+				"y": 323.8,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "AMEX EPAYMENT ACH PMT 842780",
+				"x": 81.6,
+				"y": 312.5,
+				"width": 170.05000000000004,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/18",
+				"x": 39.6,
+				"y": 294,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 294,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Electronic Withdrawal",
+				"x": 81.6,
+				"y": 294,
+				"width": 96.13000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$20.11",
+				"x": 461.63,
+				"y": 294,
+				"width": 30.580000000000005,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.21,
+				"y": 294,
+				"width": 215.55,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,414.24",
+				"x": 707.76,
+				"y": 294,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "FLOURISH AND BLOTTS 203",
+				"x": 81.6,
+				"y": 282.75,
+				"width": 146.15,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/18",
+				"x": 39.6,
+				"y": 264.25,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 264.25,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Check",
+				"x": 81.6,
+				"y": 264.25,
+				"width": 28.340000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$12.00",
+				"x": 461.63,
+				"y": 264.25,
+				"width": 30.580000000000005,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.21,
+				"y": 264.25,
+				"width": 215.55,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,402.24",
+				"x": 707.76,
+				"y": 264.25,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Check Paid #1202",
+				"x": 81.6,
+				"y": 253,
+				"width": 81.71000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/19",
+				"x": 39.6,
+				"y": 234.5,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 234.5,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Electronic Withdrawal",
+				"x": 81.6,
+				"y": 234.5,
+				"width": 96.13000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$233.55",
+				"x": 456.13,
+				"y": 234.5,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.27,
+				"y": 234.5,
+				"width": 215.49,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,168.69",
+				"x": 707.76,
+				"y": 234.5,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "LEAKY CAULDRON BB 84397",
+				"x": 81.6,
+				"y": 223.2,
+				"width": 130.04000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/21",
+				"x": 39.6,
+				"y": 204.75,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 204.75,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Deposit Mobile Banking",
+				"x": 81.6,
+				"y": 204.75,
+				"width": 105.04000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 186.64,
+				"y": 204.75,
+				"width": 400.03999999999996,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$100.00",
+				"x": 456.13,
+				"y": 204.75,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 622.8199999999996,
+				"y": 204.75,
+				"width": 84.9400000000004,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,268.69",
+				"x": 707.76,
+				"y": 204.75,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/23",
+				"x": 39.6,
+				"y": 186.25,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 186.25,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Electronic Withdrawal",
+				"x": 81.6,
+				"y": 186.25,
+				"width": 96.13000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$90.00",
+				"x": 461.63,
+				"y": 186.25,
+				"width": 30.580000000000005,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.21,
+				"y": 186.25,
+				"width": 215.55,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,178.69",
+				"x": 707.76,
+				"y": 186.25,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "VENMO PAYMENT",
+				"x": 81.6,
+				"y": 175,
+				"width": 87.79,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/23",
+				"x": 39.6,
+				"y": 156.5,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 156.5,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Electronic Withdrawal",
+				"x": 81.6,
+				"y": 156.5,
+				"width": 96.13000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$150.00",
+				"x": 456.13,
+				"y": 156.5,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.27,
+				"y": 156.5,
+				"width": 215.49,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,028.69",
+				"x": 707.76,
+				"y": 156.5,
+				"width": 44.48000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "VENMO PAYMENT",
+				"x": 81.6,
+				"y": 145.2,
+				"width": 87.79,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/25",
+				"x": 39.6,
+				"y": 126.75,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 126.75,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Deposit Mobile Banking",
+				"x": 81.6,
+				"y": 126.75,
+				"width": 105.04000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 186.64,
+				"y": 126.75,
+				"width": 386.14,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$1,000.00",
+				"x": 452.23,
+				"y": 126.75,
+				"width": 40.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 622.8199999999995,
+				"y": 126.75,
+				"width": 79.44000000000051,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$4,028.69",
+				"x": 702.26,
+				"y": 126.75,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/27",
+				"x": 39.6,
+				"y": 108.25,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 108.25,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Visa Debit Card Purchase",
+				"x": 81.6,
+				"y": 108.25,
+				"width": 115.04,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$1.00",
+				"x": 467.17999999999995,
+				"y": 108.25,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.19999999999993,
+				"y": 108.25,
+				"width": 210.06000000000006,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$4,027.69",
+				"x": 702.26,
+				"y": 108.25,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "CITY OF LONDON PARKING GARAGE #000000190070441",
+				"x": 81.6,
+				"y": 97,
+				"width": 261.23,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Page 4 of 6",
+				"x": 702.7,
+				"y": 40.10000000000002,
+				"width": 52.79999999999992,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "© 2020 Charles Schwab Bank. All rights reserved. Member FDIC.",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 203.16799999999992,
+				"height": 7,
+				"fontName": "g_d1_f2"
+			}
+		]
+	},
+	{
+		"pageNumber": 5,
+		"texts": [
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Statement Period",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 65.79200000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "WEASLEY, GINEVRA",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 79.49700000000003,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "October 31, 2020 to",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 92.25999999999993,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Account Number",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 64.44800000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "POTTER, HARRY",
+				"x": 201.6,
+				"y": 542.65,
+				"width": 98.00100000000002,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "829475629059",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 66.72000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "November 30, 2020",
+				"x": 622.8,
+				"y": 531.85,
+				"width": 90.59999999999997,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "GINEVRA MOLLY WEASLEY AND HARRY JAMES",
+				"x": 201.6,
+				"y": 531.6,
+				"width": 218.98800000000006,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 476.2,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "High Yield Investor Checking",
+				"x": 39.6,
+				"y": 476.2,
+				"width": 166.04399999999998,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 205.64399999999998,
+				"y": 476.2,
+				"width": 3.1560000000000343,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "(continued)",
+				"x": 208.8,
+				"y": 476.2,
+				"width": 50.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": " ",
+				"x": 258.82000000000005,
+				"y": 476.2,
+				"width": 309.2299999999999,
+				"height": 0,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": "Account Number: 829475629059",
+				"x": 568.05,
+				"y": 476.2,
+				"width": 184.06799999999998,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 457.95,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Activity",
+				"x": 39.6,
+				"y": 457.95,
+				"width": 36.120000000000005,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 75.72,
+				"y": 457.95,
+				"width": 2.730000000000004,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "(continued)",
+				"x": 78.45,
+				"y": 457.95,
+				"width": 50.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 441.4,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Date",
+				"x": 39.6,
+				"y": 441.4,
+				"width": 21.67,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Posted",
+				"x": 39.6,
+				"y": 429.4,
+				"width": 33.34,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 72.94,
+				"y": 429.4,
+				"width": 8.659999999999997,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Description",
+				"x": 81.6,
+				"y": 429.4,
+				"width": 55.010000000000005,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 136.61,
+				"y": 429.4,
+				"width": 324.89,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Debits",
+				"x": 461.5,
+				"y": 429.4,
+				"width": 30.560000000000002,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 492.06,
+				"y": 429.4,
+				"width": 96.14000000000004,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Credits",
+				"x": 588.2,
+				"y": 429.4,
+				"width": 34.45,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 622.65,
+				"y": 429.4,
+				"width": 91.35000000000002,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Balance",
+				"x": 714,
+				"y": 429.4,
+				"width": 38.35000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 413.05,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/30",
+				"x": 39.6,
+				"y": 413.05,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 413.05,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Electronic Withdrawal",
+				"x": 81.6,
+				"y": 413.05,
+				"width": 96.13000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$233.98",
+				"x": 456.13,
+				"y": 413.05,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 492.27,
+				"y": 413.05,
+				"width": 209.99,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,793.71",
+				"x": 707.26,
+				"y": 413.05,
+				"width": 45.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "HOGWARTS SCHOOL WWPAY 201127",
+				"x": 81.6,
+				"y": 401.8,
+				"width": 185.59999999999997,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/30",
+				"x": 39.6,
+				"y": 383.3,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 383.3,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Interest Paid",
+				"x": 81.6,
+				"y": 383.3,
+				"width": 56.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 137.74,
+				"y": 383.3,
+				"width": 459.99,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$0.37",
+				"x": 597.73,
+				"y": 383.3,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 622.7499999999998,
+				"y": 383.3,
+				"width": 79.51000000000022,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$3,794.08",
+				"x": 702.26,
+				"y": 383.3,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 364.6,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "11/30",
+				"x": 39.6,
+				"y": 364.6,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 64.62,
+				"y": 364.6,
+				"width": 16.97999999999999,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Ending Balance",
+				"x": 81.6,
+				"y": 364.6,
+				"width": 75.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 156.62,
+				"y": 364.6,
+				"width": 545.76,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "$27,023.93",
+				"x": 702.38,
+				"y": 364.6,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Checks Paid",
+				"x": 39.6,
+				"y": 325.2,
+				"width": 59.47000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Number",
+				"x": 44.6,
+				"y": 308.65,
+				"width": 37.78,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 82.38,
+				"y": 308.65,
+				"width": 77.22,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Date Paid",
+				"x": 159.6,
+				"y": 308.65,
+				"width": 45.57000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 205.17000000000002,
+				"y": 308.65,
+				"width": 149.27999999999997,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Amount",
+				"x": 354.45,
+				"y": 308.65,
+				"width": 37.769999999999996,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 392.22,
+				"y": 308.65,
+				"width": 12.379999999999995,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Number",
+				"x": 404.6,
+				"y": 308.65,
+				"width": 37.78,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 442.38000000000005,
+				"y": 308.65,
+				"width": 77.21999999999997,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Date Paid",
+				"x": 519.6,
+				"y": 308.65,
+				"width": 45.56999999999998,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 565.1699999999998,
+				"y": 308.65,
+				"width": 149.2800000000002,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Amount",
+				"x": 714.45,
+				"y": 308.65,
+				"width": 37.769999999999996,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 45.160000000000004,
+				"y": 292.35,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "1202",
+				"x": 45.160000000000004,
+				"y": 292.35,
+				"width": 22.240000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 67.4,
+				"y": 292.35,
+				"width": 92.19999999999999,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/18/2020",
+				"x": 159.6,
+				"y": 292.35,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 209.64000000000001,
+				"y": 292.35,
+				"width": 152.13999999999996,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$12.00",
+				"x": 361.78,
+				"y": 292.35,
+				"width": 30.580000000000005,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 392.35999999999996,
+				"y": 292.35,
+				"width": 12.800000000000011,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "995071",
+				"x": 405.15999999999997,
+				"y": 292.35,
+				"width": 33.36000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 438.52,
+				"y": 292.35,
+				"width": 81.08000000000004,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/09/2020",
+				"x": 519.6,
+				"y": 292.35,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 569.6399999999995,
+				"y": 292.35,
+				"width": 152.14000000000044,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$80.00",
+				"x": 721.78,
+				"y": 292.35,
+				"width": 30.580000000000005,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "* 995070",
+				"x": 39.6,
+				"y": 272.65,
+				"width": 40.03000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 79.63000000000001,
+				"y": 272.65,
+				"width": 79.96999999999998,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/02/2020",
+				"x": 159.6,
+				"y": 272.65,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 209.64000000000001,
+				"y": 272.65,
+				"width": 146.63999999999996,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$875.00",
+				"x": 356.28,
+				"y": 272.65,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "* Indicates gap in checks",
+				"x": 39.6,
+				"y": 253,
+				"width": 110.61000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 150.21000000000004,
+				"y": 253,
+				"width": 249.39,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Total of 3 Check(s) for",
+				"x": 399.6,
+				"y": 252.75,
+				"width": 105.5699999999999,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 505.1699999999999,
+				"y": 252.75,
+				"width": 211.11000000000007,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "$967.00",
+				"x": 716.28,
+				"y": 252.75,
+				"width": 36.14000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Interest Earned",
+				"x": 39.6,
+				"y": 219.14999999999998,
+				"width": 72.80000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "10/31/2020 to",
+				"x": 159.6,
+				"y": 199.2,
+				"width": 61.16000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 192.5,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Interest Earned",
+				"x": 39.6,
+				"y": 192.5,
+				"width": 68.37,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 107.97000000000001,
+				"y": 192.5,
+				"width": 51.62999999999998,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Annual Percentage Yield Earned",
+				"x": 416.15,
+				"y": 192.5,
+				"width": 145.07999999999996,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 561.2299999999997,
+				"y": 192.5,
+				"width": 162.82000000000028,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "31 day(s)",
+				"x": 350.6,
+				"y": 192.25,
+				"width": 41.67999999999997,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 392.28,
+				"y": 192.25,
+				"width": 23.870000000000005,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "0.03%",
+				"x": 724.05,
+				"y": 192.25,
+				"width": 28.35,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/30/2020",
+				"x": 159.6,
+				"y": 187.95,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 209.64000000000001,
+				"y": 187.95,
+				"width": 140.96,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Average Daily Balance",
+				"x": 39.6,
+				"y": 166.8,
+				"width": 101.15000000000002,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 140.75,
+				"y": 166.8,
+				"width": 201.63,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$4,392.11",
+				"x": 342.38,
+				"y": 166.8,
+				"width": 45.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 392.41999999999996,
+				"y": 166.8,
+				"width": 50.58000000000004,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Interest Earned this Period",
+				"x": 443,
+				"y": 166.8,
+				"width": 118.38999999999993,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 561.3899999999996,
+				"y": 166.8,
+				"width": 165.94000000000028,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$0.37",
+				"x": 727.3299999999999,
+				"y": 166.8,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Interest Rate as of",
+				"x": 39.6,
+				"y": 147.14999999999998,
+				"width": 81.71000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 121.31000000000002,
+				"y": 147.14999999999998,
+				"width": 38.28999999999998,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "11/30/2020",
+				"x": 159.6,
+				"y": 147.14999999999998,
+				"width": 50.04000000000001,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 209.64000000000001,
+				"y": 147.14999999999998,
+				"width": 154.41,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "0.03%",
+				"x": 364.05,
+				"y": 147.14999999999998,
+				"width": 28.35,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 392.4,
+				"y": 147.14999999999998,
+				"width": 53.75,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Interest Paid Year to Date",
+				"x": 446.15,
+				"y": 147.14999999999998,
+				"width": 115.0599999999999,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": " ",
+				"x": 561.2099999999996,
+				"y": 147.14999999999998,
+				"width": 166.12000000000035,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "$5.85",
+				"x": 727.3299999999999,
+				"y": 147.14999999999998,
+				"width": 25.020000000000003,
+				"height": 10,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 102,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "IMPORTANT DEPOSIT ACCOUNT INFORMATION",
+				"x": 39.6,
+				"y": 102,
+				"width": 232.22000000000006,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 85.45000000000005,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Electronic Transfers:",
+				"x": 39.6,
+				"y": 85.45000000000005,
+				"width": 79.938,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 119.53800000000003,
+				"y": 85.45000000000005,
+				"width": 3.061999999999969,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "If you have arranged to have direct deposits made to your account at least once every 60 days from the same person or company, you can call us at the telephone number on the",
+				"x": 122.6,
+				"y": 85.45000000000005,
+				"width": 629.2159999999994,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "first page of this statement to find out whether or not the deposit has been made.",
+				"x": 39.6,
+				"y": 76.10000000000002,
+				"width": 285.4959999999999,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Page 5 of 6",
+				"x": 702.7,
+				"y": 40.10000000000002,
+				"width": 52.79999999999992,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "© 2020 Charles Schwab Bank. All rights reserved. Member FDIC.",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 203.16799999999992,
+				"height": 7,
+				"fontName": "g_d1_f2"
+			}
+		]
+	},
+	{
+		"pageNumber": 6,
+		"texts": [
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Statement Period",
+				"x": 622.8,
+				"y": 555.15,
+				"width": 65.79200000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "WEASLEY, GINEVRA",
+				"x": 201.6,
+				"y": 553.7,
+				"width": 79.49700000000003,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "October 31, 2020 to",
+				"x": 622.8,
+				"y": 543.85,
+				"width": 92.25999999999993,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Account Number",
+				"x": 482.4,
+				"y": 543.15,
+				"width": 64.44800000000004,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "POTTER, HARRY",
+				"x": 201.6,
+				"y": 542.65,
+				"width": 98.00100000000002,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "829475629059",
+				"x": 482.4,
+				"y": 531.85,
+				"width": 66.72000000000001,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "November 30, 2020",
+				"x": 622.8,
+				"y": 531.85,
+				"width": 90.59999999999997,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "GINEVRA MOLLY WEASLEY AND HARRY JAMES",
+				"x": 201.6,
+				"y": 531.6,
+				"width": 218.98800000000006,
+				"height": 9,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 476.2,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "High Yield Investor Checking",
+				"x": 39.6,
+				"y": 476.2,
+				"width": 166.04399999999998,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 205.64399999999998,
+				"y": 476.2,
+				"width": 2.53600000000003,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "(continued)",
+				"x": 208.18,
+				"y": 476.2,
+				"width": 50.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": " ",
+				"x": 258.20000000000005,
+				"y": 476.2,
+				"width": 306.5,
+				"height": 0,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": "Account Number: 829475629059",
+				"x": 564.7,
+				"y": 476.2,
+				"width": 187.404,
+				"height": 12,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 456.75,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "IMPORTANT DEPOSIT ACCOUNT INFORMATION",
+				"x": 39.6,
+				"y": 456.75,
+				"width": 232.22000000000006,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 271.82000000000005,
+				"y": 456.75,
+				"width": 5.579999999999927,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "(continued)",
+				"x": 277.4,
+				"y": 456.75,
+				"width": 50.02000000000001,
+				"height": 10,
+				"fontName": "g_d1_f4"
+			},
+			{
+				"str": "",
+				"x": 39.6,
+				"y": 440.4,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "In Case of Errors or Questions About Your Electronic Fund Transfers:",
+				"x": 39.6,
+				"y": 440.4,
+				"width": 265.832,
+				"height": 8,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": " ",
+				"x": 305.43199999999985,
+				"y": 440.4,
+				"width": 3.918000000000177,
+				"height": 0,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "Telephone us or write us at the phone number or the address shown on the first page of this statement as soon as you can, if",
+				"x": 309.35,
+				"y": 440.4,
+				"width": 442.4560000000002,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "you think your statement or receipt is wrong or if you need more information about a transfer on the statement or receipt. We must hear from you no later than 60 days after we sent you the FIRST",
+				"x": 39.6,
+				"y": 430.35,
+				"width": 691.8719999999995,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "statement on which the error or problem appeared.",
+				"x": 39.6,
+				"y": 421.2,
+				"width": 180.08000000000004,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "1. Tell us your name and account number (if any).",
+				"x": 39.6,
+				"y": 410.65,
+				"width": 178.744,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "2. Describe the error or transfer you are unsure about. Explain as clearly as you can why you believe there is an error or why you need more information.",
+				"x": 39.6,
+				"y": 399.85,
+				"width": 544.6719999999993,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "3. Tell us the dollar amount of the suspected error.",
+				"x": 39.6,
+				"y": 389.05,
+				"width": 180.97600000000003,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "We will investigate your complaint and correct any error promptly. If we take more than 10 business days to do this, we will credit your account for the amount you think is in error, so that you will have",
+				"x": 39.6,
+				"y": 378.25,
+				"width": 705.1679999999992,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "the use of the money during the time it takes us to complete our investigation.",
+				"x": 39.6,
+				"y": 368.9,
+				"width": 274.35999999999996,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "If you are a debtor in bankruptcy or you discharged your personal liability for your loan in bankruptcy, we are providing this statement to you for informational and compliance purposes only and this",
+				"x": 39.6,
+				"y": 355.45,
+				"width": 693.199999999999,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "statement is not an attempt to collect a debt against you. If you have filed a Chapter 13 bankruptcy and your bankruptcy plan requires you to send your regular monthly loan payments to the Trustee,",
+				"x": 39.6,
+				"y": 346.1,
+				"width": 698.1359999999992,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "you should pay the Trustee instead of us and contact your attorney or Trustee if you have questions. If you want to stop receiving or having access to your statements, write to us.",
+				"x": 39.6,
+				"y": 336.75,
+				"width": 629.6479999999995,
+				"height": 8,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "Page 6 of 6",
+				"x": 702.7,
+				"y": 40.10000000000002,
+				"width": 52.79999999999992,
+				"height": 10,
+				"fontName": "g_d1_f1"
+			},
+			{
+				"str": "",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 0,
+				"height": 0,
+				"fontName": "g_d1_f2"
+			},
+			{
+				"str": "© 2020 Charles Schwab Bank. All rights reserved. Member FDIC.",
+				"x": 108,
+				"y": 29.549999999999955,
+				"width": 203.16799999999992,
+				"height": 7,
+				"fontName": "g_d1_f2"
+			}
+		]
+	}
+]
