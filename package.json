@@ -29,6 +29,7 @@
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/svelte": "^5.2.4",
 		"@types/bun": "^1.2.5",
+		"@types/pdfjs-dist": "2.7.5",
 		"@vitest/coverage-v8": "3.0.8",
 		"eslint": "^9.18.0",
 		"eslint-config-prettier": "^10.0.1",
@@ -48,6 +49,9 @@
 		"vitest": "^3.0.0"
 	},
 	"dependencies": {
+		"@badrap/result": "^0.2.13",
+		"@nfnitloop/better-iterators": "npm:@jsr/nfnitloop__better-iterators",
+		"pdfjs-dist": "2.3.200",
 		"surrealdb": "^1.2.1",
 		"virtua": "^0.40.3",
 		"zod": "^3.24.2"
