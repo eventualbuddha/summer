@@ -5,6 +5,7 @@ StatementSummary {
   "account": "829475629059",
   "accountName": "High Yield Investor Checking",
   "beginningBalance": 378295,
+  "closingDate": "2020-11-30T00:00:00.000+00:00",
   "depositsAndCredits": 180424,
   "endingBalance": 159408,
   "interestPaid": 37,
@@ -21,104 +22,129 @@ StatementSummary {
 
 exports[`checking account transactions 1`] = `
 [
-  StatementMetadata {
+  StatementSummary {
     "account": "829475629059",
     "accountName": "High Yield Investor Checking",
+    "beginningBalance": 378295,
+    "closingDate": "2020-11-30T00:00:00.000+00:00",
+    "depositsAndCredits": 180424,
+    "endingBalance": 159408,
+    "interestPaid": 37,
+    "otherFees": 0,
     "period": Interval {
       "e": "2020-11-30T00:00:00.000+00:00",
       "invalid": null,
       "isLuxonInterval": true,
       "s": "2020-10-31T00:00:00.000+00:00",
     },
+    "withdrawalsAndDebits": -399348,
   },
   ImportedTransaction {
     "amount": -28450,
     "date": "2020-11-02T00:00:00.000+00:00",
+    "pageNumber": 3,
     "statementDescription": "Electronic Withdrawal MUGGLECARD GGANK PAYMENT 103120",
   },
   ImportedTransaction {
     "amount": -7500,
     "date": "2020-11-02T00:00:00.000+00:00",
+    "pageNumber": 3,
     "statementDescription": "Check Check Paid #995070",
   },
   ImportedTransaction {
     "amount": -10822,
     "date": "2020-11-02T00:00:00.000+00:00",
+    "pageNumber": 3,
     "statementDescription": "Visa Debit Card Purchase CASH APP*RON WEASL8472364892, CA #000000822048472",
   },
   ImportedTransaction {
     "amount": 150000,
     "date": "2020-11-02T00:00:00.000+00:00",
+    "pageNumber": 3,
     "statementDescription": "Money Transfer Transfer from High Yield Checking -5125",
   },
   ImportedTransaction {
     "amount": -111111,
     "date": "2020-11-03T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Electronic Withdrawal QUICKEN LOANS MTG PYMTS 832047",
   },
   ImportedTransaction {
     "amount": -8000,
     "date": "2020-11-09T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Check Check Paid #995071",
   },
   ImportedTransaction {
     "amount": 30424,
     "date": "2020-11-13T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Electronic Deposit Square Inc * Cash App 949257",
   },
   ImportedTransaction {
     "amount": -49401,
     "date": "2020-11-17T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Electronic Withdrawal AMEX EPAYMENT ACH PMT 842780",
   },
   ImportedTransaction {
     "amount": -2011,
     "date": "2020-11-18T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Electronic Withdrawal FLOURISH AND BLOTTS 203",
   },
   ImportedTransaction {
     "amount": -1200,
     "date": "2020-11-18T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Check Check Paid #1202",
   },
   ImportedTransaction {
     "amount": -23355,
     "date": "2020-11-19T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Electronic Withdrawal LEAKY CAULDRON BB 84397",
   },
   ImportedTransaction {
     "amount": -10000,
     "date": "2020-11-21T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Deposit Mobile Banking",
   },
   ImportedTransaction {
     "amount": -9000,
     "date": "2020-11-23T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Electronic Withdrawal VENMO PAYMENT",
   },
   ImportedTransaction {
     "amount": -15000,
     "date": "2020-11-23T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Electronic Withdrawal VENMO PAYMENT",
   },
   ImportedTransaction {
     "amount": -100000,
     "date": "2020-11-25T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Deposit Mobile Banking",
   },
   ImportedTransaction {
     "amount": -100,
     "date": "2020-11-27T00:00:00.000+00:00",
+    "pageNumber": 4,
     "statementDescription": "Visa Debit Card Purchase CITY OF LONDON PARKING GARAGE #000000190070441",
   },
   ImportedTransaction {
     "amount": -23398,
     "date": "2020-11-30T00:00:00.000+00:00",
+    "pageNumber": 5,
     "statementDescription": "Electronic Withdrawal HOGWARTS SCHOOL WWPAY 201127",
   },
   ImportedTransaction {
     "amount": 37,
     "date": "2020-11-30T00:00:00.000+00:00",
+    "pageNumber": 5,
     "statementDescription": "Interest Paid",
   },
 ]
