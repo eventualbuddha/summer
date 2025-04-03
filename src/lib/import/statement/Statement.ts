@@ -1,6 +1,7 @@
 import { getDocument, type PDFPageProxy } from 'pdfjs-dist';
-import { Page, PageText } from './page';
+import { Page, PageSchema, PageText } from './page';
 import { lazy, range } from '@nfnitloop/better-iterators';
+import { z } from 'zod';
 
 /**
  * A parsed PDF statement.
@@ -31,6 +32,8 @@ export class Statement {
 		);
 	}
 }
+
+export const StatementSchema = z.array(PageSchema).transform((pages) => new Statement(pages));
 
 async function* getAllPageText(page: PDFPageProxy): AsyncGenerator<PageText> {
 	const textContent = await page.getTextContent();

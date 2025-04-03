@@ -1,0 +1,25 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`checking account summary 1`] = `
+t {
+  "isErr": false,
+  "isOk": true,
+  "value": StatementSummary {
+    "account": "9-39401",
+    "accountHolder": "GINEVRA M WEASLEY",
+    "accountName": undefined,
+    "availableCash": 300000,
+    "availableCredit": 1544432,
+    "cashAdvanceLimit": 300000,
+    "closingDate": "2025-02-21T00:00:00.000+00:00",
+    "creditLimit": 2390000,
+    "fees": 35000,
+    "interestCharged": 0,
+    "minimumPaymentDue": 6711,
+    "newBalance": 111111,
+    "newCharges": 382083,
+    "paymentsAndCredits": -610845,
+    "previousBalance": 610845,
+  },
+}
+`;

@@ -95,10 +95,8 @@ function getStatementPeriod(page: Page): Interval {
 	}
 }
 
-export class StatementSummary {
+export class StatementSummary extends StatementMetadata {
 	period: Interval;
-	account: string;
-	accountName: string;
 	beginningBalance: number;
 	depositsAndCredits: number;
 	interestPaid: number;
@@ -107,7 +105,7 @@ export class StatementSummary {
 	endingBalance: number;
 
 	constructor(
-		period: Interval,
+		period: Interval<true>,
 		account: string,
 		accountName: string,
 		beginningBalance: number,
@@ -117,9 +115,8 @@ export class StatementSummary {
 		otherFees: number,
 		endingBalance: number
 	) {
+		super(period.end, account, accountName);
 		this.period = period;
-		this.account = account;
-		this.accountName = accountName;
 		this.beginningBalance = beginningBalance;
 		this.depositsAndCredits = depositsAndCredits;
 		this.interestPaid = interestPaid;
@@ -183,54 +180,47 @@ export function parseStatementSummary(
 		return Result.err(new ParseStatementSummaryError(page.pageNumber, '"Amount" label not found'));
 	}
 
-	const leftColumnLabelStrings = new Map([
-		['beginningBalance', 'Beginning Balance'],
-		['depositsAndCredits', 'Deposits and Credits'],
-		['interestPaid', 'Interest Paid'],
-		['withdrawalsAndDebits', 'Withdrawals and Other Debits'],
-		['otherFees', 'Other Fees'],
-		['endingBalance', 'Ending Balance']
-	] as const);
+	const beginningBalanceLabel = summaryLabel.findDown('Beginning Balance', {
+		alignment: 'left',
+		maxGap: 20
+	});
+	const entries = beginningBalanceLabel?.findTable(
+		[
+			'Beginning Balance',
+			'Deposits and Credits',
+			'Interest Paid',
+			'Withdrawals and Other Debits',
+			'Other Fees',
+			'Ending Balance'
+		],
+		[/.+/, /.+/, /.+/, /.+/, /.+/, /.+/],
+		{ labelAlignment: 'left', valueAlignment: 'right', maxGap: 20 }
+	);
 
-	let previousLeft = summaryLabel;
-	let previousRight = amountLabel;
+	if (!entries) {
+		return Result.err(new ParseStatementSummaryError(page.pageNumber, 'Summary table not found'));
+	}
 
-	for (const [key, labelString] of leftColumnLabelStrings) {
-		const label = previousLeft.findDown(labelString, {
-			alignment: 'left',
-			maxGap: 20
-		});
-		const value = previousRight.findDown(/.*/, {
-			alignment: 'right',
-			maxGap: 20
-		});
+	for (const [key, [, valueText]] of [
+		['beginningBalance', entries[0]],
+		['depositsAndCredits', entries[1]],
+		['interestPaid', entries[2]],
+		['withdrawalsAndDebits', entries[3]],
+		['otherFees', entries[4]],
+		['endingBalance', entries[5]]
+	] as const) {
+		const parseResult = parseAmount(valueText.text.str);
 
-		if (!label) {
-			return Result.err(
-				new ParseStatementSummaryError(page.pageNumber, `"${labelString}" label not found`)
-			);
-		}
-
-		if (!value) {
-			return Result.err(
-				new ParseStatementSummaryError(page.pageNumber, `"${labelString}" value not found`)
-			);
-		}
-
-		const parseAmountResult = parseAmount(value.text.str);
-
-		if (parseAmountResult.isErr) {
+		if (parseResult.isErr) {
 			return Result.err(
 				new ParseStatementSummaryError(
 					page.pageNumber,
-					`"${labelString}" value is invalid: ${parseAmountResult.error.message}`
+					`Failed to parse ${key}: ${parseResult.error.message}`
 				)
 			);
 		}
 
-		summary[key] = parseAmountResult.value;
-		previousLeft = label;
-		previousRight = value;
+		summary[key] = parseResult.value;
 	}
 
 	if (!summary.period || !summary.period.isValid) {
@@ -577,10 +567,10 @@ class ParseStatementSummaryHandler {
 
 	/**
 	 * Parses the current page for the statement summary. If found, yields the
-	 * `StatementMetadata` and updates the `summary` property to the more
+	 * `StatementSummary` and updates the `summary` property to the more
 	 * comprehensive summary. Yields errors if the statement summary unparsable.
 	 */
-	*parsePage(page: Page): Generator<Result<StatementMetadata, ParseStatementSummaryError>> {
+	*parsePage(page: Page): Generator<Result<StatementSummary, ParseStatementSummaryError>> {
 		if (this.#summary) {
 			return;
 		}
@@ -590,13 +580,7 @@ class ParseStatementSummaryHandler {
 			yield Result.err(parseSummaryResult.error);
 		} else {
 			this.#summary = parseSummaryResult.value;
-			yield Result.ok(
-				new StatementMetadata(
-					this.#summary.period,
-					this.#summary.account,
-					this.#summary.accountName
-				)
-			);
+			yield Result.ok(this.#summary);
 		}
 	}
 
@@ -648,7 +632,8 @@ class ParseActivityHandler {
 				new ImportedTransaction(
 					entry.date,
 					entry.debit ? -entry.debit : entry.credit!,
-					entry.description ? `${entry.type} ${entry.description}` : entry.type
+					entry.description ? `${entry.type} ${entry.description}` : entry.type,
+					page.pageNumber
 				)
 			);
 
@@ -685,7 +670,7 @@ class ParseActivityHandler {
  */
 export async function* parseStatement(
 	statement: Statement
-): AsyncGenerator<Result<ImportedTransaction | StatementMetadata, ImportStatementError>> {
+): AsyncGenerator<Result<ImportedTransaction | StatementSummary, ImportStatementError>> {
 	const periodHandler = new ParseStatementIntervalHandler();
 	const summaryHandler = new ParseStatementSummaryHandler();
 	const activityHandler = new ParseActivityHandler();

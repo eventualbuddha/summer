@@ -1,7 +1,7 @@
 import { Result } from '@badrap/result';
 import { lazy } from '@nfnitloop/better-iterators';
 import { expect, test } from 'vitest';
-import * as fixtures from '../../../../test/fixtures';
+import * as fixtures from '../../../../tests/fixtures';
 import { parseStatement, InvalidStatementSummaryError, parseStatementSummary } from './schwab';
 
 test('checking account summary', async () => {

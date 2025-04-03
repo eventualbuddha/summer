@@ -9,6 +9,9 @@ test('parseAmount success', () => {
 	expect(parseAmount('$9,123.45')).toEqual(Result.ok(912345));
 	expect(parseAmount('($9,123.45)')).toEqual(Result.ok(-912345));
 	expect(parseAmount(' (  $9,123.45 )   ')).toEqual(Result.ok(-912345));
+	expect(parseAmount('-$9,123.45')).toEqual(Result.ok(-912345));
+	expect(parseAmount(' -  $9,123.45    ')).toEqual(Result.ok(-912345));
+	expect(parseAmount('+$123.45')).toEqual(Result.ok(12345));
 });
 
 test('parseAmount failure', () => {
@@ -32,5 +35,8 @@ test('parseAmount failure', () => {
 	);
 	expect(parseAmount(' ( 0 ')).toEqual(
 		Result.err(new ParseMoneyError('Money has mismatched parentheses:  ( 0 '))
+	);
+	expect(parseAmount('-($123.45)')).toEqual(
+		Result.err(new ParseMoneyError('Money cannot have both a sign and parentheses: -($123.45)'))
 	);
 });
