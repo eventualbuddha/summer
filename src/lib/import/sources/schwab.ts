@@ -2,6 +2,14 @@ import { Result } from '@badrap/result';
 import { DateTime, Interval } from 'luxon';
 import { ImportedTransaction } from '../ImportedTransaction';
 import { StatementMetadata } from '../StatementMetadata';
+import { AccumulationParser } from '../parse/AccumulationParser';
+import { OnceParser } from '../parse/OnceParser';
+import {
+	InvalidDateError,
+	MissingHeaderError,
+	MissingTableCellError,
+	ParseStatementSummaryError
+} from '../parse/errors';
 import { parseAmount, ParseMoneyError } from '../parse/money';
 import type { Statement } from '../statement/Statement';
 import type { PageTextLocation } from '../statement/navigation';
@@ -123,15 +131,6 @@ export class StatementSummary extends StatementMetadata {
 		this.withdrawalsAndDebits = withdrawalsAndDebits;
 		this.otherFees = otherFees;
 		this.endingBalance = endingBalance;
-	}
-}
-
-export class ParseStatementSummaryError extends Error {
-	readonly pageNumber: number;
-
-	constructor(pageNumber: number, message: string) {
-		super(`${message} on page ${pageNumber}`);
-		this.pageNumber = pageNumber;
 	}
 }
 
@@ -291,41 +290,6 @@ export interface ActivityEntry {
 	debit?: number;
 	credit?: number;
 	balance: number;
-}
-
-export class MissingHeaderError extends Error {
-	readonly pageNumber: number;
-	readonly header: string;
-
-	constructor(pageNumber: number, header: string) {
-		super(`Header '${header}' not found on page ${pageNumber}`);
-		this.pageNumber = pageNumber;
-		this.header = header;
-	}
-}
-
-export class MissingTableCellError extends Error {
-	readonly page: number;
-	readonly row: number;
-	readonly column: string;
-
-	constructor(page: number, row: number, column: string) {
-		super(`Column '${column}' not found in row ${row} of page ${page}`);
-		this.page = page;
-		this.row = row;
-		this.column = column;
-	}
-}
-
-export class InvalidDateError extends Error {
-	readonly date: string;
-	readonly dateTime: DateTime<false>;
-
-	constructor(date: string, dateTime: DateTime<false>) {
-		super(`Invalid date '${date}'`);
-		this.date = date;
-		this.dateTime = dateTime;
-	}
 }
 
 export class InvalidMoneyAmountError extends Error {
@@ -494,7 +458,6 @@ export class InvalidTransactionError extends Error {
 
 	constructor(message: string, activityEntry: ActivityEntry) {
 		super(message);
-		this.name = 'InvalidTransactionError';
 		this.activityEntry = activityEntry;
 	}
 }
@@ -538,128 +501,82 @@ export class InvalidStatementSummaryError extends Error {
 	}
 }
 
-class ParseStatementIntervalHandler {
-	#statementInterval?: Interval<true>;
-
-	*parsePage(page: Page): Generator<Result<never, ImportStatementError>> {
-		const period = getStatementPeriod(page);
-		if (!period.isValid) {
-			yield Result.err(new InvalidStatementIntervalError(period));
-		}
-
-		this.#statementInterval ??= period;
-		if (!this.#statementInterval.equals(period)) {
-			yield Result.err(new InconsistentStatementIntervalError(this.#statementInterval, period));
-		}
-	}
-
-	get statementInterval(): Interval<true> | undefined {
-		return this.#statementInterval;
-	}
-}
-
-/**
- * Parser for the statement summary containing the beginning balance,
- * credits and debits, and ending balance.
- */
-class ParseStatementSummaryHandler {
-	#summary?: StatementSummary;
-
-	/**
-	 * Parses the current page for the statement summary. If found, yields the
-	 * `StatementSummary` and updates the `summary` property to the more
-	 * comprehensive summary. Yields errors if the statement summary unparsable.
-	 */
-	*parsePage(page: Page): Generator<Result<StatementSummary, ParseStatementSummaryError>> {
-		if (this.#summary) {
-			return;
-		}
-
-		const parseSummaryResult = parseStatementSummary(page);
-		if (parseSummaryResult.isErr) {
-			yield Result.err(parseSummaryResult.error);
-		} else {
-			this.#summary = parseSummaryResult.value;
-			yield Result.ok(this.#summary);
-		}
-	}
-
-	/**
-	 * Parsed statement summary, if found.
-	 */
-	get summary(): StatementSummary | undefined {
-		return this.#summary;
-	}
-}
-
 /**
  * Parser for transaction activity listed in the statement. Tracks the
  * sum of credits and debits as transactions are parsed for reconciliation
  * with the statement summary.
  */
-class ParseActivityHandler {
-	#computedCredits = 0;
-	#computedDebits = 0;
+function makeActivityParser() {
+	return new AccumulationParser<
+		{ credits: number; debits: number },
+		ImportStatementError,
+		ImportedTransaction,
+		Interval<true>
+	>(
+		function* (page, acc, statementInterval) {
+			if (!acc) {
+				throw new Error('Accumulator is missing');
+			}
+			if (!statementInterval) {
+				throw new Error('Statement summary is missing');
+			}
+			const parseActivityEntriesResult = parseActivityEntries(page, statementInterval);
 
-	/**
-	 * Parse the activity in the page, updating `computedCredits` and
-	 * `computedDebits` as transactions are parsed.
-	 */
-	*parsePage(
-		page: Page,
-		statementInterval: Interval<true>
-	): Generator<Result<ImportedTransaction, ImportStatementError>> {
-		const parseActivityEntriesResult = parseActivityEntries(page, statementInterval);
-
-		if (parseActivityEntriesResult.isErr) {
-			yield Result.err(parseActivityEntriesResult.error);
-			return;
-		}
-
-		for (const entry of parseActivityEntriesResult.value) {
-			if (typeof entry.debit === 'undefined' && typeof entry.credit === 'undefined') {
-				// skip entries that don't affect the balance, like "Initial Balance" entries
-				continue;
+			if (parseActivityEntriesResult.isErr) {
+				yield Result.err(parseActivityEntriesResult.error);
+				return acc;
 			}
 
-			if (typeof entry.debit === 'number' && typeof entry.credit === 'number') {
-				yield Result.err(
-					new InvalidTransactionError('Transaction cannot be both debit and credit', entry)
+			for (const entry of parseActivityEntriesResult.value) {
+				if (typeof entry.debit === 'undefined' && typeof entry.credit === 'undefined') {
+					// skip entries that don't affect the balance, like "Initial Balance" entries
+					continue;
+				}
+
+				if (typeof entry.debit === 'number' && typeof entry.credit === 'number') {
+					yield Result.err(
+						new InvalidTransactionError('Transaction cannot be both debit and credit', entry)
+					);
+				}
+
+				yield Result.ok(
+					new ImportedTransaction(
+						entry.date,
+						entry.debit ? -entry.debit : entry.credit!,
+						entry.description ? `${entry.type} ${entry.description}` : entry.type,
+						page.pageNumber
+					)
 				);
+
+				if (entry.debit) {
+					acc.debits -= entry.debit;
+				} else if (entry.credit) {
+					acc.credits += entry.credit;
+				}
 			}
 
-			yield Result.ok(
-				new ImportedTransaction(
-					entry.date,
-					entry.debit ? -entry.debit : entry.credit!,
-					entry.description ? `${entry.type} ${entry.description}` : entry.type,
-					page.pageNumber
-				)
-			);
+			return acc;
+		},
+		{ credits: 0, debits: 0 }
+	);
+}
 
-			if (entry.debit) {
-				this.#computedDebits -= entry.debit;
-			} else if (entry.credit) {
-				this.#computedCredits += entry.credit;
-			}
+function makePeriodParser() {
+	return new AccumulationParser<Interval<true>, ImportStatementError>(function* (
+		page,
+		previousPeriod
+	) {
+		const thisPeriod = getStatementPeriod(page);
+		if (!thisPeriod.isValid) {
+			yield Result.err(new InvalidStatementIntervalError(thisPeriod));
 		}
-	}
 
-	/**
-	 * The sum of the value of credits in the statement parsed so far.
-	 * Non-negative.
-	 */
-	get computedCredits() {
-		return this.#computedCredits;
-	}
+		if (previousPeriod && !previousPeriod.equals(thisPeriod)) {
+			yield Result.err(new InconsistentStatementIntervalError(previousPeriod, thisPeriod));
+		}
 
-	/**
-	 * The sum of the value of debits in the statement parsed so far.
-	 * Non-positive.
-	 */
-	get computedDebits() {
-		return this.#computedDebits;
-	}
+		return thisPeriod;
+	});
 }
 
 /**
@@ -671,51 +588,51 @@ class ParseActivityHandler {
 export async function* parseStatement(
 	statement: Statement
 ): AsyncGenerator<Result<ImportedTransaction | StatementSummary, ImportStatementError>> {
-	const periodHandler = new ParseStatementIntervalHandler();
-	const summaryHandler = new ParseStatementSummaryHandler();
-	const activityHandler = new ParseActivityHandler();
+	const periodParser = makePeriodParser();
+	const summaryParser = new OnceParser(parseStatementSummary);
+	const activityHandler = makeActivityParser();
 
 	for (const page of statement.pages) {
 		// Parse the statement period.
-		yield* periodHandler.parsePage(page);
+		yield* periodParser.parsePage(page);
 
 		// Parse the summary section, if present, and pipe results to our caller.
-		yield* summaryHandler.parsePage(page);
+		yield* summaryParser.parsePage(page);
 
 		// We can't parse statement activity if the period has not been parsed.
 		// This is because the transaction dates omit the year.
-		if (!periodHandler.statementInterval) {
+		if (!periodParser.parsed) {
 			continue;
 		}
 
 		// Parse the statement activity on this page.
-		yield* activityHandler.parsePage(page, periodHandler.statementInterval);
+		yield* activityHandler.parsePage(page, periodParser.parsed);
 	}
 
-	const summary = summaryHandler.summary;
+	const summary = summaryParser.parsed;
 
 	if (summary) {
-		const { computedCredits, computedDebits } = activityHandler;
+		const { credits, debits } = activityHandler.parsed!;
 		const summaryCredits = summary.depositsAndCredits + summary.interestPaid;
-		if (computedCredits !== summaryCredits) {
+		if (credits !== summaryCredits) {
 			yield Result.err(
 				new InvalidStatementSummaryError(
 					'Credits do not match computed value',
 					summary,
 					summaryCredits,
-					computedCredits
+					credits
 				)
 			);
 		}
 
 		const summaryDebits = summary.withdrawalsAndDebits + summary.otherFees;
-		if (computedDebits !== summaryDebits) {
+		if (debits !== summaryDebits) {
 			yield Result.err(
 				new InvalidStatementSummaryError(
 					'Debits do not match computed value',
 					summary,
 					summaryDebits,
-					computedDebits
+					debits
 				)
 			);
 		}

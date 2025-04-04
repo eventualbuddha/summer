@@ -2,6 +2,8 @@ import { Result } from '@badrap/result';
 import { DateTime } from 'luxon';
 import type { ImportedTransaction } from '../ImportedTransaction';
 import { StatementMetadata } from '../StatementMetadata';
+import { OnceParser } from '../parse/OnceParser';
+import { ParseStatementSummaryError } from '../parse/errors';
 import { parseAmount, ParseMoneyError } from '../parse/money';
 import type { Statement } from '../statement/Statement';
 import type { Page } from '../statement/page';
@@ -51,25 +53,6 @@ export class StatementSummary extends StatementMetadata {
 		this.availableCredit = availableCredit;
 		this.cashAdvanceLimit = cashAdvanceLimit;
 		this.availableCash = availableCash;
-	}
-}
-
-export class ParseStatementSummaryError extends Error {
-	readonly pageNumber: number;
-	readonly cause?: Error;
-
-	constructor(pageNumber: number, message: string, cause?: Error) {
-		super(`${message} on page ${pageNumber}${cause ? `: ${cause.message}` : ''}`);
-		this.pageNumber = pageNumber;
-		this.cause = cause;
-	}
-}
-
-export async function* parseStatement(
-	statement: Statement
-): AsyncGenerator<Result<ImportedTransaction | StatementSummary, ImportStatementError>> {
-	for (const page of statement.pages) {
-		yield parseStatementSummary(page);
 	}
 }
 
@@ -165,4 +148,15 @@ export function parseStatementSummary(
 	}
 
 	return Result.ok(new StatementSummary(closingDate, account, accountHolder, ...result.value));
+}
+
+export async function* parseStatement(
+	statement: Statement
+): AsyncGenerator<Result<ImportedTransaction | StatementSummary, ImportStatementError>> {
+	const summaryHandler = new OnceParser(parseStatementSummary);
+
+	for (const page of statement.pages) {
+		// Parse the summary section, if present, and pipe results to our caller.
+		yield* summaryHandler.parsePage(page);
+	}
 }
