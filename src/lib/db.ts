@@ -86,8 +86,8 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
 					 AND statement.account AND statement.account.id() IN $accounts
 					 AND (
 						  (!$searchTerm AND !$amounts)
-						  OR (description AND description.lowercase().contains($searchTerm))
-						  OR (statementDescription AND statementDescription.lowercase().contains($searchTerm))
+						  OR (description AND description.lowercase().contains($searchTerm.lowercase()))
+						  OR (statementDescription AND statementDescription.lowercase().contains($searchTerm.lowercase()))
 							OR (amount IN $amounts)
 			     )
 			ORDER BY orderField COLLATE ${sortDirection === 'asc' ? 'ASC' : 'DESC'}
