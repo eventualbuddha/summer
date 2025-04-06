@@ -1,20 +1,11 @@
 import { Result } from '@badrap/result';
-import { lazy } from '@nfnitloop/better-iterators';
 import { expect, test } from 'vitest';
-import * as fixtures from '../../../../tests/fixtures';
-import { parseStatement, InvalidStatementSummaryError, parseStatementSummary } from './schwab';
+import * as fixtures from '../../../../../tests/fixtures';
+import { InvalidStatementSummaryError } from './errors';
+import { parseStatement } from './statement';
 
-test('checking account summary', async () => {
-	expect(
-		lazy(fixtures.schwab.checking.statement.pages)
-			.map(parseStatementSummary)
-			.filter((result) => result.isOk)
-			.first().value
-	).toMatchSnapshot();
-});
-
-test('checking account transactions', async () => {
-	const importedTransactions = await lazy(parseStatement(fixtures.schwab.checking.statement))
+test('transactions', async () => {
+	const importedTransactions = parseStatement(fixtures.schwab.checking.statement)
 		.filter((result) => result.isOk)
 		.map((result) => result.value)
 		.toArray();
@@ -22,11 +13,11 @@ test('checking account transactions', async () => {
 	expect(importedTransactions).toMatchSnapshot();
 });
 
-test('checking account summary mismatch', async () => {
-	const statementSummaryErrors = await lazy(parseStatement(fixtures.schwab.checking.statement))
+test('summary mismatch', async () => {
+	const statementSummaryErrors = parseStatement(fixtures.schwab.checking.statement)
 		.filter((result) => result.isErr && result.error instanceof InvalidStatementSummaryError)
 		.toArray();
-	expect(statementSummaryErrors).toHaveLength(0);
+	expect(statementSummaryErrors).toEqual([]);
 
 	for (const page of fixtures.schwab.checking.statement.pages) {
 		for (const text of page.texts) {
@@ -36,7 +27,7 @@ test('checking account summary mismatch', async () => {
 		}
 	}
 
-	const afterModificationErrors = await lazy(parseStatement(fixtures.schwab.checking.statement))
+	const afterModificationErrors = parseStatement(fixtures.schwab.checking.statement)
 		.filter((result) => result.isErr && result.error instanceof InvalidStatementSummaryError)
 		.toArray();
 	expect(afterModificationErrors).toEqual([

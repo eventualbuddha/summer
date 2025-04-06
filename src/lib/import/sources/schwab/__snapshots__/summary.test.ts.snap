@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`summary 1`] = `
+StatementSummary {
+  "account": "829475629059",
+  "accountName": "High Yield Investor Checking",
+  "beginningBalance": 378295,
+  "closingDate": "2020-11-30T00:00:00.000+00:00",
+  "depositsAndCredits": 180424,
+  "endingBalance": 159408,
+  "interestPaid": 37,
+  "otherFees": 0,
+  "period": Interval {
+    "e": "2020-11-30T00:00:00.000+00:00",
+    "invalid": null,
+    "isLuxonInterval": true,
+    "s": "2020-10-31T00:00:00.000+00:00",
+  },
+  "withdrawalsAndDebits": -399348,
+}
+`;

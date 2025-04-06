@@ -1,16 +1,22 @@
-import { getDocument, type PDFPageProxy } from 'pdfjs-dist';
-import { Page, PageSchema, PageText } from './page';
 import { lazy, range } from '@nfnitloop/better-iterators';
+import { getDocument, type PDFPageProxy } from 'pdfjs-dist';
 import { z } from 'zod';
+import { StatementNavigator } from './navigation';
+import { Page, PageSchema, PageText } from './page';
 
 /**
  * A parsed PDF statement.
  */
 export class Statement {
 	readonly pages: readonly Page[];
+	#navigator?: StatementNavigator;
 
 	constructor(pages: readonly Page[]) {
 		this.pages = pages;
+	}
+
+	get navigator(): StatementNavigator {
+		return (this.#navigator ??= new StatementNavigator(this));
 	}
 
 	/**

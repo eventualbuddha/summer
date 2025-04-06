@@ -1,19 +1,18 @@
 import { z } from 'zod';
-import { PageTextNavigator } from './navigation';
+import { PageNavigator } from './navigation';
 
 export class Page {
 	readonly pageNumber: number;
 	readonly texts: readonly PageText[];
-	#navigator?: PageTextNavigator;
+	#navigator?: PageNavigator;
 
 	constructor(pageNumber: number, texts: readonly PageText[]) {
 		this.pageNumber = pageNumber;
 		this.texts = [...texts].sort((a, b) => b.y - a.y || a.x - b.x);
 	}
 
-	get navigator(): PageTextNavigator {
-		this.#navigator ??= new PageTextNavigator(this);
-		return this.#navigator;
+	get navigator(): PageNavigator {
+		return (this.#navigator ??= new PageNavigator(this));
 	}
 }
 
@@ -43,6 +42,30 @@ export class PageText {
 
 	get isEmpty(): boolean {
 		return this.str.trim().length === 0 || this.width === 0 || this.height === 0;
+	}
+
+	get centerX(): number {
+		return this.x + this.width / 2;
+	}
+
+	get centerY(): number {
+		return this.y + this.height / 2;
+	}
+
+	get right(): number {
+		return this.x + this.width;
+	}
+
+	get left(): number {
+		return this.x;
+	}
+
+	get top(): number {
+		return this.y + this.height;
+	}
+
+	get bottom(): number {
+		return this.y;
 	}
 
 	isHorizontallyAlignedWith(other: PageText): boolean {

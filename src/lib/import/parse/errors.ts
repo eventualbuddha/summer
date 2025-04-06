@@ -12,13 +12,20 @@ export class ParseStatementSummaryError extends Error {
 }
 
 export class MissingHeaderError extends Error {
-	readonly pageNumber: number;
 	readonly header: string;
 
-	constructor(pageNumber: number, header: string) {
-		super(`Header '${header}' not found on page ${pageNumber}`);
-		this.pageNumber = pageNumber;
+	constructor(header: string) {
+		super(`Header '${header}' not found`);
 		this.header = header;
+	}
+}
+
+export class MissingValueError extends Error {
+	readonly value: string;
+
+	constructor(value: string) {
+		super(`Value '${value}' not found`);
+		this.value = value;
 	}
 }
 
@@ -43,5 +50,18 @@ export class InvalidDateError extends Error {
 		super(`Invalid date '${date}'`);
 		this.date = date;
 		this.dateTime = dateTime;
+	}
+}
+
+export class InconsistentValueError<T> extends Error {
+	readonly label: string;
+	readonly expectedValue: T;
+	readonly actualValue: T;
+
+	constructor(label: string, expectedValue: T, actualValue: T) {
+		super(`Expected "${label}" to equal ${expectedValue} but got ${actualValue}`);
+		this.label = label;
+		this.expectedValue = expectedValue;
+		this.actualValue = actualValue;
 	}
 }
