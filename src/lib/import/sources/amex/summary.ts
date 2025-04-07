@@ -2,41 +2,74 @@ import { parseAmount } from '$lib/import/parse/money';
 import type { Page } from '$lib/import/statement/page';
 import { Result } from '@badrap/result';
 import { DateTime } from 'luxon';
-import { ParseStatementSummaryError } from '../../parse/errors';
+import { ParseStatementError } from '../../parse/errors';
 import { StatementSummary } from './statement';
 
-export function parseStatementSummary(
-	page: Page
-): Result<StatementSummary, ParseStatementSummaryError> {
+export function parseStatementSummary(page: Page): Result<StatementSummary, ParseStatementError> {
 	const closingDateLabel = page.navigator.find('Closing Date');
-	const closingDateValue = closingDateLabel?.findRight(/^\d+\/\d+\/\d+$/);
+
+	if (!closingDateLabel) {
+		return Result.err(
+			ParseStatementError.MissingLabel('Missing closing date label', {
+				pageNumber: page.pageNumber
+			})
+		);
+	}
+
+	const closingDateValue = closingDateLabel.findRight(/^\d+\/\d+\/\d+$/);
 
 	if (!closingDateValue) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, 'Missing closing date'));
+		return Result.err(
+			ParseStatementError.MissingValue('Missing closing date value', {
+				pageNumber: page.pageNumber,
+				searchFromText: closingDateLabel.text,
+				searchDirection: 'right'
+			})
+		);
 	}
 
 	const closingDate = DateTime.fromFormat(closingDateValue.text.str.trim(), 'MM/dd/yy');
 
 	if (!closingDate.isValid) {
 		return Result.err(
-			new ParseStatementSummaryError(
-				page.pageNumber,
-				`Invalid closing date: ${closingDate.invalidExplanation}`
-			)
+			ParseStatementError.InvalidValue(`Invalid closing date: ${closingDate.invalidExplanation}`, {
+				pageNumber: page.pageNumber
+			})
 		);
 	}
 
-	const accountHolderLabel = closingDateLabel?.findUp(/\w+/, { alignment: 'left', maxGap: 10 });
+	const accountHolderLabel = closingDateLabel.findUp(/\w+/, { alignment: 'left', maxGap: 10 });
 
 	if (!accountHolderLabel) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, 'Missing account holder'));
+		return Result.err(
+			ParseStatementError.MissingValue('Missing account holder value', {
+				pageNumber: page.pageNumber
+			})
+		);
 	}
 
-	const accountEndingLabel = closingDateLabel?.findDown(/Account Ending/, { alignment: 'left' });
-	const accountEndingValue = accountEndingLabel?.findRight(/[-\d]+/);
+	const accountEndingLabel = closingDateLabel.findDown(/Account Ending/, { alignment: 'left' });
+
+	if (!accountEndingLabel) {
+		return Result.err(
+			ParseStatementError.MissingLabel('Missing "Account Ending" label', {
+				pageNumber: page.pageNumber,
+				searchFromText: closingDateLabel.text,
+				searchDirection: 'down'
+			})
+		);
+	}
+
+	const accountEndingValue = accountEndingLabel.findRight(/[-\d]+/);
 
 	if (!accountEndingValue) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, 'Missing account number'));
+		return Result.err(
+			ParseStatementError.MissingValue('Missing account number', {
+				pageNumber: page.pageNumber,
+				searchFromText: accountEndingLabel.text,
+				searchDirection: 'right'
+			})
+		);
 	}
 
 	const previousBalanceLabel = page.navigator.find(/Previous Balance/);
@@ -59,7 +92,12 @@ export function parseStatementSummary(
 	);
 
 	if (!entries) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, 'Missing summary info'));
+		return Result.err(
+			ParseStatementError.MissingLabel('Missing summary info', {
+				pageNumber: page.pageNumber,
+				searchFromText: previousBalanceLabel?.text
+			})
+		);
 	}
 
 	const account = accountEndingValue.text.str.trim();
@@ -92,7 +130,10 @@ export function parseStatementSummary(
 
 	if (result.isErr) {
 		return Result.err(
-			new ParseStatementSummaryError(page.pageNumber, 'Failed to parse summary info', result.error)
+			ParseStatementError.InvalidValue('Failed to parse summary info', {
+				pageNumber: page.pageNumber,
+				cause: result.error
+			})
 		);
 	}
 

@@ -1,14 +1,9 @@
 import type { ImportedTransaction } from '$lib/import/ImportedTransaction';
-import {
-	InconsistentValueError,
-	MissingHeaderError,
-	MissingValueError
-} from '$lib/import/parse/errors';
+import { ParseStatementError } from '$lib/import/parse/errors';
 import { parseAmount } from '$lib/import/parse/money';
 import type { StatementTextLocation } from '$lib/import/statement/navigation';
 import { Result } from '@badrap/result';
 import { DateTime } from 'luxon';
-import { ParseActivityEntriesError } from './errors';
 
 export class Charge implements ImportedTransaction {
 	pageNumber: number;
@@ -42,14 +37,14 @@ export class Charge implements ImportedTransaction {
 export function parseNewCharges(
 	sectionHeader: StatementTextLocation,
 	nextSectionHeader: StatementTextLocation
-): Result<Charge[], ParseActivityEntriesError> {
+): Result<Charge[], ParseStatementError> {
 	const charges: Charge[] = [];
 
 	const totalNewChargesLabel = sectionHeader.findAfter(/Total\s+New\s+Charges/);
 
 	if (!totalNewChargesLabel || totalNewChargesLabel.isBelow(nextSectionHeader)) {
 		return Result.err(
-			new ParseActivityEntriesError(new MissingHeaderError('Total New Charges'), {
+			ParseStatementError.MissingLabel('Missing "Total New Charges" label', {
 				pageNumber: (totalNewChargesLabel ?? sectionHeader).pageNumber,
 				contentText: totalNewChargesLabel?.text,
 				searchFromText: sectionHeader.text
@@ -61,7 +56,7 @@ export function parseNewCharges(
 
 	if (!totalNewChargesValue || totalNewChargesValue.isBelow(nextSectionHeader)) {
 		return Result.err(
-			new ParseActivityEntriesError(new MissingValueError('Total New Charges'), {
+			ParseStatementError.MissingValue('Missing "Total New Charges" value', {
 				pageNumber: (totalNewChargesValue ?? totalNewChargesLabel).pageNumber,
 				contentText: totalNewChargesValue?.text,
 				searchFromText: totalNewChargesLabel.text,
@@ -74,7 +69,8 @@ export function parseNewCharges(
 
 	if (totalNewChargesAmount.isErr) {
 		return Result.err(
-			new ParseActivityEntriesError(totalNewChargesAmount.error, {
+			ParseStatementError.InvalidValue('Invalid "Total New Charges" amount', {
+				cause: totalNewChargesAmount.error,
 				pageNumber: (totalNewChargesValue ?? totalNewChargesLabel).pageNumber,
 				contentText: totalNewChargesValue?.text,
 				searchFromText: totalNewChargesLabel.text,
@@ -108,7 +104,7 @@ export function parseNewCharges(
 
 			if (!amountValue) {
 				return Result.err(
-					new ParseActivityEntriesError(new MissingValueError('Amount'), {
+					ParseStatementError.MissingValue('Missing "Amount" value', {
 						pageNumber: (amountValue ?? lastAmountValue).pageNumber,
 						searchFromText: lastAmountValue.text,
 						searchDirection: 'down'
@@ -120,7 +116,8 @@ export function parseNewCharges(
 
 			if (parsedAmount.isErr) {
 				return Result.err(
-					new ParseActivityEntriesError(parsedAmount.error, {
+					ParseStatementError.InvalidValue('Invalid charge amount', {
+						cause: parsedAmount.error,
 						pageNumber: (amountValue ?? lastAmountValue).pageNumber,
 						contentText: amountValue.text,
 						searchFromText: lastAmountValue.text,
@@ -133,7 +130,7 @@ export function parseNewCharges(
 
 			if (!stateValue || stateValue.isBelow(nextSectionHeader)) {
 				return Result.err(
-					new ParseActivityEntriesError(new MissingValueError('State'), {
+					ParseStatementError.MissingValue('Missing "State" value', {
 						pageNumber: (stateValue ?? amountValue).pageNumber,
 						contentText: stateValue?.text,
 						searchFromText: amountValue.text,
@@ -146,7 +143,7 @@ export function parseNewCharges(
 
 			if (!locationValue || locationValue.isBelow(nextSectionHeader)) {
 				return Result.err(
-					new ParseActivityEntriesError(new MissingValueError('Location'), {
+					ParseStatementError.MissingValue('Missing "Location" value', {
 						pageNumber: (locationValue ?? stateValue).pageNumber,
 						contentText: locationValue?.text,
 						searchFromText: stateValue.text,
@@ -159,7 +156,7 @@ export function parseNewCharges(
 
 			if (!descriptionValue || descriptionValue.isBelow(nextSectionHeader)) {
 				return Result.err(
-					new ParseActivityEntriesError(new MissingValueError('Description'), {
+					ParseStatementError.MissingValue('Missing "Description" value', {
 						pageNumber: (descriptionValue ?? locationValue).pageNumber,
 						contentText: descriptionValue?.text,
 						searchFromText: locationValue.text,
@@ -172,7 +169,7 @@ export function parseNewCharges(
 
 			if (!dateValue || dateValue.isBelow(nextSectionHeader)) {
 				return Result.err(
-					new ParseActivityEntriesError(new MissingValueError('Date'), {
+					ParseStatementError.MissingValue('Missing "Date" value', {
 						pageNumber: (dateValue ?? descriptionValue).pageNumber,
 						contentText: dateValue?.text,
 						searchFromText: descriptionValue.text,
@@ -185,12 +182,15 @@ export function parseNewCharges(
 
 			if (!date.isValid) {
 				return Result.err(
-					new ParseActivityEntriesError(new MissingValueError('Date'), {
-						pageNumber: (dateValue ?? descriptionValue).pageNumber,
-						contentText: dateValue.text,
-						searchFromText: descriptionValue.text,
-						searchDirection: 'left'
-					})
+					ParseStatementError.InvalidValue(
+						`Invalid date "${dateValue.text.str}": ${date.invalidExplanation}`,
+						{
+							pageNumber: (dateValue ?? descriptionValue).pageNumber,
+							contentText: dateValue.text,
+							searchFromText: descriptionValue.text,
+							searchDirection: 'left'
+						}
+					)
 				);
 			}
 
@@ -215,8 +215,12 @@ export function parseNewCharges(
 
 	if (computedTotalChargesAmount !== totalNewCharges) {
 		return Result.err(
-			new ParseActivityEntriesError(
-				new InconsistentValueError('Total New Charges', totalNewCharges, computedTotalChargesAmount)
+			ParseStatementError.InvalidValue(
+				'Computed "Total New Charges" does not match statement summary',
+				{
+					pageNumber: totalNewChargesValue.pageNumber,
+					contentText: totalNewChargesValue.text
+				}
 			)
 		);
 	}

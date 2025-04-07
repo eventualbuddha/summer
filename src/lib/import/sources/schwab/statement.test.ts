@@ -1,8 +1,8 @@
 import { Result } from '@badrap/result';
 import { expect, test } from 'vitest';
 import * as fixtures from '../../../../../tests/fixtures';
-import { InvalidStatementSummaryError } from './errors';
 import { parseStatement } from './statement';
+import { ParseStatementError } from '$lib/import/parse/errors';
 
 test('transactions', async () => {
 	const importedTransactions = parseStatement(fixtures.schwab.checking.statement)
@@ -15,7 +15,7 @@ test('transactions', async () => {
 
 test('summary mismatch', async () => {
 	const statementSummaryErrors = parseStatement(fixtures.schwab.checking.statement)
-		.filter((result) => result.isErr && result.error instanceof InvalidStatementSummaryError)
+		.filter((result) => result.isErr)
 		.toArray();
 	expect(statementSummaryErrors).toEqual([]);
 
@@ -28,15 +28,12 @@ test('summary mismatch', async () => {
 	}
 
 	const afterModificationErrors = parseStatement(fixtures.schwab.checking.statement)
-		.filter((result) => result.isErr && result.error instanceof InvalidStatementSummaryError)
+		.filter((result) => result.isErr)
 		.toArray();
 	expect(afterModificationErrors).toEqual([
 		Result.err(
-			new InvalidStatementSummaryError(
-				'Ending balance does not match the computed value',
-				expect.any(Object),
-				159407,
-				159408
+			ParseStatementError.InvalidValue(
+				'Ending balance does not match the computed value: 159407 ≠ 159408'
 			)
 		)
 	]);

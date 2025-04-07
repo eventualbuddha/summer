@@ -1,11 +1,10 @@
 import type { ImportedTransaction } from '$lib/import/ImportedTransaction';
 import { Result } from '@badrap/result';
 import { DateTime, Interval } from 'luxon';
-import { InvalidDateError, MissingHeaderError, MissingTableCellError } from '../../parse/errors';
+import { ParseStatementError } from '../../parse/errors';
 import { parseAmount } from '../../parse/money';
 import type { PageTextLocation } from '../../statement/navigation';
 import type { Page } from '../../statement/page';
-import { InvalidMoneyAmountError, type ParseActivityEntriesError } from './errors';
 
 /**
  * Parses tabular activity entries from a Schwab statement PDF. These mostly
@@ -15,33 +14,78 @@ import { InvalidMoneyAmountError, type ParseActivityEntriesError } from './error
 export function parseActivityEntries(
 	page: Page,
 	statementInterval: Interval<true>
-): Result<ActivityEntry[], ParseActivityEntriesError> {
+): Result<ActivityEntry[], ParseStatementError> {
 	const activityEntries: ActivityEntry[] = [];
 
 	const activitySectionLabel = page.navigator.find(/^\s*Activity\s*$/);
-	if (!activitySectionLabel) return Result.err(new MissingHeaderError('Activity'));
+	if (!activitySectionLabel)
+		return Result.err(
+			ParseStatementError.MissingLabel('Activity', { pageNumber: page.pageNumber })
+		);
 
 	const dateHeaderLabel = activitySectionLabel.findDown(/^\s*Date\s*$/, {
 		alignment: 'left'
 	});
-	if (!dateHeaderLabel) return Result.err(new MissingHeaderError('Date'));
+	if (!dateHeaderLabel)
+		return Result.err(
+			ParseStatementError.MissingLabel('Date', {
+				pageNumber: page.pageNumber,
+				searchFromText: activitySectionLabel.text,
+				searchDirection: 'down'
+			})
+		);
 
 	const postedHeaderLabel = dateHeaderLabel.findDown(/^\s*Posted\s*$/, {
 		alignment: 'left'
 	});
-	if (!postedHeaderLabel) return Result.err(new MissingHeaderError('Posted'));
+	if (!postedHeaderLabel)
+		return Result.err(
+			ParseStatementError.MissingLabel('Posted', {
+				pageNumber: page.pageNumber,
+				searchFromText: dateHeaderLabel.text,
+				searchDirection: 'down'
+			})
+		);
 
 	const descriptionHeaderLabel = postedHeaderLabel.findRight(/^\s*Description\s*$/);
-	if (!descriptionHeaderLabel) return Result.err(new MissingHeaderError('Description'));
+	if (!descriptionHeaderLabel)
+		return Result.err(
+			ParseStatementError.MissingLabel('Description', {
+				pageNumber: page.pageNumber,
+				searchFromText: postedHeaderLabel.text,
+				searchDirection: 'right'
+			})
+		);
 
 	const debitsHeaderLabel = descriptionHeaderLabel.findRight(/^\s*Debits\s*$/);
-	if (!debitsHeaderLabel) return Result.err(new MissingHeaderError('Debits'));
+	if (!debitsHeaderLabel)
+		return Result.err(
+			ParseStatementError.MissingLabel('Debits', {
+				pageNumber: page.pageNumber,
+				searchFromText: descriptionHeaderLabel.text,
+				searchDirection: 'right'
+			})
+		);
 
 	const creditsHeaderLabel = debitsHeaderLabel.findRight(/^\s*Credits\s*$/);
-	if (!creditsHeaderLabel) return Result.err(new MissingHeaderError('Credits'));
+	if (!creditsHeaderLabel)
+		return Result.err(
+			ParseStatementError.MissingLabel('Credits', {
+				pageNumber: page.pageNumber,
+				searchFromText: debitsHeaderLabel.text,
+				searchDirection: 'right'
+			})
+		);
 
 	const balanceHeaderLabel = creditsHeaderLabel.findRight(/^\s*Balance\s*$/);
-	if (!balanceHeaderLabel) return Result.err(new MissingHeaderError('Balance'));
+	if (!balanceHeaderLabel)
+		return Result.err(
+			ParseStatementError.MissingLabel('Balance', {
+				pageNumber: page.pageNumber,
+				searchFromText: creditsHeaderLabel.text,
+				searchDirection: 'right'
+			})
+		);
 
 	let previousLeftValue = postedHeaderLabel;
 
@@ -83,11 +127,15 @@ export function parseActivityEntries(
 		}
 
 		if (!typeLabel) {
-			return Result.err(new MissingTableCellError(page.pageNumber, row, 'Type'));
+			return Result.err(
+				ParseStatementError.MissingValue('Missing type', { pageNumber: page.pageNumber })
+			);
 		}
 
 		if (!balanceLabel) {
-			return Result.err(new MissingTableCellError(page.pageNumber, row, 'Balance'));
+			return Result.err(
+				ParseStatementError.MissingValue('Missing balance', { pageNumber: page.pageNumber })
+			);
 		}
 
 		const descriptionLabel = typeLabel.findDown((t) => !t.isEmpty, {
@@ -103,14 +151,23 @@ export function parseActivityEntries(
 		});
 
 		if (!date.isValid) {
-			return Result.err(new InvalidDateError(dateLabel.text.str, date));
+			return Result.err(
+				ParseStatementError.InvalidValue(
+					`Invalid date "${dateLabel.text.str}": ${date.invalidExplanation}`,
+					{ pageNumber: page.pageNumber, contentText: dateLabel.text }
+				)
+			);
 		}
 
 		const parseDebitResult = debitLabel ? parseAmount(debitLabel.text.str) : undefined;
 
 		if (debitLabel && parseDebitResult?.isErr) {
 			return Result.err(
-				new InvalidMoneyAmountError('Debit', debitLabel.text.str, parseDebitResult.error)
+				ParseStatementError.InvalidValue('Invalid debit', {
+					cause: parseDebitResult.error,
+					pageNumber: debitLabel.pageNumber,
+					contentText: debitLabel.text
+				})
 			);
 		}
 
@@ -118,7 +175,11 @@ export function parseActivityEntries(
 
 		if (creditLabel && parseCreditResult?.isErr) {
 			return Result.err(
-				new InvalidMoneyAmountError('Credit', creditLabel.text.str, parseCreditResult.error)
+				ParseStatementError.InvalidValue('Invalid credit', {
+					cause: parseCreditResult.error,
+					pageNumber: creditLabel.pageNumber,
+					contentText: creditLabel.text
+				})
 			);
 		}
 
@@ -126,7 +187,11 @@ export function parseActivityEntries(
 
 		if (balanceLabel && parseBalanceResult.isErr) {
 			return Result.err(
-				new InvalidMoneyAmountError('Balance', balanceLabel.text.str, parseBalanceResult.error)
+				ParseStatementError.InvalidValue('Invalid balance', {
+					cause: parseBalanceResult.error,
+					pageNumber: balanceLabel.pageNumber,
+					contentText: balanceLabel.text
+				})
 			);
 		}
 

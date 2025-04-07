@@ -1,7 +1,7 @@
 import { Result } from '@badrap/result';
 import { DateTime, Interval } from 'luxon';
 import { StatementMetadata } from '../../StatementMetadata';
-import { ParseStatementSummaryError } from '../../parse/errors';
+import { ParseStatementError } from '../../parse/errors';
 import { parseAmount } from '../../parse/money';
 import type { Page } from '../../statement/page';
 
@@ -36,27 +36,27 @@ export class StatementSummary extends StatementMetadata {
 	}
 }
 
-export function parseStatementSummary(
-	page: Page
-): Result<StatementSummary, ParseStatementSummaryError> {
+export function parseStatementSummary(page: Page): Result<StatementSummary, ParseStatementError> {
 	const summary: Partial<StatementSummary> = {};
-	const period = getStatementPeriod(page);
+	const parsePeriodResult = parseStatementPeriod(page);
 
-	if (!period.isValid) {
+	if (parsePeriodResult.isErr) {
 		return Result.err(
-			new ParseStatementSummaryError(
-				page.pageNumber,
-				`Invalid statement period: ${period.invalidReason}`
+			ParseStatementError.InvalidValue(
+				`Invalid statement period: ${parsePeriodResult.error.message}`,
+				{ pageNumber: page.pageNumber, cause: parsePeriodResult.error }
 			)
 		);
 	}
 
-	summary.period = period;
+	summary.period = parsePeriodResult.value;
 
 	const accountNumberLabel = page.navigator.find(/^Account Number: (.+)$/);
 
 	if (!accountNumberLabel) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, 'Account number not found'));
+		return Result.err(
+			ParseStatementError.MissingValue('Account number not found', { pageNumber: page.pageNumber })
+		);
 	}
 
 	summary.account = accountNumberLabel.text.str.replace('Account Number: ', '');
@@ -64,7 +64,13 @@ export function parseStatementSummary(
 	const accountNameLabel = accountNumberLabel.findLeft(/\w{5,}/);
 
 	if (!accountNameLabel) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, 'Account name not found'));
+		return Result.err(
+			ParseStatementError.MissingValue('Account name not found', {
+				pageNumber: page.pageNumber,
+				searchFromText: accountNumberLabel.text,
+				searchDirection: 'left'
+			})
+		);
 	}
 
 	summary.accountName = accountNameLabel.text.str;
@@ -72,19 +78,34 @@ export function parseStatementSummary(
 	const summaryLabel = page.navigator.find('Summary');
 
 	if (!summaryLabel) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, '"Summary" label not found'));
+		return Result.err(
+			ParseStatementError.MissingLabel('"Summary" label not found', { pageNumber: page.pageNumber })
+		);
 	}
 
 	const amountLabel = summaryLabel.findRight('Amount');
 
 	if (!amountLabel) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, '"Amount" label not found'));
+		return Result.err(
+			ParseStatementError.MissingLabel('"Amount" label not found', { pageNumber: page.pageNumber })
+		);
 	}
 
 	const beginningBalanceLabel = summaryLabel.findDown('Beginning Balance', {
 		alignment: 'left',
 		maxGap: 20
 	});
+
+	if (!beginningBalanceLabel) {
+		return Result.err(
+			ParseStatementError.MissingLabel('"Beginning Balance" label not found', {
+				pageNumber: page.pageNumber,
+				searchFromText: summaryLabel.text,
+				searchDirection: 'down'
+			})
+		);
+	}
+
 	const entries = beginningBalanceLabel?.findTable(
 		[
 			'Beginning Balance',
@@ -99,7 +120,9 @@ export function parseStatementSummary(
 	);
 
 	if (!entries) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, 'Summary table not found'));
+		return Result.err(
+			ParseStatementError.MissingLabel('Summary table not found', { pageNumber: page.pageNumber })
+		);
 	}
 
 	for (const [key, [, valueText]] of [
@@ -114,10 +137,10 @@ export function parseStatementSummary(
 
 		if (parseResult.isErr) {
 			return Result.err(
-				new ParseStatementSummaryError(
-					page.pageNumber,
-					`Failed to parse ${key}: ${parseResult.error.message}`
-				)
+				ParseStatementError.InvalidValue(`Failed to parse ${key}: ${parseResult.error.message}`, {
+					pageNumber: page.pageNumber,
+					cause: parseResult.error
+				})
 			);
 		}
 
@@ -126,47 +149,67 @@ export function parseStatementSummary(
 
 	if (!summary.period || !summary.period.isValid) {
 		return Result.err(
-			new ParseStatementSummaryError(page.pageNumber, `"Period" not found or is invalid`)
+			ParseStatementError.InvalidValue(`"Period" not found or is invalid`, {
+				pageNumber: page.pageNumber
+			})
 		);
 	}
 
 	if (!summary.account) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, `"Account" not found`));
+		return Result.err(
+			ParseStatementError.MissingLabel(`"Account" not found`, {
+				pageNumber: page.pageNumber
+			})
+		);
 	}
 
 	if (!summary.accountName) {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, `"Account Name" not found`));
+		return Result.err(
+			ParseStatementError.MissingLabel(`"Account Name" not found`, { pageNumber: page.pageNumber })
+		);
 	}
 
 	if (typeof summary.beginningBalance === 'undefined') {
 		return Result.err(
-			new ParseStatementSummaryError(page.pageNumber, `"Beginning Balance" not found`)
+			ParseStatementError.MissingLabel(`"Beginning Balance" not found`, {
+				pageNumber: page.pageNumber
+			})
 		);
 	}
 
 	if (typeof summary.depositsAndCredits === 'undefined') {
 		return Result.err(
-			new ParseStatementSummaryError(page.pageNumber, `"Deposits and Credits" not found`)
+			ParseStatementError.MissingLabel(`"Deposits and Credits" not found`, {
+				pageNumber: page.pageNumber
+			})
 		);
 	}
 
 	if (typeof summary.interestPaid === 'undefined') {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, `"Interest Paid" not found`));
+		return Result.err(
+			ParseStatementError.MissingLabel(`"Interest Paid" not found`, { pageNumber: page.pageNumber })
+		);
 	}
 
 	if (typeof summary.withdrawalsAndDebits === 'undefined') {
 		return Result.err(
-			new ParseStatementSummaryError(page.pageNumber, `"Withdrawals and Debits" not found`)
+			ParseStatementError.MissingLabel(`"Withdrawals and Debits" not found`, {
+				pageNumber: page.pageNumber
+			})
 		);
 	}
 
 	if (typeof summary.otherFees === 'undefined') {
-		return Result.err(new ParseStatementSummaryError(page.pageNumber, `"Other Fees" not found`));
+		return Result.err(
+			ParseStatementError.MissingLabel(`"Other Fees" not found`, { pageNumber: page.pageNumber })
+		);
 	}
 
 	if (typeof summary.endingBalance === 'undefined') {
 		return Result.err(
-			new ParseStatementSummaryError(page.pageNumber, `"Ending Balance" not found`)
+			ParseStatementError.MissingLabel(`"Ending Balance" not found`, {
+				pageNumber: page.pageNumber
+			})
 		);
 	}
 
@@ -185,13 +228,18 @@ export function parseStatementSummary(
 	);
 }
 
-export function parseStatementPeriod(firstLine: string, secondLine?: string): Interval {
+export function parseStatementPeriodLines(
+	firstLine: string,
+	secondLine?: string
+): Result<Interval, ParseStatementError> {
 	if (secondLine) {
 		const startMatch = firstLine.match(/^(\w+) (\d+), (\d+) to$/);
 
 		if (!startMatch) {
-			return Interval.invalid(
-				`First statement period line does not match expected format: ${firstLine}`
+			return Result.err(
+				ParseStatementError.InvalidValue(
+					`First statement period line does not match expected format: ${firstLine}`
+				)
 			);
 		}
 
@@ -203,8 +251,10 @@ export function parseStatementPeriod(firstLine: string, secondLine?: string): In
 		const endMatch = secondLine.match(/^(\w+) (\d+), (\d+)$/);
 
 		if (!endMatch) {
-			return Interval.invalid(
-				`Second statement period line does not match expected format: ${secondLine}`
+			return Result.err(
+				ParseStatementError.InvalidValue(
+					`Second statement period line does not match expected format: ${secondLine}`
+				)
 			);
 		}
 
@@ -213,13 +263,15 @@ export function parseStatementPeriod(firstLine: string, secondLine?: string): In
 			'MMMM dd, yyyy'
 		);
 
-		return Interval.fromDateTimes(start, end);
+		return Result.ok(Interval.fromDateTimes(start, end));
 	} else {
 		const match = firstLine.match(/^(\w+) (\d+)-(\d+), (\d+)$/);
 
 		if (!match) {
-			return Interval.invalid(
-				`First statement period line does not match expected format: ${firstLine}`
+			return Result.err(
+				ParseStatementError.InvalidValue(
+					`First statement period line does not match expected format: ${firstLine}`
+				)
 			);
 		}
 
@@ -232,39 +284,43 @@ export function parseStatementPeriod(firstLine: string, secondLine?: string): In
 			'MMMM dd, yyyy'
 		);
 
-		return Interval.fromDateTimes(start, end);
+		return Result.ok(Interval.fromDateTimes(start, end));
 	}
 }
 
-function getStatementPeriod(page: Page): Interval {
-	const statementPeriodLabelText = page.texts.find((text) => text.str === 'Statement Period');
-	if (!statementPeriodLabelText) {
-		return Interval.invalid('Statement period label not found');
+function parseStatementPeriod(page: Page): Result<Interval<true>, ParseStatementError> {
+	const statementPeriodLabel = page.navigator.find('Statement Period');
+
+	if (!statementPeriodLabel) {
+		return Result.err(
+			ParseStatementError.MissingLabel('Statement period label not found', {
+				pageNumber: page.pageNumber
+			})
+		);
 	}
 
-	const firstStatementPeriodLine = page.texts.find(
-		(text) =>
-			!text.isEmpty &&
-			text.y < statementPeriodLabelText.y &&
-			statementPeriodLabelText.isVerticallyAlignedWith(text, {
-				alignment: 'left',
-				maxGap: 5
-			})
-	);
+	const firstStatementPeriodLine = statementPeriodLabel.findDown(/.+/, {
+		alignment: 'left',
+		maxGap: 5
+	});
 
 	if (!firstStatementPeriodLine) {
-		return Interval.invalid('First statement period line not found');
+		return Result.err(
+			ParseStatementError.MissingValue('First statement period line not found', {
+				pageNumber: page.pageNumber,
+				searchFromText: statementPeriodLabel.text,
+				searchDirection: 'down'
+			})
+		);
 	}
 
-	const secondStatementPeriodLine = page.texts.find(
-		(text) =>
-			!text.isEmpty &&
-			text.y < firstStatementPeriodLine.y &&
-			firstStatementPeriodLine.isVerticallyAlignedWith(text, {
-				alignment: 'left',
-				maxGap: 5
-			})
-	);
+	const secondStatementPeriodLine = firstStatementPeriodLine.findDown(/.+/, {
+		alignment: 'left',
+		maxGap: 5
+	});
 
-	return parseStatementPeriod(firstStatementPeriodLine.str, secondStatementPeriodLine?.str);
+	return parseStatementPeriodLines(
+		firstStatementPeriodLine.text.str,
+		secondStatementPeriodLine?.text.str
+	);
 }

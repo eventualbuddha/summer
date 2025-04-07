@@ -1,10 +1,9 @@
 import type { ImportedTransaction } from '$lib/import/ImportedTransaction';
-import { InvalidDateError, MissingHeaderError, MissingValueError } from '$lib/import/parse/errors';
+import { ParseStatementError } from '$lib/import/parse/errors';
 import { parseAmount } from '$lib/import/parse/money';
 import type { StatementTextLocation } from '$lib/import/statement/navigation';
 import { Result } from '@badrap/result';
 import { DateTime } from 'luxon';
-import { ParseActivityEntriesError } from './errors';
 
 export class Credit implements ImportedTransaction {
 	#pageNumber: number;
@@ -39,15 +38,18 @@ export class Credit implements ImportedTransaction {
 function parseCreditFromDate(
 	dateValue: StatementTextLocation,
 	endOfSection: StatementTextLocation
-): Result<Credit, ParseActivityEntriesError> {
+): Result<Credit, ParseStatementError> {
 	const date = DateTime.fromFormat(dateValue.text.str.replace(/\*$/, ''), 'MM/dd/yy');
 
 	if (!date.isValid) {
 		return Result.err(
-			new ParseActivityEntriesError(new InvalidDateError(dateValue.text.str, date), {
-				pageNumber: dateValue.pageNumber,
-				contentText: dateValue.text
-			})
+			ParseStatementError.InvalidValue(
+				`Invalid date "${dateValue.text.str}": ${date.invalidExplanation}`,
+				{
+					pageNumber: dateValue.pageNumber,
+					contentText: dateValue.text
+				}
+			)
 		);
 	}
 
@@ -55,7 +57,7 @@ function parseCreditFromDate(
 
 	if (!cardValue || cardValue.isBelow(endOfSection)) {
 		return Result.err(
-			new ParseActivityEntriesError(new MissingValueError('card'), {
+			ParseStatementError.MissingValue('Missing "card" value', {
 				pageNumber: (cardValue ?? dateValue).pageNumber,
 				contentText: cardValue?.text,
 				searchFromText: dateValue.text,
@@ -68,7 +70,7 @@ function parseCreditFromDate(
 
 	if (!descriptionStart || descriptionStart.isBelow(endOfSection)) {
 		return Result.err(
-			new ParseActivityEntriesError(new MissingValueError('Description'), {
+			ParseStatementError.MissingValue('Missing "description" value', {
 				pageNumber: (descriptionStart ?? cardValue).pageNumber,
 				contentText: descriptionStart?.text,
 				searchFromText: cardValue.text,
@@ -93,7 +95,7 @@ function parseCreditFromDate(
 
 	if (!amountValue || amountValue.isBelow(endOfSection)) {
 		return Result.err(
-			new ParseActivityEntriesError(new MissingValueError('amount'), {
+			ParseStatementError.MissingValue('Missing "amount" value', {
 				pageNumber: (amountValue ?? descriptionStart).pageNumber,
 				contentText: amountValue?.text,
 				searchFromText: descriptionStart.text,
@@ -106,9 +108,10 @@ function parseCreditFromDate(
 
 	if (amount.isErr) {
 		return Result.err(
-			new ParseActivityEntriesError(amount.error, {
+			ParseStatementError.InvalidValue(`Invalid amount "${amountValue.text.str}"`, {
+				cause: amount.error,
 				pageNumber: (amountValue ?? descriptionStart).pageNumber,
-				contentText: amountValue?.text,
+				contentText: amountValue.text,
 				searchFromText: descriptionStart.text,
 				searchDirection: 'right'
 			})
@@ -129,7 +132,7 @@ function parseCreditFromDate(
 function parseCreditsFromDateAlignedHeader(
 	dateAlignedHeader: StatementTextLocation,
 	endOfSection: StatementTextLocation
-): Result<Credit[], ParseActivityEntriesError> {
+): Result<Credit[], ParseStatementError> {
 	let lastDateAlignedLocation = dateAlignedHeader;
 	const credits: Credit[] = [];
 
@@ -158,20 +161,26 @@ function parseCreditsFromDateAlignedHeader(
 export function parseCredits(
 	sectionHeader: StatementTextLocation,
 	nextSectionHeader: StatementTextLocation
-): Result<Credit[], ParseActivityEntriesError> {
+): Result<Credit[], ParseStatementError> {
 	const credits: Credit[] = [];
 
 	const totalHeader = sectionHeader.findAfter('Total');
 
 	if (!totalHeader || totalHeader.isBelow(nextSectionHeader)) {
-		return Result.err(new ParseActivityEntriesError(new MissingHeaderError('Total'), {}));
+		return Result.err(
+			ParseStatementError.MissingLabel('Missing "Total" label', {
+				pageNumber: sectionHeader.pageNumber,
+				contentText: totalHeader?.text,
+				searchFromText: sectionHeader.text
+			})
+		);
 	}
 
 	const paymentsLabel = totalHeader.findAfter('Payments');
 
 	if (!paymentsLabel || paymentsLabel.isBelow(nextSectionHeader)) {
 		return Result.err(
-			new ParseActivityEntriesError(new MissingHeaderError('Payments'), {
+			ParseStatementError.MissingLabel('Missing "Payments" label', {
 				pageNumber: (paymentsLabel ?? totalHeader).pageNumber,
 				contentText: paymentsLabel?.text,
 				searchFromText: totalHeader.text
@@ -186,7 +195,7 @@ export function parseCredits(
 
 	if (!paymentsValue || paymentsValue.isBelow(nextSectionHeader)) {
 		return Result.err(
-			new ParseActivityEntriesError(new MissingHeaderError('Payments'), {
+			ParseStatementError.MissingLabel('Missing "Payments" label', {
 				pageNumber: (paymentsValue ?? totalHeader).pageNumber,
 				contentText: paymentsValue?.text,
 				searchFromText: totalHeader.text,
@@ -199,7 +208,8 @@ export function parseCredits(
 
 	if (paymentsAmount.isErr) {
 		return Result.err(
-			new ParseActivityEntriesError(paymentsAmount.error, {
+			ParseStatementError.InvalidValue(`Invalid amount: "${paymentsValue.text.str}"`, {
+				cause: paymentsAmount.error,
 				pageNumber: paymentsValue.pageNumber,
 				contentText: paymentsValue.text,
 				searchFromText: totalHeader.text,
@@ -214,7 +224,7 @@ export function parseCredits(
 
 	if (!totalPaymentsAndCreditsLabel || totalPaymentsAndCreditsLabel.isBelow(nextSectionHeader)) {
 		return Result.err(
-			new ParseActivityEntriesError(new MissingHeaderError('Total Payments and Credits'), {
+			ParseStatementError.MissingLabel('Missing "Total Payments and Credits" label', {
 				pageNumber: (totalPaymentsAndCreditsLabel ?? paymentsLabel).pageNumber,
 				contentText: totalPaymentsAndCreditsLabel?.text,
 				searchFromText: paymentsLabel.text,
@@ -230,7 +240,7 @@ export function parseCredits(
 
 	if (!totalPaymentsAndCreditsValue || totalPaymentsAndCreditsValue.isBelow(nextSectionHeader)) {
 		return Result.err(
-			new ParseActivityEntriesError(new MissingHeaderError('Total Payments and Credits'), {
+			ParseStatementError.MissingLabel('Missing "Total Payments and Credits" label', {
 				pageNumber: (totalPaymentsAndCreditsValue ?? totalHeader).pageNumber,
 				contentText: totalPaymentsAndCreditsValue?.text,
 				searchFromText: totalHeader.text,
@@ -243,12 +253,16 @@ export function parseCredits(
 
 	if (totalPaymentsAndCreditsAmount.isErr) {
 		return Result.err(
-			new ParseActivityEntriesError(totalPaymentsAndCreditsAmount.error, {
-				pageNumber: totalPaymentsAndCreditsValue.pageNumber,
-				contentText: totalPaymentsAndCreditsValue.text,
-				searchFromText: totalPaymentsAndCreditsLabel.text,
-				searchDirection: 'down'
-			})
+			ParseStatementError.InvalidValue(
+				`Invalid amount: "${totalPaymentsAndCreditsValue.text.str}"`,
+				{
+					cause: totalPaymentsAndCreditsAmount.error,
+					pageNumber: totalPaymentsAndCreditsValue.pageNumber,
+					contentText: totalPaymentsAndCreditsValue.text,
+					searchFromText: totalPaymentsAndCreditsLabel.text,
+					searchDirection: 'down'
+				}
+			)
 		);
 	}
 
@@ -261,7 +275,7 @@ export function parseCredits(
 
 		if (!paymentsHeader || paymentsHeader.isBelow(nextSectionHeader)) {
 			return Result.err(
-				new ParseActivityEntriesError(new MissingHeaderError('Payments and Credits: Payments'), {
+				ParseStatementError.MissingLabel('Missing "Payments and Credits: Payments" label', {
 					pageNumber: (paymentsHeader ?? totalPaymentsAndCreditsLabel).pageNumber,
 					contentText: paymentsHeader?.text,
 					searchFromText: totalPaymentsAndCreditsLabel.text,
@@ -278,7 +292,7 @@ export function parseCredits(
 
 		if (!endOfPayments || endOfPayments.isBelow(nextSectionHeader)) {
 			return Result.err(
-				new ParseActivityEntriesError(new MissingHeaderError('Payments and Credits: Credits'), {
+				ParseStatementError.MissingLabel('Missing "Payments and Credits: Credits" label', {
 					pageNumber: (endOfPayments ?? paymentsHeader).pageNumber,
 					contentText: endOfPayments?.text,
 					searchFromText: paymentsHeader.text,
@@ -303,7 +317,7 @@ export function parseCredits(
 
 		if (!creditsHeader || creditsHeader.isBelow(nextSectionHeader)) {
 			return Result.err(
-				new ParseActivityEntriesError(new MissingHeaderError('Payments and Credits: Credits'), {
+				ParseStatementError.MissingLabel('Missing "Payments and Credits: Credits" label', {
 					pageNumber: (creditsHeader ?? totalPaymentsAndCreditsLabel).pageNumber,
 					contentText: creditsHeader?.text,
 					searchFromText: totalPaymentsAndCreditsLabel.text,

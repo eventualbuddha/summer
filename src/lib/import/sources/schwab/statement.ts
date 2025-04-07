@@ -1,15 +1,10 @@
 import type { ImportedTransaction } from '$lib/import/ImportedTransaction';
 import type { Statement } from '$lib/import/statement/Statement';
 import { Result } from '@badrap/result';
-import { MissingHeaderError } from '../../parse/errors';
+import { ParseStatementError } from '../../parse/errors';
 import { parseAmount } from '../../parse/money';
 import { parseActivityEntries, type ActivityEntry } from './entries';
-import {
-	InvalidStatementIntervalError,
-	InvalidStatementSummaryError,
-	type ImportStatementError
-} from './errors';
-import { parseStatementPeriod, StatementSummary } from './summary';
+import { parseStatementPeriodLines, StatementSummary } from './summary';
 
 /**
  * Parses a statement from text extracted from a Schwab statement PDF. Expects a
@@ -19,11 +14,11 @@ import { parseStatementPeriod, StatementSummary } from './summary';
  */
 export function* parseStatement(
 	statement: Statement
-): Generator<Result<ImportedTransaction | StatementSummary, ImportStatementError>> {
+): Generator<Result<ImportedTransaction | StatementSummary, ParseStatementError>> {
 	// Find the start of the statement summary by looking for "Account Number: XXXX".
 	const accountNumberLabel = statement.navigator.find(/Account Number: (.+)/);
 	if (!accountNumberLabel) {
-		yield Result.err(new MissingHeaderError('Account Number'));
+		yield Result.err(ParseStatementError.MissingLabel('Account Number'));
 		return;
 	}
 
@@ -32,7 +27,12 @@ export function* parseStatement(
 	const statementPeriodLabel = accountNumberLabel.pageLocation.findBefore('Statement Period');
 
 	if (!statementPeriodLabel) {
-		yield Result.err(new MissingHeaderError('Statement Period'));
+		yield Result.err(
+			ParseStatementError.MissingLabel('Statement Period', {
+				pageNumber: accountNumberLabel.pageNumber,
+				searchFromText: accountNumberLabel.text
+			})
+		);
 		return;
 	}
 
@@ -42,7 +42,13 @@ export function* parseStatement(
 	});
 
 	if (!firstStatementPeriodLine) {
-		yield Result.err(new MissingHeaderError('Statement Period'));
+		yield Result.err(
+			ParseStatementError.MissingLabel('Statement Period', {
+				pageNumber: statementPeriodLabel.pageNumber,
+				searchFromText: statementPeriodLabel.text,
+				searchDirection: 'down'
+			})
+		);
 		return;
 	}
 
@@ -51,27 +57,39 @@ export function* parseStatement(
 		maxGap: 10
 	});
 
-	const statementPeriod = parseStatementPeriod(
+	const statementPeriod = parseStatementPeriodLines(
 		firstStatementPeriodLine.text.str,
 		secondStatementPeriodLine?.text.str
 	);
 
-	if (!statementPeriod.isValid) {
-		yield Result.err(new InvalidStatementIntervalError(statementPeriod));
+	if (statementPeriod.isErr) {
+		yield Result.err(statementPeriod.error);
 		return;
 	}
 
 	const accountName = accountNumberLabel.findLeft(/\w{5,}/);
 
 	if (!accountName) {
-		yield Result.err(new MissingHeaderError('Account Name'));
+		yield Result.err(
+			ParseStatementError.MissingValue('Account Name', {
+				pageNumber: accountNumberLabel.pageNumber,
+				searchFromText: accountNumberLabel.text,
+				searchDirection: 'left'
+			})
+		);
 		return;
 	}
 
 	const beginningBalance = accountName.findDown('Beginning Balance', { alignment: 'left' });
 
 	if (!beginningBalance) {
-		yield Result.err(new MissingHeaderError('Beginning Balance'));
+		yield Result.err(
+			ParseStatementError.MissingLabel('Beginning Balance', {
+				pageNumber: accountName.pageNumber,
+				searchFromText: accountName.text,
+				searchDirection: 'down'
+			})
+		);
 		return;
 	}
 
@@ -89,7 +107,12 @@ export function* parseStatement(
 	);
 
 	if (!summaryTable) {
-		yield Result.err(new MissingHeaderError('Summary'));
+		yield Result.err(
+			ParseStatementError.MissingLabel('Summary', {
+				pageNumber: beginningBalance.pageNumber,
+				searchFromText: beginningBalance.text
+			})
+		);
 		return;
 	}
 
@@ -103,12 +126,17 @@ export function* parseStatement(
 	]);
 
 	if (amounts.isErr) {
-		yield Result.err(amounts.error);
+		yield Result.err(
+			ParseStatementError.InvalidValue('Invalid summary money amount', {
+				pageNumber: beginningBalance.pageNumber,
+				cause: amounts.error
+			})
+		);
 		return;
 	}
 
 	const summary = new StatementSummary(
-		statementPeriod,
+		statementPeriod.value,
 		accountNumber,
 		accountName.text.str.trim(),
 		amounts.value[0],
@@ -120,7 +148,9 @@ export function* parseStatement(
 	);
 	yield Result.ok(summary);
 
-	const parseResults = statement.pages.map((page) => parseActivityEntries(page, statementPeriod));
+	const parseResults = statement.pages.map((page) =>
+		parseActivityEntries(page, statementPeriod.value)
+	);
 	const entries: ActivityEntry[] = [];
 
 	for (const [index, parseResult] of parseResults.entries()) {
@@ -131,16 +161,17 @@ export function* parseStatement(
 					.every(({ isErr }) => isErr);
 
 				if (!allRemainingResultsAreErrors) {
-					const error = new Error(
-						`Expected activity entries to appear on consecutive pages, got entries on pages ${parseResults
-							.entries()
-							.filter(([, { isOk }]) => isOk)
-							.map(([index]) => statement.pages[index]?.pageNumber)
-							.toArray()
-							.join(', ')}`
+					yield Result.err(
+						ParseStatementError.InvalidValue(
+							`Expected activity entries to appear on consecutive pages, got entries on pages ${parseResults
+								.entries()
+								.filter(([, { isOk }]) => isOk)
+								.map(([index]) => statement.pages[index]?.pageNumber)
+								.toArray()
+								.join(', ')}`
+						)
 					);
 
-					yield Result.err(error);
 					return;
 				}
 			}
@@ -163,42 +194,35 @@ export function* parseStatement(
 	const computedDebits = summary.withdrawalsAndDebits + summary.otherFees;
 
 	if (credits !== computedCredits) {
-		const error = new InvalidStatementSummaryError(
-			'Credits do not match the computed value',
-			summary,
-			computedCredits,
-			credits
+		yield Result.err(
+			ParseStatementError.InvalidValue(
+				`Credits do not match the computed value: ${computedCredits} ≠ ${credits}`
+			)
 		);
-
-		yield Result.err(error);
 		return;
 	}
 
 	if (debits !== computedDebits) {
-		const error = new InvalidStatementSummaryError(
-			'Debits do not match the computed value',
-			summary,
-			computedDebits,
-			debits
+		yield Result.err(
+			ParseStatementError.InvalidValue(
+				`Debits do not match the computed value: ${computedDebits} ≠ ${debits}`
+			)
 		);
-
-		yield Result.err(error);
 		return;
 	}
 
 	const computedEndingBalance = summary.beginningBalance + credits + debits;
 
 	if (summary.endingBalance !== computedEndingBalance) {
-		const error = new InvalidStatementSummaryError(
-			'Ending balance does not match the computed value',
-			summary,
-			summary.endingBalance,
-			computedEndingBalance
+		yield Result.err(
+			ParseStatementError.InvalidValue(
+				`Ending balance does not match the computed value: ${summary.endingBalance} ≠ ${computedEndingBalance}`
+			)
 		);
-
-		yield Result.err(error);
 		return;
 	}
 
-	yield* entries.map(Result.ok);
+	for (const entry of entries) {
+		yield Result.ok(entry);
+	}
 }
