@@ -1,57 +1,10 @@
-import { StatementMetadata } from '$lib/import/StatementMetadata';
 import { Result } from '@badrap/result';
-import { DateTime } from 'luxon';
 import type { ImportedTransaction } from '../../ImportedTransaction';
 import { ParseStatementError } from '../../parse/errors';
 import type { Statement } from '../../statement/Statement';
 import { parseNewCharges } from './charges';
 import { parseCredits } from './credits';
-
-export class StatementSummary extends StatementMetadata {
-	accountHolder: string;
-	previousBalance: number;
-	paymentsAndCredits: number;
-	newCharges: number;
-	fees: number;
-	interestCharged: number;
-	newBalance: number;
-	minimumPaymentDue: number;
-	creditLimit: number;
-	availableCredit: number;
-	cashAdvanceLimit: number;
-	availableCash: number;
-
-	constructor(
-		closingDate: DateTime,
-		account: string,
-		accountHolder: string,
-		previousBalance: number,
-		paymentsAndCredits: number,
-		newCharges: number,
-		fees: number,
-		interestCharged: number,
-		newBalance: number,
-		minimumPaymentDue: number,
-		creditLimit: number,
-		availableCredit: number,
-		cashAdvanceLimit: number,
-		availableCash: number
-	) {
-		super(closingDate, account);
-		this.accountHolder = accountHolder;
-		this.previousBalance = previousBalance;
-		this.paymentsAndCredits = paymentsAndCredits;
-		this.newCharges = newCharges;
-		this.fees = fees;
-		this.interestCharged = interestCharged;
-		this.newBalance = newBalance;
-		this.minimumPaymentDue = minimumPaymentDue;
-		this.creditLimit = creditLimit;
-		this.availableCredit = availableCredit;
-		this.cashAdvanceLimit = cashAdvanceLimit;
-		this.availableCash = availableCash;
-	}
-}
+import type { StatementSummary } from './summary';
 
 export function* parseStatement(
 	statement: Statement
@@ -59,7 +12,8 @@ export function* parseStatement(
 	const paymentsAndCreditsSectionHeader = statement.navigator.find('Payments and Credits');
 
 	if (!paymentsAndCreditsSectionHeader) {
-		return Result.err(ParseStatementError.MissingLabel('Payments and Credits'));
+		yield Result.err(ParseStatementError.MissingLabel('Payments and Credits'));
+		return;
 	}
 
 	const paymentsAndCreditsSectionSummaryLabel = paymentsAndCreditsSectionHeader.findDown(
@@ -71,13 +25,14 @@ export function* parseStatement(
 	);
 
 	if (!paymentsAndCreditsSectionSummaryLabel) {
-		return Result.err(
+		yield Result.err(
 			ParseStatementError.MissingLabel('Payments and Credits: Summary', {
 				pageNumber: paymentsAndCreditsSectionHeader.pageNumber,
 				searchFromText: paymentsAndCreditsSectionHeader.text,
 				searchDirection: 'down'
 			})
 		);
+		return;
 	}
 
 	const paymentsAndCreditsDetailHeader = paymentsAndCreditsSectionSummaryLabel.findDown('Detail', {
@@ -85,13 +40,14 @@ export function* parseStatement(
 	});
 
 	if (!paymentsAndCreditsDetailHeader) {
-		return Result.err(
+		yield Result.err(
 			ParseStatementError.MissingLabel('Payments and Credits: Detail', {
 				pageNumber: paymentsAndCreditsSectionSummaryLabel.pageNumber,
 				searchFromText: paymentsAndCreditsSectionSummaryLabel.text,
 				searchDirection: 'down'
 			})
 		);
+		return;
 	}
 
 	const newChargesSectionHeader = paymentsAndCreditsSectionHeader.findDown('New Charges', {
@@ -103,22 +59,24 @@ export function* parseStatement(
 	});
 
 	if (!newChargesSectionHeader) {
-		return Result.err(
+		yield Result.err(
 			ParseStatementError.MissingLabel('New Charges', {
 				pageNumber: paymentsAndCreditsSectionHeader.pageNumber,
 				searchFromText: paymentsAndCreditsSectionHeader.text,
 				searchDirection: 'down'
 			})
 		);
+		return;
 	}
 	if (!newChargesSectionSummaryHeader) {
-		return Result.err(
+		yield Result.err(
 			ParseStatementError.MissingLabel('New Charges: Summary', {
 				pageNumber: paymentsAndCreditsSectionHeader.pageNumber,
 				searchFromText: paymentsAndCreditsSectionHeader.text,
 				searchDirection: 'down'
 			})
 		);
+		return;
 	}
 
 	const feesSectionHeader = newChargesSectionHeader.findDown('Fees', {
@@ -126,13 +84,14 @@ export function* parseStatement(
 	});
 
 	if (!feesSectionHeader) {
-		return Result.err(
+		yield Result.err(
 			ParseStatementError.MissingLabel('New Charges: Fees', {
 				pageNumber: newChargesSectionHeader.pageNumber,
 				searchFromText: newChargesSectionHeader.text,
 				searchDirection: 'down'
 			})
 		);
+		return;
 	}
 
 	const interestChargedSectionHeader = feesSectionHeader.findDown('Interest Charged', {
@@ -140,19 +99,21 @@ export function* parseStatement(
 	});
 
 	if (!interestChargedSectionHeader) {
-		return Result.err(
+		yield Result.err(
 			ParseStatementError.MissingLabel('New Charges: Interest Charged', {
 				pageNumber: feesSectionHeader.pageNumber,
 				searchFromText: feesSectionHeader.text,
 				searchDirection: 'down'
 			})
 		);
+		return;
 	}
 
 	const parseCreditsResult = parseCredits(paymentsAndCreditsSectionHeader, newChargesSectionHeader);
 
 	if (parseCreditsResult.isErr) {
-		return Result.err(parseCreditsResult.error);
+		yield Result.err(parseCreditsResult.error);
+		return;
 	}
 
 	for (const credit of parseCreditsResult.value) {
@@ -162,7 +123,8 @@ export function* parseStatement(
 	const parseChargesResult = parseNewCharges(newChargesSectionHeader, feesSectionHeader);
 
 	if (parseChargesResult.isErr) {
-		return Result.err(parseChargesResult.error);
+		yield Result.err(parseChargesResult.error);
+		return;
 	}
 
 	for (const charge of parseChargesResult.value) {

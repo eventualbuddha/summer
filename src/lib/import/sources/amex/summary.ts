@@ -1,9 +1,9 @@
 import { parseAmount } from '$lib/import/parse/money';
 import type { Page } from '$lib/import/statement/page';
+import { StatementMetadata } from '$lib/import/StatementMetadata';
 import { Result } from '@badrap/result';
 import { DateTime } from 'luxon';
 import { ParseStatementError } from '../../parse/errors';
-import { StatementSummary } from './statement';
 
 export function parseStatementSummary(page: Page): Result<StatementSummary, ParseStatementError> {
 	const closingDateLabel = page.navigator.find('Closing Date');
@@ -138,4 +138,50 @@ export function parseStatementSummary(page: Page): Result<StatementSummary, Pars
 	}
 
 	return Result.ok(new StatementSummary(closingDate, account, accountHolder, ...result.value));
+}
+
+export class StatementSummary extends StatementMetadata {
+	accountHolder: string;
+	previousBalance: number;
+	paymentsAndCredits: number;
+	newCharges: number;
+	fees: number;
+	interestCharged: number;
+	newBalance: number;
+	minimumPaymentDue: number;
+	creditLimit: number;
+	availableCredit: number;
+	cashAdvanceLimit: number;
+	availableCash: number;
+
+	constructor(
+		closingDate: DateTime,
+		account: string,
+		accountHolder: string,
+		previousBalance: number,
+		paymentsAndCredits: number,
+		newCharges: number,
+		fees: number,
+		interestCharged: number,
+		newBalance: number,
+		minimumPaymentDue: number,
+		creditLimit: number,
+		availableCredit: number,
+		cashAdvanceLimit: number,
+		availableCash: number
+	) {
+		super(closingDate, account);
+		this.accountHolder = accountHolder;
+		this.previousBalance = previousBalance;
+		this.paymentsAndCredits = paymentsAndCredits;
+		this.newCharges = newCharges;
+		this.fees = fees;
+		this.interestCharged = interestCharged;
+		this.newBalance = newBalance;
+		this.minimumPaymentDue = minimumPaymentDue;
+		this.creditLimit = creditLimit;
+		this.availableCredit = availableCredit;
+		this.cashAdvanceLimit = cashAdvanceLimit;
+		this.availableCash = availableCash;
+	}
 }

@@ -1,16 +1,13 @@
-import type { ImportedTransaction } from '$lib/import/ImportedTransaction';
+import { ImportedTransaction } from '$lib/import/ImportedTransaction';
 import { ParseStatementError } from '$lib/import/parse/errors';
 import { parseAmount } from '$lib/import/parse/money';
 import type { StatementTextLocation } from '$lib/import/statement/navigation';
 import { Result } from '@badrap/result';
 import { DateTime } from 'luxon';
 
-export class Credit implements ImportedTransaction {
-	#pageNumber: number;
-	date: DateTime<true>;
+export class Credit extends ImportedTransaction {
 	card: string;
 	descriptionLines: string[];
-	amount: number;
 
 	constructor(
 		pageNumber: number,
@@ -19,19 +16,9 @@ export class Credit implements ImportedTransaction {
 		descriptionLines: string[],
 		amount: number
 	) {
-		this.#pageNumber = pageNumber;
-		this.date = date;
+		super(date, amount, descriptionLines.join('\n'), pageNumber);
 		this.card = card;
 		this.descriptionLines = descriptionLines;
-		this.amount = amount;
-	}
-
-	get pageNumber(): number {
-		return this.#pageNumber;
-	}
-
-	get statementDescription(): string {
-		return this.descriptionLines.join(' ');
 	}
 }
 

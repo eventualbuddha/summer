@@ -2,7 +2,7 @@
 	import TransactionRow from '$lib/components/TransactionRow.svelte';
 	import type { Category } from '$lib/db';
 	import { ImportedTransaction } from '$lib/import/ImportedTransaction';
-	import { parseStatement } from '$lib/import/sources/schwab';
+	import { parseStatement } from '$lib/import';
 	import { Statement } from '$lib/import/statement/Statement';
 	import { State } from '$lib/state.svelte';
 	import { GlobalWorkerOptions } from 'pdfjs-dist';
@@ -26,12 +26,15 @@
 		if (file) {
 			const data = await file.arrayBuffer();
 			const pdf = await Statement.fromPDF(data);
-			for await (const result of parseStatement(pdf)) {
-				if (result.isErr) {
-					console.error(result.error);
-				} else {
-					if (result.value instanceof ImportedTransaction) {
-						transactions.push(result.value);
+			for (const { source, results } of parseStatement(pdf)) {
+				for (const result of results) {
+					if (result.isErr) {
+						console.error(`[${source}]`, result.error);
+					} else {
+						console.log(`[${source}]`, result.value);
+						if (result.value instanceof ImportedTransaction) {
+							transactions.push(result.value);
+						}
 					}
 				}
 			}

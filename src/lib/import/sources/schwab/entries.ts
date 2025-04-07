@@ -1,4 +1,4 @@
-import type { ImportedTransaction } from '$lib/import/ImportedTransaction';
+import { ImportedTransaction } from '$lib/import/ImportedTransaction';
 import { Result } from '@badrap/result';
 import { DateTime, Interval } from 'luxon';
 import { ParseStatementError } from '../../parse/errors';
@@ -214,9 +214,7 @@ export function parseActivityEntries(
 	return Result.ok(activityEntries);
 }
 
-export class ActivityEntry implements ImportedTransaction {
-	pageNumber: number;
-	date: DateTime<true>;
+export class ActivityEntry extends ImportedTransaction {
 	type: string;
 	description?: string;
 	debit?: number;
@@ -232,20 +230,16 @@ export class ActivityEntry implements ImportedTransaction {
 		credit: number | undefined,
 		balance: number
 	) {
-		this.pageNumber = pageNumber;
-		this.date = date;
+		super(
+			date,
+			debit ? -debit : (credit ?? Number.NaN),
+			description ? `${type} ${description}` : type,
+			pageNumber
+		);
 		this.type = type;
 		this.description = description;
 		this.debit = debit;
 		this.credit = credit;
 		this.balance = balance;
-	}
-
-	get amount(): number {
-		return this.debit ? -this.debit : (this.credit ?? Number.NaN);
-	}
-
-	get statementDescription(): string {
-		return this.description ? `${this.type} ${this.description}` : this.type;
 	}
 }
