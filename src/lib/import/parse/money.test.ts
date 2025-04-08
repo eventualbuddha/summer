@@ -1,5 +1,5 @@
 import { Result } from '@badrap/result';
-import { expect, test } from 'vitest';
+import { expect, test } from 'bun:test';
 import { parseAmount, ParseMoneyError } from './money';
 
 test('parseAmount success', () => {
