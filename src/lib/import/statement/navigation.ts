@@ -189,7 +189,7 @@ export class StatementTextLocation {
 		return undefined;
 	}
 
-	[(await import('util')).inspect.custom]() {
+	[Symbol.for('nodejs.util.inspect.custom')]() {
 		return `StatementTextLocation { text: ${this.text.str}, pageNumber: ${this.#pageNumber}, x=${this.text.x}, y=${this.text.y} }`;
 	}
 }
@@ -602,7 +602,7 @@ export class PageTextLocation {
 		return entries;
 	}
 
-	[(await import('util')).inspect.custom]() {
+	[Symbol.for('nodejs.util.inspect.custom')]() {
 		return `PageTextLocation { text=${this.#text.str}, pageNumber=${this.#pageNumber}, x=${this.#text.x}, y=${this.#text.y} }`;
 	}
 }
