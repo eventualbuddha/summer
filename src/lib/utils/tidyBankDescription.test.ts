@@ -1,25 +1,25 @@
 import { expect, test } from 'bun:test';
-import { tidyBankDescription, type TransactionDescription } from './tidyBankDescription';
+import { tidyBankDescription } from './tidyBankDescription';
 
 test('tidyBankDescription', () => {
-	expect(tidyBankDescription('')).toEqual<TransactionDescription>({ text: '' });
-	expect(tidyBankDescription('DOORDASH LITTLE STAR')).toEqual<TransactionDescription>({
+	expect(tidyBankDescription('')).toEqual({ text: '' });
+	expect(tidyBankDescription('DOORDASH LITTLE STAR')).toEqual({
 		text: 'LITTLE STAR',
 		doordash: true
 	});
-	expect(tidyBankDescription('GITHUB SINDRESORHUS')).toEqual<TransactionDescription>({
+	expect(tidyBankDescription('GITHUB SINDRESORHUS')).toEqual({
 		text: 'GITHUB SINDRESORHUS',
 		github: true
 	});
-	expect(tidyBankDescription('VENMO CORALINE JONES')).toEqual<TransactionDescription>({
+	expect(tidyBankDescription('VENMO CORALINE JONES')).toEqual({
 		text: 'VENMO CORALINE JONES',
 		venmo: true
 	});
-	expect(tidyBankDescription('CASH APP CORALINE JONES')).toEqual<TransactionDescription>({
+	expect(tidyBankDescription('CASH APP CORALINE JONES')).toEqual({
 		text: 'CORALINE JONES',
 		cashApp: true
 	});
-	expect(tidyBankDescription('AMZN.COM DELIVERY')).toEqual<TransactionDescription>({
+	expect(tidyBankDescription('AMZN.COM DELIVERY')).toEqual({
 		text: 'AMZN.COM DELIVERY',
 		amazon: true
 	});
