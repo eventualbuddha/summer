@@ -1,4 +1,4 @@
-import { ImportedTransaction } from '$lib/import/ImportedTransaction';
+import { ImportedTransaction, ImportedTransactionKind } from '$lib/import/ImportedTransaction';
 import { ParseStatementError } from '$lib/import/parse/errors';
 import { parseAmount } from '$lib/import/parse/money';
 import type { StatementTextLocation } from '$lib/import/statement/navigation';
@@ -7,9 +7,17 @@ import { Result } from '@badrap/result';
 import { DateTime } from 'luxon';
 
 export class Charge extends ImportedTransaction {
-	descriptionLines: string[];
-	location: string;
-	state: string;
+	/** Absolute value of the charged amount. */
+	readonly chargeAmount: number;
+
+	/** Lines of text describing the credit in the statement. */
+	readonly descriptionLines: string[];
+
+	/** The location associated with the charge, typically a city/website/phone number. */
+	readonly location: string;
+
+	/** The state where the merchant of record is registered. */
+	readonly state: string;
 
 	constructor(
 		pageNumber: number,
@@ -17,9 +25,22 @@ export class Charge extends ImportedTransaction {
 		descriptionLines: string[],
 		location: string,
 		state: string,
-		amount: number
+		chargeAmount: number
 	) {
-		super(date, amount, descriptionLines.join('\n'), pageNumber);
+		if (chargeAmount < 0) {
+			throw new Error(
+				'Charge amounts must be represented as a positive value. Maybe you want `Credit`?'
+			);
+		}
+
+		super(
+			ImportedTransactionKind.Charge,
+			date,
+			-chargeAmount,
+			descriptionLines.join('\n'),
+			pageNumber
+		);
+		this.chargeAmount = chargeAmount;
 		this.descriptionLines = descriptionLines;
 		this.location = location;
 		this.state = state;
@@ -71,7 +92,21 @@ export function parseNewCharges(
 		);
 	}
 
-	const totalNewCharges = totalNewChargesAmount.value;
+	if (totalNewChargesAmount.value < 0) {
+		return Result.err(
+			ParseStatementError.InvalidValue(
+				`Expected "Total New Charges" to be positive, but got ${formatTransactionAmount(totalNewChargesAmount.value)}`,
+				{
+					pageNumber: totalNewChargesValue.pageNumber,
+					contentText: totalNewChargesValue.text,
+					searchFromText: totalNewChargesLabel.text,
+					searchDirection: 'right'
+				}
+			)
+		);
+	}
+
+	const totalNewCharges = -totalNewChargesAmount.value;
 
 	const firstAmountHeader = totalNewChargesValue.findDown('Amount', {
 		alignment: 'right'
@@ -201,14 +236,6 @@ export function parseNewCharges(
 	}
 
 	const computedTotalChargesAmount = charges.reduce((sum, { amount }) => sum + amount, 0);
-
-	console.table(
-		charges.map((charge) => ({
-			date: charge.date.toFormat('MM/dd/yy'),
-			description: charge.descriptionLines[0],
-			amount: formatTransactionAmount(charge.amount)
-		}))
-	);
 
 	if (computedTotalChargesAmount !== totalNewCharges) {
 		return Result.err(

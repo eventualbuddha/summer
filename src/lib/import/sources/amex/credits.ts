@@ -1,4 +1,4 @@
-import { ImportedTransaction } from '$lib/import/ImportedTransaction';
+import { ImportedTransaction, ImportedTransactionKind } from '$lib/import/ImportedTransaction';
 import { ParseStatementError } from '$lib/import/parse/errors';
 import { parseAmount } from '$lib/import/parse/money';
 import type { StatementTextLocation } from '$lib/import/statement/navigation';
@@ -6,23 +6,37 @@ import { Result } from '@badrap/result';
 import { DateTime } from 'luxon';
 
 export class Credit extends ImportedTransaction {
-	card: string;
-	descriptionLines: string[];
+	/** Absolute value of the credit. */
+	readonly creditAmount: number;
+
+	/** The label for the credited card, typically the cardholder name or partial number. */
+	readonly card: string;
+
+	/** Lines of text describing the credit in the statement. */
+	readonly descriptionLines: string[];
 
 	constructor(
+		kind: typeof ImportedTransactionKind.Credit | typeof ImportedTransactionKind.Payment,
 		pageNumber: number,
 		date: DateTime<true>,
 		card: string,
 		descriptionLines: string[],
-		amount: number
+		creditAmount: number
 	) {
-		super(date, amount, descriptionLines.join('\n'), pageNumber);
+		if (creditAmount < 0) {
+			throw new Error(
+				'Credit amounts must be represented as a positive value. Maybe you want `Charge`?'
+			);
+		}
+		super(kind, date, creditAmount, descriptionLines.join('\n'), pageNumber);
+		this.creditAmount = creditAmount;
 		this.card = card;
 		this.descriptionLines = descriptionLines;
 	}
 }
 
 function parseCreditFromDate(
+	kind: typeof ImportedTransactionKind.Credit | typeof ImportedTransactionKind.Payment,
 	dateValue: StatementTextLocation,
 	endOfSection: StatementTextLocation
 ): Result<Credit, ParseStatementError> {
@@ -107,16 +121,18 @@ function parseCreditFromDate(
 
 	return Result.ok(
 		new Credit(
+			kind,
 			dateValue.pageNumber,
 			date,
 			cardValue.text.str,
 			descriptionLines.map((line) => line.text.str),
-			amount.value
+			-amount.value
 		)
 	);
 }
 
 function parseCreditsFromDateAlignedHeader(
+	kind: typeof ImportedTransactionKind.Credit | typeof ImportedTransactionKind.Payment,
 	dateAlignedHeader: StatementTextLocation,
 	endOfSection: StatementTextLocation
 ): Result<Credit[], ParseStatementError> {
@@ -132,7 +148,7 @@ function parseCreditsFromDateAlignedHeader(
 			break;
 		}
 
-		const result = parseCreditFromDate(dateValue, endOfSection);
+		const result = parseCreditFromDate(kind, dateValue, endOfSection);
 
 		if (result.isErr) {
 			return Result.err(result.error);
@@ -288,7 +304,11 @@ export function parseCredits(
 			);
 		}
 
-		const parsePaymentsResult = parseCreditsFromDateAlignedHeader(paymentsHeader, endOfPayments);
+		const parsePaymentsResult = parseCreditsFromDateAlignedHeader(
+			ImportedTransactionKind.Payment,
+			paymentsHeader,
+			endOfPayments
+		);
 
 		if (parsePaymentsResult.isErr) {
 			return Result.err(parsePaymentsResult.error);
@@ -313,7 +333,11 @@ export function parseCredits(
 			);
 		}
 
-		const parsePaymentsResult = parseCreditsFromDateAlignedHeader(creditsHeader, nextSectionHeader);
+		const parsePaymentsResult = parseCreditsFromDateAlignedHeader(
+			ImportedTransactionKind.Credit,
+			creditsHeader,
+			nextSectionHeader
+		);
 
 		if (parsePaymentsResult.isErr) {
 			return Result.err(parsePaymentsResult.error);

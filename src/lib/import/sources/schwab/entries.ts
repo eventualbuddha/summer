@@ -1,4 +1,4 @@
-import { ImportedTransaction } from '$lib/import/ImportedTransaction';
+import { ImportedTransaction, ImportedTransactionKind } from '$lib/import/ImportedTransaction';
 import { Result } from '@badrap/result';
 import { DateTime, Interval } from 'luxon';
 import { ParseStatementError } from '../../parse/errors';
@@ -214,6 +214,18 @@ export function parseActivityEntries(
 	return Result.ok(activityEntries);
 }
 
+export const ActivityEntryTypeToImportedTransactionKindMap = {
+	'Beginning Balance': ImportedTransactionKind.Balance,
+	'Ending Balance': ImportedTransactionKind.Balance,
+	Check: ImportedTransactionKind.Check,
+	'Visa Debit Card Purchase': ImportedTransactionKind.Charge,
+	'Money Transfer': ImportedTransactionKind.Transfer,
+	'Electronic Withdrawal': ImportedTransactionKind.Charge,
+	'Electronic Deposit': ImportedTransactionKind.Deposit,
+	'Deposit Mobile Banking': ImportedTransactionKind.Deposit,
+	'Interest Paid': ImportedTransactionKind.Interest
+} satisfies Record<string, ImportedTransactionKind>;
+
 export class ActivityEntry extends ImportedTransaction {
 	type: string;
 	description?: string;
@@ -231,6 +243,11 @@ export class ActivityEntry extends ImportedTransaction {
 		balance: number
 	) {
 		super(
+			Object.hasOwn(ActivityEntryTypeToImportedTransactionKindMap, type)
+				? ActivityEntryTypeToImportedTransactionKindMap[
+						type as keyof typeof ActivityEntryTypeToImportedTransactionKindMap
+					]
+				: ImportedTransactionKind.Unknown,
 			date,
 			debit ? -debit : (credit ?? Number.NaN),
 			description ? `${type} ${description}` : type,
