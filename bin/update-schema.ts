@@ -1,94 +1,14 @@
 #!/usr/bin/env bun
 
-import { createWriteStream } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { argv, exit, stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
-import { Surreal } from 'surrealdb';
-import { serializeRecord } from '../src/lib/serialization';
-
-export const OPTIONS = {
-	help: {
-		type: 'boolean',
-		short: 'h',
-		description: 'Display help information'
-	},
-	outputPath: {
-		type: 'string',
-		short: 'o',
-		description: 'Output path for backup directory'
-	},
-	url: {
-		type: 'string',
-		short: 'u',
-		description: 'SurrealDB URL',
-		default: 'ws://localhost:8000/'
-	},
-	username: {
-		type: 'string',
-		short: 'U',
-		description: 'SurrealDB Username'
-	},
-	namespace: {
-		type: 'string',
-		short: 'n',
-		description: 'SurrealDB Namespace'
-	},
-	database: {
-		type: 'string',
-		short: 'd',
-		description: 'SurrealDB Database'
-	}
-} as const;
-
-export async function backup({
-	backupPath,
-	url,
-	namespace,
-	database,
-	username,
-	password,
-	progress
-}: {
-	backupPath: string;
-	url: string;
-	namespace: string;
-	database: string;
-	username?: string;
-	password?: string;
-	progress?: (table: string) => void;
-}) {
-	const db = new Surreal();
-	await db.connect(url);
-
-	if (username && password) {
-		await db.signin({ username, password });
-	}
-
-	await db.use({ namespace, database });
-
-	const [{ tables }] = await db.query<[{ tables: Record<string, string> }]>('INFO FOR DB;');
-
-	await mkdir(backupPath, { recursive: true });
-
-	for (const table of Object.keys(tables)) {
-		const file = createWriteStream(join(backupPath, `${table}.jsonl`));
-
-		for (const record of await db.select(table)) {
-			await new Promise((resolve) => file.write(`${serializeRecord(record)}\n`, resolve));
-			progress?.(table);
-		}
-
-		file.end();
-	}
-
-	await db.close();
-}
+import { backup, OPTIONS } from './backup';
+import { restore } from './restore';
 
 function showHelp() {
-	stdout.write('Usage: backup [options]\n\n');
+	stdout.write('Usage: update-schema [options]\n\n');
 	stdout.write('Options:\n');
 	stdout.write('  -h, --help      Display help information\n');
 	stdout.write('  -o, --output    Output path for backup directory\n');
@@ -155,6 +75,27 @@ export async function main(argv: readonly string[]): Promise<number> {
 					stdout.write('\n');
 				}
 				stdout.write(`Backing up ${table}`);
+			}
+			stdout.write('.');
+			lastTable = table;
+		}
+	});
+
+	lastTable = undefined;
+	await restore({
+		backupPath,
+		url,
+		username,
+		password,
+		namespace,
+		database,
+		overwriteDatabase: true,
+		progress(table) {
+			if (table !== lastTable) {
+				if (lastTable) {
+					stdout.write('\n');
+				}
+				stdout.write(`Restoring ${table}`);
 			}
 			stdout.write('.');
 			lastTable = table;
