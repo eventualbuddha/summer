@@ -1,14 +1,14 @@
-import { expect, test } from 'vitest';
+import { expect, test } from 'bun:test';
 import { getSelectionRange } from './getSelectionRange';
 import type { Selection } from '$lib/types';
 
 test('empty selection', () => {
-	expect(getSelectionRange([])).toEqual(undefined);
+	expect(getSelectionRange([])).toBeUndefined();
 });
 
 test('single selection', () => {
-	const selections: Selection<number>[] = [{ selected: true, value: 1, key: '1' }];
-	expect(getSelectionRange(selections)).toEqual([selections[0], selections[0]]);
+	const selection: Selection<number> = { selected: true, value: 1, key: '1' };
+	expect(getSelectionRange([selection, selection])).toEqual([selection, selection]);
 });
 
 test.each([
@@ -40,5 +40,5 @@ test.each([
 		{ selected: selecteds[1], value: 1, key: '1' },
 		{ selected: selecteds[2], value: 2, key: '2' }
 	];
-	expect(getSelectionRange(selections)?.map((s) => s.value)).toEqual(range);
+	expect<unknown>(getSelectionRange(selections)?.map((s) => s.value)).toEqual(range);
 });
