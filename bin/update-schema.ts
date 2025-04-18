@@ -80,6 +80,7 @@ export async function main(argv: readonly string[]): Promise<number> {
 			lastTable = table;
 		}
 	});
+	stdout.write('\n');
 
 	lastTable = undefined;
 	await restore({
