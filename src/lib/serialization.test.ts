@@ -1,5 +1,5 @@
+import { expect, test } from 'bun:test';
 import { StringRecordId } from 'surrealdb';
-import { expect, test } from 'vitest';
 import { parseRecord, serializeRecord } from './serialization';
 
 test.each([
