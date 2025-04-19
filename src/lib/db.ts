@@ -198,7 +198,7 @@ export interface Transaction {
 	id: string;
 	date: Date;
 	amount: number;
-	category: Category;
+	category?: Category;
 	statementId: string;
 	description?: string;
 	statementDescription: string;

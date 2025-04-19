@@ -1,5 +1,5 @@
 /* eslint-disable no-empty-pattern */
-import { expect, test as base } from '@playwright/test';
+import { expect, test as base, type Page } from '@playwright/test';
 import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { type AddressInfo, createServer, Socket } from 'node:net';
 import Surreal, { RecordId } from 'surrealdb';
@@ -68,6 +68,8 @@ export interface Transaction {
 export const test = base.extend<{
 	port: number;
 	hostname: string;
+	namespace: string;
+	database: string;
 	surreal: Surreal;
 	surrealProcess: ChildProcessWithoutNullStreams;
 	createAccount: (data?: Partial<Account>) => Promise<Account>;
@@ -75,8 +77,13 @@ export const test = base.extend<{
 	createFile: (data?: Partial<File>) => Promise<File>;
 	createCategory: (data?: Partial<Category>) => Promise<Category>;
 	createTransaction: (data?: Partial<Transaction>) => Promise<Transaction>;
+	pageHelpers: {
+		connect(page: Page): Promise<void>;
+	};
 }>({
 	hostname: '127.0.0.1',
+	namespace: 'ns',
+	database: 'db',
 
 	port: async ({}, use) => {
 		const port = await getFreePort();
@@ -96,10 +103,10 @@ export const test = base.extend<{
 	},
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	surreal: async ({ surrealProcess, hostname, port }, use) => {
+	surreal: async ({ surrealProcess, hostname, port, namespace, database }, use) => {
 		const surreal = new Surreal();
 		await surreal.connect(`ws://${hostname}:${port}`);
-		await surreal.use({ namespace: 'ns', database: 'db' });
+		await surreal.use({ namespace, database });
 		await use(surreal);
 		await surreal.close();
 	},
@@ -173,5 +180,15 @@ export const test = base.extend<{
 					})
 				)[0] as unknown as Transaction
 		);
-	}
+	},
+
+	pageHelpers: async ({ hostname, port, namespace, database }, use) =>
+		await use({
+			async connect(page: Page) {
+				await page.getByRole('textbox', { name: 'URL' }).fill(`ws://${hostname}:${port}`);
+				await page.getByRole('textbox', { name: 'Namespace' }).fill(namespace);
+				await page.getByRole('textbox', { name: 'Database' }).fill(database);
+				await page.getByRole('button').click();
+			}
+		})
 });

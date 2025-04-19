@@ -14,13 +14,21 @@
 
 	let isSelectingCategory = $state(false);
 
-	async function setCategory(category: Category) {
+	async function setCategory(category: Category | undefined) {
 		await s.setCategory(transaction, category);
 		isSelectingCategory = false;
 	}
+
+	const NONE_CATEGORY: Category = {
+		id: 'none',
+		name: 'None',
+		ordinal: categories.length,
+		color: 'gray-300',
+		emoji: '🚫'
+	};
 </script>
 
-<div class="flex grow-0 flex-row items-center gap-2">
+<div data-transaction class="flex grow-0 flex-row items-center gap-2">
 	<div class="text-xs text-gray-600">
 		<div class="w-12 text-center">
 			{transaction.date.toLocaleDateString(undefined, { month: 'short' })}
@@ -35,7 +43,7 @@
 			</div>
 		{/snippet}
 		{#snippet trigger()}
-			<CategoryPill category={transaction.category} style="short" />
+			<CategoryPill category={transaction.category ?? NONE_CATEGORY} style="short" />
 		{/snippet}
 		{#snippet portal()}
 			<div
@@ -50,6 +58,13 @@
 						<CategoryPill {category} style="full" />
 					</button>
 				{/each}
+				<button
+					tabindex={categories.length}
+					onclick={() => setCategory(undefined)}
+					class="cursor-pointer rounded-md text-left hover:bg-gray-500 hover:text-gray-50"
+				>
+					<CategoryPill category={NONE_CATEGORY} style="full" />
+				</button>
 			</div>
 		{/snippet}
 	</Dropdown>
