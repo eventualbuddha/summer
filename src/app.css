@@ -60,3 +60,8 @@ html {
 	/* @apply bg-yellow-300 dark:bg-yellow-700; */
 	@apply border-l-4 border-yellow-300 dark:border-yellow-700;
 }
+
+.gray-300 {
+	/* @apply bg-gray-300 dark:bg-gray-700; */
+	@apply border-l-4 border-gray-300 dark:border-gray-700;
+}

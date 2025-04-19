@@ -180,7 +180,7 @@ export class State {
 		this.#surreal = surreal;
 	}
 
-	async setCategory(transaction: Transaction, category: Category) {
+	async setCategory(transaction: Transaction, category: Category | undefined) {
 		if (!this.#surreal) {
 			throw new Error('Not connected to SurrealDB');
 		}
@@ -188,10 +188,16 @@ export class State {
 		const oldCategory = transaction.category;
 		transaction.category = category;
 		try {
-			await this.#surreal.query(`UPDATE $transaction SET category = $category`, {
-				transaction: new RecordId('transaction', transaction.id),
-				category: new RecordId('category', category.id)
-			});
+			if (category) {
+				await this.#surreal.query(`UPDATE $transaction SET category = $category`, {
+					transaction: new RecordId('transaction', transaction.id),
+					category: new RecordId('category', category.id)
+				});
+			} else {
+				await this.#surreal.query(`UPDATE $transaction SET category = none`, {
+					transaction: new RecordId('transaction', transaction.id)
+				});
+			}
 		} catch (error) {
 			console.error(error);
 			this.lastError = error as Error;
