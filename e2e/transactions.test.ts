@@ -67,4 +67,7 @@ test('clear category', async ({
 	await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible();
 	await expect(page.getByText('Jan 1 2025')).not.toBeVisible();
 	await expect(page.getByText('$').first()).toHaveText('$0');
+	for (const locator of await page.getByText('$').all()) {
+		await expect(locator).toHaveText('$0');
+	}
 });
