@@ -5,10 +5,12 @@ import {
 	use,
 	type Account,
 	type Category,
+	type FilterOptions,
 	type Transaction,
 	type Transactions
 } from './db';
 import type { Selection } from './types';
+import { SvelteSet } from 'svelte/reactivity';
 
 const LOCAL_STORAGE_KEY = 'lastDb';
 
@@ -24,6 +26,8 @@ export interface FilterState {
 	categories: Selection<Category>[];
 	accounts: Selection<Account>[];
 	searchTerm: string;
+	stickyTransactionIds: Set<Transaction['id']>;
+	updateCount: number;
 }
 
 export type SortingField = 'date' | 'amount' | 'statementDescription';
@@ -64,12 +68,17 @@ export class Sorting {
 	}
 }
 
+const NEVER_PROMISE = new Promise<never>(() => {});
+
 export class State {
 	lastDb = $state<DatabaseConnectionInfo>();
 	lastError = $state<Error>();
 	#surreal = $state<Surreal>();
 
+	#filterOptions = $state<FilterOptions>();
 	filters = $state<FilterState>();
+	transactions = $state<Transactions>();
+
 	sort = $state(
 		new Sorting(
 			{
@@ -80,7 +89,6 @@ export class State {
 			'date'
 		)
 	);
-	transactions = $state<Transactions>();
 
 	constructor() {
 		const lastDb = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -88,67 +96,78 @@ export class State {
 			this.lastDb = JSON.parse(lastDb);
 		}
 
-		// re-create filters when the connection changes
 		$effect(() => {
-			const surreal = this.#surreal;
-			if (!surreal) return;
-
-			void (async () => {
-				const filters = await getFilterOptions(surreal);
-				this.filters = {
-					years: filters.years.map((year) => ({
-						key: year.toString(),
-						value: year,
-						selected: true
-					})),
-					months: filters.months.map((month) => ({
-						key: month.toString(),
-						value: month,
-						selected: true
-					})),
-					categories: filters.categories.map((category) => ({
-						key: category.id,
-						value: category,
-						selected: true
-					})),
-					accounts: filters.accounts.map((account) => ({
-						key: account.id,
-						value: account,
-						selected: true
-					})),
-					searchTerm: ''
-				};
-			})();
+			this.#updateFilters();
 		});
 
-		// fetch transactions when the connection or filters change
 		$effect(() => {
-			const surreal = this.#surreal;
-			const { filters, sort } = this;
-			if (!surreal || !filters) return;
-
-			void (async () => {
-				this.transactions = await getTransactions(
-					{
-						years: filters.years
-							.filter((selection) => selection.selected)
-							.map((selection) => selection.value),
-						months: filters.months
-							.filter((selection) => selection.selected)
-							.map((selection) => selection.value),
-						categories: filters.categories
-							.filter((selection) => selection.selected)
-							.map((selection) => selection.value),
-						accounts: filters.accounts
-							.filter((selection) => selection.selected)
-							.map((selection) => selection.value),
-						searchTerm: filters.searchTerm,
-						sort
-					},
-					surreal
-				);
-			})();
+			if (this.filters) {
+				this.#updateTransactions(this.filters);
+			}
 		});
+	}
+
+	async #updateFilters() {
+		if (!this.#surreal) return NEVER_PROMISE;
+		// reset sticky transaction IDs when the filters change
+		this.#filterOptions = await getFilterOptions(this.#surreal);
+		this.filters = {
+			years: this.#filterOptions.years.map((year) => ({
+				key: year.toString(),
+				value: year,
+				selected: true
+			})),
+			months: this.#filterOptions.months.map((month) => ({
+				key: month.toString(),
+				value: month,
+				selected: true
+			})),
+			accounts: this.#filterOptions.accounts.map((account) => ({
+				key: account.toString(),
+				value: account,
+				selected: true
+			})),
+			categories: this.#filterOptions.categories.map((category) => ({
+				key: category.toString(),
+				value: category,
+				selected: true
+			})),
+			searchTerm: '',
+			stickyTransactionIds: new SvelteSet(),
+			updateCount: 0
+		};
+	}
+
+	async #updateTransactions(filters: FilterState) {
+		const surreal = this.#surreal;
+		if (!surreal) return NEVER_PROMISE;
+
+		const { sort } = this;
+		const stickyTransactionIds = [...filters.stickyTransactionIds];
+
+		// Trigger this method if this value changes.
+		void filters.updateCount;
+
+		this.transactions = await getTransactions(
+			{
+				years: filters.years
+					.filter((selection) => selection.selected)
+					.map((selection) => selection.value),
+				months: filters.months
+					.filter((selection) => selection.selected)
+					.map((selection) => selection.value),
+				categories: filters.categories
+					.filter((selection) => selection.selected)
+					.map((selection) => selection.value),
+				accounts: filters.accounts
+					.filter((selection) => selection.selected)
+					.map((selection) => selection.value),
+				searchTerm: filters.searchTerm,
+				stickyTransactionIds,
+				sort
+			},
+			surreal
+		);
 	}
 
 	get isConnected() {
@@ -185,6 +204,10 @@ export class State {
 			throw new Error('Not connected to SurrealDB');
 		}
 
+		if (!this.filters) {
+			throw new Error('No filters have been loaded');
+		}
+
 		const oldCategory = transaction.category;
 		transaction.category = category;
 		try {
@@ -198,6 +221,8 @@ export class State {
 					transaction: new RecordId('transaction', transaction.id)
 				});
 			}
+			this.filters.stickyTransactionIds.add(transaction.id);
+			this.filters.updateCount += 1;
 		} catch (error) {
 			console.error(error);
 			this.lastError = error as Error;

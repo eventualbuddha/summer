@@ -61,6 +61,7 @@ const getTransactionsQueryBindings = {
 	accounts: new Gap<Account['id'][]>(),
 	searchTerm: new Gap<string>(),
 	amounts: new Gap<number[]>(),
+	stickyTransactionIds: new Gap<Transaction['id'][]>(),
 	orderByField: new Gap<string>()
 } as const;
 
@@ -71,8 +72,8 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
           SELECT id.id(),
 							 date,
 							 amount,
-							 category.id() as categoryId,
-							 category.ordinal as categoryOrdinal,
+							 category AND category.id() as categoryId,
+							 category AND category.ordinal as categoryOrdinal,
 							 statement.account.id() as accountId,
 							 description,
 							 statementDescription,
@@ -80,25 +81,30 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
 							 statement.date.year() as year,
 							 type::field($orderByField) as orderField
             FROM transaction
-           WHERE statement.date.year() IN $years
-             AND statement.date.month() IN $months
-             AND category AND category.id() IN $categories
-					 AND statement.account AND statement.account.id() IN $accounts
-					 AND (
-						  (!$searchTerm AND !$amounts)
-						  OR (description AND description.lowercase().contains($searchTerm.lowercase()))
-						  OR (statementDescription AND statementDescription.lowercase().contains($searchTerm.lowercase()))
-							OR (amount IN $amounts)
-			     )
-			ORDER BY orderField COLLATE ${sortDirection === 'asc' ? 'ASC' : 'DESC'}
+           WHERE id.id() IN $stickyTransactionIds
+              OR (
+                statement.date.year() IN $years
+                AND statement.date.month() IN $months
+                AND category AND category.id() IN $categories
+      					AND statement.account AND statement.account.id() IN $accounts
+      					AND (
+      					  (!$searchTerm AND !$amounts)
+      					  OR (description AND description.lowercase().contains($searchTerm.lowercase()))
+      					  OR (statementDescription AND statementDescription.lowercase().contains($searchTerm.lowercase()))
+     							OR (amount IN $amounts)
+      			    )
+              )
+     		ORDER BY orderField COLLATE ${sortDirection === 'asc' ? 'ASC' : 'DESC'}
 		);
 
-		$transactions.fold(0, |$amount, $transaction| $amount + $transaction.amount);
+		let $countable = $transactions.filter(|$transaction| $transaction.categoryId != none);
+
+		$countable.fold(0, |$amount, $transaction| $amount + $transaction.amount);
 		$transactions;
 
-		SELECT year, math::sum(amount) as total FROM $transactions GROUP BY year;
-		SELECT categoryId, categoryOrdinal, math::sum(amount) as total FROM $transactions GROUP BY categoryId;
-		SELECT accountId, math::sum(amount) as total FROM $transactions GROUP BY accountId;
+		SELECT year, math::sum(amount) as total FROM $countable GROUP BY year;
+		SELECT categoryId, categoryOrdinal, math::sum(amount) as total FROM $countable GROUP BY categoryId;
+		SELECT accountId, math::sum(amount) as total FROM $countable GROUP BY accountId;
     `,
 		getTransactionsQueryBindings
 	);
@@ -118,6 +124,7 @@ export async function getTransactions(
 			? getTransactionsAscendingQuery
 			: getTransactionsDescendingQuery,
 		[
+			b.stickyTransactionIds.fill([...options.stickyTransactionIds]),
 			b.years.fill(options.years),
 			b.months.fill(options.months),
 			b.categories.fill(options.categories.map((c) => c.id)),
@@ -129,8 +136,9 @@ export async function getTransactions(
 	);
 	console.timeEnd('getTransactions: fetch from surrealdb');
 	console.time('getTransactions: parse response');
-	const [, total, transactions, totalByYear, totalByCategoryId, totalByAccountId] = z
+	const [, , total, transactions, totalByYear, totalByCategoryId, totalByAccountId] = z
 		.tuple([
+			z.any(),
 			z.any(),
 			z.number(),
 			z.array(TransactionRecordSchema),
@@ -208,7 +216,7 @@ export const TransactionRecordSchema = z.object({
 	id: z.string().nonempty(),
 	date: z.instanceof(Date),
 	amount: z.number(),
-	categoryId: z.string(),
+	categoryId: z.string().optional(),
 	statementId: z.string(),
 	description: z.string().optional(),
 	statementDescription: z.string()
@@ -260,6 +268,7 @@ export const FilterOptionsSchema = z.object({
 
 export interface GetTransactionsOptions extends FilterOptions {
 	sort: Sorting;
+	stickyTransactionIds: Iterable<Transaction['id']>;
 }
 
 const getFilterOptionsQuery = new PreparedQuery(
