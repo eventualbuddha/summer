@@ -1,6 +1,7 @@
 import { Gap, PreparedQuery, Surreal } from 'surrealdb';
 import { z } from 'zod';
 import type { Sorting, SortingDirection } from './state.svelte';
+import { PolygonSchema, type Polygon } from './types';
 
 export interface Transactions {
 	count: number;
@@ -44,6 +45,7 @@ export async function use(
 		}
 	}
 
+	console.log('[SurrealDB] using', { namespace, database });
 	await surreal.use({ namespace, database });
 
 	if ((init && !hasNamespace) || !hasDatabase) {
@@ -70,6 +72,7 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
 		`
 		let $transactions = (
           SELECT id.id(),
+               type,
 							 date,
 							 amount,
 							 category AND category.id() as categoryId,
@@ -166,6 +169,7 @@ export async function getTransactions(
 		})),
 		list: transactions.map((t) => ({
 			id: t.id,
+			type: t.type,
 			date: t.date,
 			amount: t.amount,
 			category: options.categories.find((category) => category.id === t.categoryId)!,
@@ -202,30 +206,46 @@ export const StatementSchema = z.object({
 	file: z.string().nonempty()
 });
 
+export interface StatementLocation {
+	pageNumber: number;
+	bounds: Polygon;
+}
+
+export const StatementLocationSchema = z.object({
+	pageNumber: z.number(),
+	bounds: PolygonSchema
+});
+
 export interface Transaction {
 	id: string;
+	type: string;
 	date: Date;
 	amount: number;
 	category?: Category;
 	statementId: string;
 	description?: string;
 	statementDescription: string;
+	statementLocation?: StatementLocation;
 }
 
 export const TransactionRecordSchema = z.object({
 	id: z.string().nonempty(),
+	type: z.string(),
 	date: z.instanceof(Date),
 	amount: z.number(),
 	categoryId: z.string().optional(),
 	statementId: z.string(),
 	description: z.string().optional(),
-	statementDescription: z.string()
+	statementDescription: z.string(),
+	statementLocation: StatementLocationSchema.optional()
 });
 
 export interface Account {
 	id: string;
 	type: string;
 	name: string;
+	number: string;
+	source: string;
 }
 
 export const AccountSchema = z.object({

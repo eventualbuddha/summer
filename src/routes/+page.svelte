@@ -3,7 +3,7 @@
 	import TransactionsScreen from '$lib/screens/TransactionsScreen.svelte';
 	import { State } from '$lib/state.svelte';
 
-	let s = new State();
+	let s = State.shared;
 </script>
 
 {#if !s.isConnected}

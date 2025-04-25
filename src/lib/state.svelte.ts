@@ -1,4 +1,4 @@
-import { RecordId, Surreal } from 'surrealdb';
+import { RecordId, Surreal, type QueryResult } from 'surrealdb';
 import {
 	getFilterOptions,
 	getTransactions,
@@ -6,11 +6,15 @@ import {
 	type Account,
 	type Category,
 	type FilterOptions,
+	type Statement,
 	type Transaction,
 	type Transactions
 } from './db';
 import type { Selection } from './types';
 import { SvelteSet } from 'svelte/reactivity';
+import type { StatementMetadata } from './import/StatementMetadata';
+import type { ImportedTransaction } from './import/ImportedTransaction';
+import { Result } from '@badrap/result';
 
 const LOCAL_STORAGE_KEY = 'lastDb';
 
@@ -71,12 +75,18 @@ export class Sorting {
 const NEVER_PROMISE = new Promise<never>(() => {});
 
 export class State {
+	static #shared?: State;
+	static get shared(): State {
+		return (this.#shared ??= new State());
+	}
+
 	lastDb = $state<DatabaseConnectionInfo>();
 	lastError = $state<Error>();
 	#surreal = $state<Surreal>();
 
 	#filterOptions = $state<FilterOptions>();
 	filters = $state<FilterState>();
+	#lastFilters?: FilterState;
 	transactions = $state<Transactions>();
 
 	sort = $state(
@@ -109,7 +119,6 @@ export class State {
 
 	async #updateFilters() {
 		if (!this.#surreal) return NEVER_PROMISE;
-		// reset sticky transaction IDs when the filters change
 		this.#filterOptions = await getFilterOptions(this.#surreal);
 		this.filters = {
 			years: this.#filterOptions.years.map((year) => ({
@@ -272,5 +281,108 @@ export class State {
 			this.lastError = error as Error;
 			transaction.category = oldCategory;
 		}
+	}
+
+	async importStatement(
+		filename: string,
+		pdfData: Uint8Array,
+		source: string,
+		metadata: StatementMetadata,
+		transactions: readonly ImportedTransaction[]
+	): Promise<Result<void>> {
+		const db = this.#surreal;
+		if (!db) {
+			throw new Error('Not connected to SurrealDB');
+		}
+
+		const results = await db.queryRaw<[null, Account, null, null, Statement, null, null, null]>(
+			`
+BEGIN TRANSACTION;
+
+LET $account = (
+    SELECT * FROM ONLY account
+     WHERE source = $source
+       AND number = $accountNumber
+       AND name = $accountName
+       AND type = $accountType
+     LIMIT 1
+) ?? (
+    CREATE ONLY account SET
+        source = $source,
+        number = $accountNumber,
+        name = $accountName,
+        type = $accountType
+);
+
+$account;
+
+LET $file = CREATE ONLY file SET
+    name = $filename,
+    data = $pdfData;
+
+LET $statement = CREATE ONLY statement SET
+    account = $account.id,
+    date = $statementDate,
+    file = $file.id;
+
+$statement;
+
+LET $defaultCategory = (SELECT defaultCategory FROM ONLY settings:global).defaultCategory;
+
+IF !$defaultCategory {
+    THROW 'No default category set.';
+};
+
+FOR $t IN $transactions {
+    CREATE ONLY transaction SET
+        statement = $statement.id,
+        date = $t.date,
+        amount = $t.amount,
+        statementDescription = $t.statementDescription,
+        category = $defaultCategory,
+        type = $t.type;
+};
+
+COMMIT TRANSACTION;
+		`,
+			{
+				source,
+				accountNumber: metadata.account,
+				accountName: metadata.accountName,
+				accountType: metadata.accountType,
+				filename,
+				pdfData,
+				statementDate: metadata.closingDate.toJSDate(),
+				transactions: transactions.map((t) => ({
+					date: t.date.toJSDate(),
+					amount: t.amount,
+					statementDescription: t.statementDescription,
+					type: t.kind
+				}))
+			}
+		);
+
+		const errors = results.filter((r) => r.status === 'ERR');
+		const errorMessage = errors.find(
+			({ result }) => status === 'ERR' && result.startsWith('An error occurred:')
+		)?.result;
+
+		if (errors.length > 0) {
+			return Result.err(new Error(errorMessage));
+		}
+
+		const [, accountResult, , , statementResult] = results;
+
+		if (accountResult.status !== 'OK' || statementResult.status !== 'OK') {
+			throw new Error('Results should be OK');
+		}
+
+		await this.#updateFilters();
+		this.selectAccounts([accountResult.result.id]);
+		this.selectYears([statementResult.result.date.getFullYear().toString()]);
+		this.selectMonths([(statementResult.result.date.getMonth() + 1).toString()]);
+
+		console.log({ source, metadata, transactions });
+		return Result.ok(undefined);
 	}
 }
