@@ -2,13 +2,15 @@
 	import type { Snippet } from 'svelte';
 
 	let {
-		selections = $bindable(),
+		selections,
 		item,
-		allToggle
+		allToggle,
+		selectItems
 	}: {
 		selections: Item[];
 		item: Snippet<[Item]>;
 		allToggle?: boolean;
+		selectItems: (keys: readonly string[]) => void;
 	} = $props();
 </script>
 
@@ -20,9 +22,8 @@
 					type="checkbox"
 					checked={selections.every((selection) => selection.selected)}
 					onclick={(e) => {
-						for (const selection of selections) {
-							selection.selected = e.currentTarget.checked;
-						}
+						const checked = e.currentTarget.checked;
+						selectItems(checked ? selections.map(({ key }) => key) : []);
 					}}
 				/>
 				All
@@ -33,16 +34,25 @@
 			<label class="cursor-pointer">
 				<input
 					type="checkbox"
-					bind:checked={selection.selected}
+					bind:checked={
+						() => selection.selected,
+						(checked) =>
+							selectItems(
+								selections
+									.filter((s) => (s.key === selection.key ? checked : s.selected))
+									.map(({ key }) => key)
+							)
+					}
 					onclick={(e) => {
 						if (e.altKey) {
 							const selected = selections.filter((s) => s.selected);
 							const thisSelected = selected.length !== 1 || selected[0] !== selection;
 
-							for (const selection of selections) {
-								selection.selected = !thisSelected;
-							}
-							selection.selected = thisSelected;
+							selectItems(
+								thisSelected
+									? [selection.key]
+									: selections.filter((s) => s !== selection).map(({ key }) => key)
+							);
 						}
 					}}
 				/>

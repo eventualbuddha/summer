@@ -31,11 +31,16 @@
 	</div>
 	{#if s.filters}
 		<Filters
-			bind:yearSelections={s.filters.years}
-			bind:monthSelections={s.filters.months}
-			bind:categorySelections={s.filters.categories}
-			bind:accountSelections={s.filters.accounts}
-			bind:searchTerm={s.filters.searchTerm}
+			yearSelections={s.filters.years}
+			monthSelections={s.filters.months}
+			categorySelections={s.filters.categories}
+			accountSelections={s.filters.accounts}
+			searchTerm={s.filters.searchTerm}
+			selectYears={s.selectYears.bind(s)}
+			selectMonths={s.selectMonths.bind(s)}
+			selectCategories={s.selectCategories.bind(s)}
+			selectAccounts={s.selectAccounts.bind(s)}
+			updateSearchTerm={s.updateSearchTerm.bind(s)}
 		/>
 	{/if}
 
