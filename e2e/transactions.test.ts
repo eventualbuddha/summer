@@ -58,6 +58,9 @@ test('clear category', async ({
 	);
 	expect(refreshedTransaction.category).toBeUndefined();
 
+	// Updates the sums before reloading.
+	await expect(page.getByText('$').first()).toHaveText('$0');
+
 	await page.reload();
 
 	// Connect to the database

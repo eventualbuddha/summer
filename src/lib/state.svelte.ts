@@ -170,6 +170,50 @@ export class State {
 		);
 	}
 
+	selectYears(keys: readonly string[]): void {
+		this.#updateFiltersWith((filters) => {
+			for (const yearFilter of filters.years) {
+				yearFilter.selected = keys.includes(yearFilter.key);
+			}
+		});
+	}
+
+	selectMonths(keys: readonly string[]): void {
+		this.#updateFiltersWith((filters) => {
+			for (const monthFilter of filters.months) {
+				monthFilter.selected = keys.includes(monthFilter.key);
+			}
+		});
+	}
+
+	selectCategories(keys: readonly string[]): void {
+		this.#updateFiltersWith((filters) => {
+			for (const categoryFilter of filters.categories) {
+				categoryFilter.selected = keys.includes(categoryFilter.key);
+			}
+		});
+	}
+
+	selectAccounts(keys: readonly string[]): void {
+		this.#updateFiltersWith((filters) => {
+			for (const accountFilter of filters.accounts) {
+				accountFilter.selected = keys.includes(accountFilter.key);
+			}
+		});
+	}
+
+	updateSearchTerm(searchTerm: string): void {
+		this.#updateFiltersWith((filters) => {
+			filters.searchTerm = searchTerm;
+		});
+	}
+
+	#updateFiltersWith(callback: (filters: FilterState) => void): void {
+		if (!this.filters) return;
+		this.filters.stickyTransactionIds.clear();
+		callback(this.filters);
+	}
+
 	get isConnected() {
 		return !!this.#surreal;
 	}
