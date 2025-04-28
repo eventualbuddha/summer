@@ -43,7 +43,10 @@
 			</div>
 		{/snippet}
 		{#snippet trigger()}
-			<CategoryPill category={transaction.category ?? NONE_CATEGORY} style="short" />
+			<CategoryPill
+				category={categories.find((c) => c.id === transaction.categoryId) ?? NONE_CATEGORY}
+				style="short"
+			/>
 		{/snippet}
 		{#snippet portal()}
 			<div

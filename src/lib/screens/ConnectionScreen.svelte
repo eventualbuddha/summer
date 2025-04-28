@@ -4,7 +4,7 @@
 	import BigButton from '../components/BigButton.svelte';
 	import CircleStack from '../components/icons/CircleStack.svelte';
 
-	let { state: s }: { state: State } = $props();
+	let { state: s = $bindable() }: { state: State } = $props();
 	let isSettingUpNewConnection = $state(false);
 	let url = $state('');
 	let namespace = $state('');

@@ -5,12 +5,13 @@
 	import TransactionRow from '$lib/components/TransactionRow.svelte';
 	import type { State } from '$lib/state.svelte';
 	import { formatWholeDollarAmount } from '$lib/utils/formatting';
+	import { RecordId } from 'surrealdb';
 	import { type Snippet } from 'svelte';
 	import { VList } from 'virtua/svelte';
 	import IconTallyMark5 from '~icons/mdi/tally-mark-5';
 	import IconDollarCoinSolid from '~icons/streamline/dollar-coin-solid';
 
-	let { state: s }: { state: State } = $props();
+	let { state: s = $bindable() }: { state: State } = $props();
 </script>
 
 <title>Transactions – Summer</title>
@@ -31,16 +32,11 @@
 	</div>
 	{#if s.filters}
 		<Filters
-			yearSelections={s.filters.years}
-			monthSelections={s.filters.months}
-			categorySelections={s.filters.categories}
-			accountSelections={s.filters.accounts}
-			searchTerm={s.filters.searchTerm}
-			selectYears={s.selectYears.bind(s)}
-			selectMonths={s.selectMonths.bind(s)}
-			selectCategories={s.selectCategories.bind(s)}
-			selectAccounts={s.selectAccounts.bind(s)}
-			updateSearchTerm={s.updateSearchTerm.bind(s)}
+			bind:yearSelections={s.filters.years}
+			bind:monthSelections={s.filters.months}
+			bind:categorySelections={s.filters.categories}
+			bind:accountSelections={s.filters.accounts}
+			bind:searchTerm={s.filters.searchTerm}
 		/>
 	{/if}
 
@@ -66,10 +62,10 @@
 		</div>
 
 		<div class="h-dvh w-3/12 grow-2">
-			{#snippet summaryRow(label: Snippet, value: string)}
+			{#snippet summaryRow(label: Snippet, value: string, valueTestId?: string)}
 				<div class="flex flex-row items-baseline gap-0">
 					<span class="overflow-hidden overflow-ellipsis whitespace-nowrap">{@render label()}</span>
-					<span class="grow-1 text-right">{value}</span>
+					<span class="grow-1 text-right" data-testid={valueTestId}>{value}</span>
 				</div>
 			{/snippet}
 			<h3 class="font-bold">Total by Year</h3>
@@ -114,7 +110,12 @@
 							class="overflow-hidden overflow-ellipsis whitespace-nowrap"
 						/>
 					{/snippet}
-					{@render summaryRow(label, formatWholeDollarAmount(total))}
+
+					{@render summaryRow(
+						label,
+						formatWholeDollarAmount(total),
+						`${new RecordId('category', category.id)}-summary-value`
+					)}
 				{/each}
 			{/if}
 

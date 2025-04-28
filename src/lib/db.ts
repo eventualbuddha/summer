@@ -1,6 +1,7 @@
 import { Gap, PreparedQuery, Surreal } from 'surrealdb';
 import { z } from 'zod';
 import type { Sorting, SortingDirection } from './state.svelte';
+import { NEVER_PROMISE } from './utils/promises';
 
 export interface Transactions {
 	count: number;
@@ -115,10 +116,18 @@ const getTransactionsDescendingQuery = buildGetTransactionQuery('desc');
 
 export async function getTransactions(
 	options: GetTransactionsOptions,
-	surreal: Surreal
+	surreal: Surreal,
+	abortSignal: AbortSignal
 ): Promise<Transactions> {
 	const b = getTransactionsQueryBindings;
 	console.time('getTransactions: fetch from surrealdb');
+
+	function onAbort() {
+		console.timeEnd('getTransactions: fetch from surrealdb');
+		abortSignal.removeEventListener('abort', onAbort);
+	}
+	abortSignal.addEventListener('abort', onAbort);
+
 	const data = await surreal.query(
 		options.sort.direction === 'asc'
 			? getTransactionsAscendingQuery
@@ -134,6 +143,9 @@ export async function getTransactions(
 			b.orderByField.fill(options.sort.field)
 		]
 	);
+	abortSignal.removeEventListener('abort', onAbort);
+	if (abortSignal.aborted) return NEVER_PROMISE;
+
 	console.timeEnd('getTransactions: fetch from surrealdb');
 	console.time('getTransactions: parse response');
 	const [, , total, transactions, totalByYear, totalByCategoryId, totalByAccountId] = z
@@ -164,15 +176,7 @@ export async function getTransactions(
 			account,
 			total: totalByAccountId.find((item) => item.accountId === account.id)?.total ?? 0
 		})),
-		list: transactions.map((t) => ({
-			id: t.id,
-			date: t.date,
-			amount: t.amount,
-			category: options.categories.find((category) => category.id === t.categoryId)!,
-			statementId: t.statementId,
-			description: t.description,
-			statementDescription: t.statementDescription
-		}))
+		list: transactions
 	};
 }
 
@@ -206,7 +210,7 @@ export interface Transaction {
 	id: string;
 	date: Date;
 	amount: number;
-	category?: Category;
+	categoryId?: string;
 	statementId: string;
 	description?: string;
 	statementDescription: string;
