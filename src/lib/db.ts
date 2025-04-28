@@ -121,9 +121,12 @@ export async function getTransactions(
 ): Promise<Transactions> {
 	const b = getTransactionsQueryBindings;
 	console.time('getTransactions: fetch from surrealdb');
-	abortSignal.addEventListener('abort', () => {
+
+	function onAbort() {
 		console.timeEnd('getTransactions: fetch from surrealdb');
-	});
+		abortSignal.removeEventListener('abort', onAbort);
+	}
+	abortSignal.addEventListener('abort', onAbort);
 
 	const data = await surreal.query(
 		options.sort.direction === 'asc'
@@ -140,6 +143,7 @@ export async function getTransactions(
 			b.orderByField.fill(options.sort.field)
 		]
 	);
+	abortSignal.removeEventListener('abort', onAbort);
 	if (abortSignal.aborted) return NEVER_PROMISE;
 
 	console.timeEnd('getTransactions: fetch from surrealdb');
