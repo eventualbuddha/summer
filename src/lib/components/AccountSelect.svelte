@@ -5,12 +5,10 @@
 	import MultiSelector from './MultiSelector.svelte';
 
 	let {
-		selections,
-		selectItems,
+		selections = $bindable(),
 		'aria-label': ariaLabel
 	}: {
 		selections: Selection<Account>[];
-		selectItems: (keys: readonly string[]) => void;
 		'aria-label'?: string;
 	} = $props();
 
@@ -40,6 +38,6 @@
 {/snippet}
 
 <Select aria-label={ariaLabel} {label}>
-	<MultiSelector {selections} {selectItems} {item} allToggle />
+	<MultiSelector bind:selections {item} allToggle />
 	<div class="mt-4 text-xs text-gray-400">Tip: alt+click for just one</div>
 </Select>

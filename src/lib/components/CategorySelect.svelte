@@ -6,12 +6,10 @@
 	import MultiSelector from './MultiSelector.svelte';
 
 	let {
-		selections,
-		selectItems,
+		selections = $bindable(),
 		'aria-label': ariaLabel
 	}: {
 		selections: Selection<Category>[];
-		selectItems: (keys: readonly string[]) => void;
 		'aria-label'?: string;
 	} = $props();
 
@@ -37,7 +35,7 @@
 </script>
 
 <Select aria-label={ariaLabel} {label}>
-	<MultiSelector {selections} {selectItems} allToggle>
+	<MultiSelector bind:selections allToggle>
 		{#snippet item(selection: Selection<Category>)}
 			<span class="text-sm">
 				<CategoryPill category={selection.value} />

@@ -7,7 +7,7 @@
 </script>
 
 {#if !s.isConnected}
-	<ConnectionScreen state={s} />
+	<ConnectionScreen bind:state={s} />
 {:else}
-	<TransactionsScreen state={s} />
+	<TransactionsScreen bind:state={s} />
 {/if}
