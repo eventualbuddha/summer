@@ -3,7 +3,7 @@
 	import AccountsScreen from '$lib/screens/AccountsScreen.svelte';
 	import { State } from '$lib/state.svelte';
 
-	let s = new State();
+	let s = State.shared;
 </script>
 
 <title>Accounts – Summer</title>

@@ -1,22 +1,25 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { ClassValue } from 'svelte/elements';
 
 	let {
 		root,
 		trigger,
 		portal,
-		open = $bindable(false)
+		open: isOpen = $bindable(false),
+		'content-class': contentClass
 	}: {
 		root: Snippet<[Snippet]>;
 		trigger: Snippet<[boolean]>;
 		portal: Snippet;
 		open?: boolean;
+		'content-class'?: ClassValue;
 	} = $props();
 
 	let self: HTMLElement | null = $state(null);
 
 	$effect(() => {
-		if (open) {
+		if (isOpen) {
 			function onclick(e: MouseEvent) {
 				const element = e.target;
 				if (element instanceof HTMLElement) {
@@ -30,7 +33,7 @@
 
 					if (!isInsideSelf) {
 						e.preventDefault();
-						open = false;
+						isOpen = false;
 						document.removeEventListener('click', onclick);
 						document.removeEventListener('keydown', onkeydown);
 					}
@@ -40,7 +43,7 @@
 			function onkeydown(e: KeyboardEvent) {
 				if (e.key === 'Escape') {
 					e.preventDefault();
-					open = false;
+					isOpen = false;
 				}
 			}
 
@@ -55,12 +58,12 @@
 </script>
 
 {#snippet rootContents()}
-	<div bind:this={self}>
-		<button onclick={() => (open = !open)}>
-			{@render trigger(open)}
+	<div class={contentClass} bind:this={self}>
+		<button onclick={() => (isOpen = !isOpen)}>
+			{@render trigger(isOpen)}
 		</button>
 
-		{#if open}
+		{#if isOpen}
 			{@render portal()}
 		{/if}
 	</div>
