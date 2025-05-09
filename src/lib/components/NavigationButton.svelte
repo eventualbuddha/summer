@@ -2,6 +2,11 @@
 	import { page } from '$app/state';
 	import Dropdown from './Dropdown.svelte';
 	import MenuButton from './MenuButton.svelte';
+
+	let routes = [
+		{ label: 'Transactions', pathname: '/' },
+		{ label: 'Accounts', pathname: '/accounts' }
+	];
 </script>
 
 <Dropdown content-class="flex items-center">
@@ -21,15 +26,14 @@
 			aria-labelledby="menu-button"
 			tabindex="-1"
 		>
-			<a class="p-1 hover:font-bold {page.url.pathname === '/' && 'font-bold'}" href="/">
-				Transactions
-			</a>
-			<a
-				class="p-1 hover:font-bold {page.url.pathname === '/accounts' && 'font-bold'}"
-				href="/accounts"
-			>
-				Accounts
-			</a>
+			{#each routes as route (route.pathname)}
+				<a
+					class="p-1 hover:font-bold {page.url.pathname === route.pathname && 'font-bold'}"
+					href={route.pathname}
+				>
+					{route.label}
+				</a>
+			{/each}
 		</div>
 	{/snippet}
 </Dropdown>
