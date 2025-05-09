@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import Button from './Button.svelte';
 
 	let {
 		title,
@@ -14,10 +15,7 @@
 	} = $props();
 </script>
 
-<button
-	class="flex w-60 cursor-pointer flex-row items-center gap-2 rounded-md border-2 border-gray-400 px-4 py-2 hover:bg-gray-300 dark:text-white dark:hover:bg-gray-600"
-	{onclick}
->
+<Button class="w-60 flex-row items-center px-4 py-2" {onclick}>
 	<span>
 		<Icon />
 	</span>
@@ -40,4 +38,4 @@
 			</span>
 		{/if}
 	</div>
-</button>
+</Button>
