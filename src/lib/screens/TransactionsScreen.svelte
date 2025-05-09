@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import Button from '$lib/components/Button.svelte';
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
 	import Filters from '$lib/components/Filters.svelte';
 	import NavigationButton from '$lib/components/NavigationButton.svelte';
@@ -15,10 +13,6 @@
 	import IconDollarCoinSolid from '~icons/streamline/dollar-coin-solid';
 
 	let { state: s = $bindable() }: { state: State } = $props();
-
-	function onClickImport() {
-		goto('/import');
-	}
 </script>
 
 <title>Transactions – Summer</title>
@@ -36,7 +30,6 @@
 			{formatWholeDollarAmount(s.transactions.total)}
 		</span>
 	{/if}
-	<Button onclick={onClickImport} class="text-xs">Import</Button>
 </div>
 {#if s.filters}
 	<Filters
