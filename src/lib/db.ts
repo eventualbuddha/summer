@@ -229,12 +229,14 @@ export const TransactionRecordSchema = z.object({
 export interface Account {
 	id: string;
 	type: string;
+	number?: string;
 	name: string;
 }
 
 export const AccountSchema = z.object({
 	id: z.string().nonempty(),
 	type: z.string().nonempty(),
+	number: z.string().nonempty().optional(),
 	name: z.string().nonempty()
 });
 
@@ -280,7 +282,7 @@ const getFilterOptionsQuery = new PreparedQuery(
     (SELECT date.year() as year FROM statement ORDER BY year DESC).year.distinct();
     (SELECT date.month() as month FROM statement ORDER BY month ASC).month.distinct();
     SELECT id.id(), name, emoji, color, ordinal FROM category ORDER BY ordinal ASC;
-		SELECT id.id(), type, name FROM account ORDER BY type ASC, name ASC;
+		SELECT id.id(), type, number, name FROM account ORDER BY type ASC, name ASC;
     `
 );
 
