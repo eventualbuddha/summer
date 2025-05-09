@@ -87,6 +87,13 @@ export class State {
 		)
 	);
 
+	static #shared?: State;
+
+	static get shared(): State {
+		this.#shared ??= new State();
+		return this.#shared;
+	}
+
 	constructor() {
 		const lastDb = localStorage.getItem(LOCAL_STORAGE_KEY);
 		if (lastDb) {

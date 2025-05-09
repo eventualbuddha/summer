@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/Button.svelte';
+	import NavigationButton from '$lib/components/NavigationButton.svelte';
 	import type { Account } from '$lib/db';
 	import type { State } from '$lib/state.svelte';
 
@@ -24,7 +25,10 @@
 	}
 </script>
 
-<h1 class="text-xl">Accounts</h1>
+<div class="flex flex-row items-center gap-4">
+	<NavigationButton />
+	<h1 class="text-2xl font-bold">Accounts</h1>
+</div>
 
 <table>
 	<thead>

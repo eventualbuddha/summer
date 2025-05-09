@@ -3,6 +3,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
 	import Filters from '$lib/components/Filters.svelte';
+	import NavigationButton from '$lib/components/NavigationButton.svelte';
 	import SortHeader from '$lib/components/SortHeader.svelte';
 	import TransactionRow from '$lib/components/TransactionRow.svelte';
 	import type { State } from '$lib/state.svelte';
@@ -23,6 +24,7 @@
 <title>Transactions – Summer</title>
 
 <div class="flex flex-row items-center gap-4">
+	<NavigationButton />
 	<h1 class="text-2xl font-bold">Transactions</h1>
 	{#if s.transactions}
 		<span class="flex items-center gap-1 text-sm">
