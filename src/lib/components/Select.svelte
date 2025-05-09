@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import Button from './Button.svelte';
 	import Dropdown from './Dropdown.svelte';
 
 	let {
@@ -11,18 +12,17 @@
 
 <Dropdown>
 	{#snippet root(contents)}
-		<div class="relative inline-block bg-white text-left dark:bg-gray-800">
+		<div class="relative inline-block text-left">
 			{@render contents()}
 		</div>
 	{/snippet}
 	{#snippet trigger(expanded)}
-		<button
-			type="button"
-			class="inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-1 text-sm font-semibold shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50 dark:ring-gray-600 hover:dark:bg-gray-950"
+		<Button
 			id="menu-button"
 			aria-label={ariaLabel}
 			aria-expanded={expanded}
 			aria-haspopup="true"
+			class="w-full"
 		>
 			{label}
 			<svg
@@ -38,7 +38,7 @@
 					clip-rule="evenodd"
 				/>
 			</svg>
-		</button>
+		</Button>
 	{/snippet}
 	{#snippet portal()}
 		<div

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { Selection } from '$lib/types';
 	import { getSelectionRange } from '$lib/utils/getSelectionRange';
-	import Select from './Select.svelte';
 	import MultiSelector from './MultiSelector.svelte';
+	import Select from './Select.svelte';
 
 	let {
 		selections = $bindable(),
