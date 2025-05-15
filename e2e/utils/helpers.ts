@@ -12,6 +12,12 @@ export async function waitFor(
 			if (result === true) {
 				return;
 			}
+
+			if (result === false) {
+				continue;
+			}
+
+			return;
 		} catch (e) {
 			lastError = e as Error;
 		}
