@@ -1,9 +1,9 @@
 <script lang="ts">
+	import BigButton from '$lib/components/BigButton.svelte';
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
+	import CircleStack from '$lib/components/icons/CircleStack.svelte';
 	import type { State } from '$lib/state.svelte';
 	import { getContext } from 'svelte';
-	import BigButton from '../components/BigButton.svelte';
-	import CircleStack from '../components/icons/CircleStack.svelte';
 
 	let s: State = getContext('state');
 

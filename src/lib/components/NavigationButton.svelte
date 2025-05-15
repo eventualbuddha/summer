@@ -5,7 +5,8 @@
 
 	let routes = [
 		{ label: 'Transactions', pathname: '/' },
-		{ label: 'Accounts', pathname: '/accounts' }
+		{ label: 'Accounts', pathname: '/accounts' },
+		{ label: 'Categories', pathname: '/categories' }
 	];
 </script>
 
@@ -24,7 +25,7 @@
 	{/snippet}
 	{#snippet portal()}
 		<div
-			class="absolute top-0 left-0 z-10 mt-4 flex min-w-45 origin-top-left flex-col rounded-md bg-white px-2 pt-2 pb-2 shadow-lg ring-1 ring-black/5 focus:outline-hidden dark:bg-gray-800 dark:shadow-gray-600 dark:ring-gray-600"
+			class="absolute top-0 left-0 z-10 mt-4 flex min-w-45 origin-top-left flex-col rounded-md bg-white px-2 pt-2 pb-2 shadow-lg ring-1 ring-black/5 focus:outline-hidden dark:bg-gray-800 dark:shadow-gray-600 dark:ring-white/5"
 			role="menu"
 			aria-orientation="vertical"
 			aria-labelledby="menu-button"
