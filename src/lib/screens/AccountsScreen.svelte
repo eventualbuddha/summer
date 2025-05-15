@@ -3,8 +3,9 @@
 	import NavigationButton from '$lib/components/NavigationButton.svelte';
 	import type { Account } from '$lib/db';
 	import type { State } from '$lib/state.svelte';
+	import { getContext } from 'svelte';
 
-	let { state: s = $bindable() }: { state: State } = $props();
+	const s: State = getContext('state');
 
 	const NEW_ACCOUNT: Partial<Account> = {
 		id: 'new-account',

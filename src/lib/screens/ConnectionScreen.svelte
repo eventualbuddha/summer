@@ -1,10 +1,12 @@
 <script lang="ts">
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
 	import type { State } from '$lib/state.svelte';
+	import { getContext } from 'svelte';
 	import BigButton from '../components/BigButton.svelte';
 	import CircleStack from '../components/icons/CircleStack.svelte';
 
-	let { state: s = $bindable() }: { state: State } = $props();
+	let s: State = getContext('state');
+
 	let isSettingUpNewConnection = $state(false);
 	let url = $state('');
 	let namespace = $state('');
