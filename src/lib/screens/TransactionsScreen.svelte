@@ -7,12 +7,12 @@
 	import type { State } from '$lib/state.svelte';
 	import { formatWholeDollarAmount } from '$lib/utils/formatting';
 	import { RecordId } from 'surrealdb';
-	import { type Snippet } from 'svelte';
+	import { getContext, type Snippet } from 'svelte';
 	import { VList } from 'virtua/svelte';
 	import IconTallyMark5 from '~icons/mdi/tally-mark-5';
 	import IconDollarCoinSolid from '~icons/streamline/dollar-coin-solid';
 
-	let { state: s = $bindable() }: { state: State } = $props();
+	let s: State = getContext('state');
 </script>
 
 <title>Transactions – Summer</title>
@@ -48,12 +48,10 @@
 				<div class="text-2xl font-bold">Loading…</div>
 			</div>
 		{:else}
-			{@const transactions = s.transactions.list}
 			<SortHeader sort={s.sort} />
-			<VList data={transactions} getKey={(transaction) => transaction.id}>
+			<VList data={s.transactions.list} getKey={(transaction) => transaction.id}>
 				{#snippet children(transaction)}
 					<TransactionRow
-						state={s}
 						{transaction}
 						categories={s.filters?.categories.map(({ value }) => value) ?? []}
 					/>

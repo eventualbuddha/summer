@@ -9,9 +9,9 @@ import {
 	type Transaction,
 	type Transactions
 } from './db';
-import { Filters } from './utils/Filters.svelte';
 import type { Selection } from './types';
 import { Fetcher } from './utils/Fetcher';
+import { Filters } from './utils/Filters.svelte';
 import { NEVER_PROMISE } from './utils/promises';
 
 const LOCAL_STORAGE_KEY = 'lastDb';
@@ -86,13 +86,6 @@ export class State {
 			'date'
 		)
 	);
-
-	static #shared?: State;
-
-	static get shared(): State {
-		this.#shared ??= new State();
-		return this.#shared;
-	}
 
 	constructor() {
 		const lastDb = localStorage.getItem(LOCAL_STORAGE_KEY);

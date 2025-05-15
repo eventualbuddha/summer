@@ -2,15 +2,13 @@
 	import type { Category, Transaction } from '$lib/db';
 	import type { State } from '$lib/state.svelte';
 	import { formatTransactionAmount } from '$lib/utils/formatting';
+	import { getContext } from 'svelte';
 	import CategoryPill from './CategoryPill.svelte';
 	import Dropdown from './Dropdown.svelte';
 	import TransactionDescription from './TransactionDescription.svelte';
 
-	let {
-		state: s,
-		transaction,
-		categories
-	}: { state: State; transaction: Transaction; categories: Category[] } = $props();
+	let s: State = getContext('state');
+	let { transaction, categories }: { transaction: Transaction; categories: Category[] } = $props();
 
 	let isSelectingCategory = $state(false);
 
