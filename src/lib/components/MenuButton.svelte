@@ -1,11 +1,12 @@
 <script lang="ts">
 	import type { AriaRole } from 'svelte/elements';
 
-	let { isOpen, role }: { isOpen: boolean; role?: AriaRole } = $props();
+	let { isOpen, ...passthrough }: { isOpen: boolean; role?: AriaRole; 'aria-label'?: string } =
+		$props();
 </script>
 
 <div
-	{role}
+	{...passthrough}
 	class="flex flex-col items-center justify-center"
 	onfocus={(e) => e.currentTarget.blur()}
 >

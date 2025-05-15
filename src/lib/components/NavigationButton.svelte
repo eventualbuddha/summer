@@ -11,7 +11,11 @@
 
 <Dropdown content-class="flex items-center">
 	{#snippet trigger(isOpen)}
-		<MenuButton role="navigation" {isOpen} />
+		<MenuButton
+			role="button"
+			aria-label={isOpen ? 'Close Navigation' : 'Open Navigation'}
+			{isOpen}
+		/>
 	{/snippet}
 	{#snippet root(contents)}
 		<div class="relative">

@@ -31,7 +31,7 @@ test('view & update accounts', async ({ page, pageHelpers, createAccount, surrea
 		return updatedAccount.name === 'My New Name';
 	});
 
-	await page.getByRole('navigation').click();
+	await page.getByLabel('Open Navigation').click();
 	await page.getByText('Transactions').click();
 	await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible();
 	await expect(page.getByText('My New Name')).toBeVisible();
