@@ -111,7 +111,6 @@ test('create new category', async ({ page, pageHelpers, surreal }) => {
 	await waitFor(async () => {
 		const [categories] = await surreal.query<[Category[]]>('SELECT * FROM category');
 		const category = categories.find(({ name }) => name === 'Food')!;
-		console.log(categories);
 		return (
 			category.emoji === '🧄' &&
 			category.name === 'Food' &&

@@ -27,7 +27,6 @@ test('view & update accounts', async ({ page, pageHelpers, createAccount, surrea
 	await $accountName.blur();
 	await waitFor(async () => {
 		const updatedAccount = await surreal.select(account.id);
-		console.log(updatedAccount.name);
 		return updatedAccount.name === 'My New Name';
 	});
 
