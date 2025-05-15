@@ -9,7 +9,7 @@ export async function waitFor(
 		try {
 			const result = await fn();
 
-			if (result !== true) {
+			if (result === true) {
 				return;
 			}
 		} catch (e) {

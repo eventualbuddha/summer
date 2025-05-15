@@ -11,7 +11,7 @@
 
 <Dropdown content-class="flex items-center">
 	{#snippet trigger(isOpen)}
-		<MenuButton {isOpen} />
+		<MenuButton role="navigation" {isOpen} />
 	{/snippet}
 	{#snippet root(contents)}
 		<div class="relative">
