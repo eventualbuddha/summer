@@ -1,5 +1,5 @@
 /* eslint-disable no-empty-pattern */
-import { expect, test as base, type Page } from '@playwright/test';
+import { test as base, expect, type Page } from '@playwright/test';
 import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { type AddressInfo, createServer, Socket } from 'node:net';
 import Surreal, { RecordId } from 'surrealdb';
@@ -63,6 +63,7 @@ export interface Transaction {
 	amount: number;
 	date: Date;
 	statementDescription: string;
+	type: string;
 	description?: string;
 }
 
@@ -104,10 +105,12 @@ export const test = base.extend<{
 	},
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	surreal: async ({ surrealProcess, hostname, port, namespace, database }, use) => {
+	surreal: async ({ surrealProcess, baseURL, hostname, port, namespace, database }, use) => {
 		const surreal = new Surreal();
 		await surreal.connect(`ws://${hostname}:${port}`);
 		await surreal.use({ namespace, database });
+		const schema = await (await fetch(`${baseURL}/schema.surql`)).text();
+		await surreal.query(schema);
 		await use(surreal);
 		await surreal.close();
 	},
@@ -126,14 +129,15 @@ export const test = base.extend<{
 		);
 	},
 
-	createStatement: async ({ surreal, createAccount }, use) => {
+	createStatement: async ({ surreal, createAccount, createFile }, use) => {
 		await use(
 			async (data = {}) =>
 				(
 					await surreal.create('statement', {
 						id: data.id,
 						account: data.account ?? (await createAccount({})).id,
-						date: data.date ?? new Date()
+						date: data.date ?? new Date(),
+						file: data.file ?? (await createFile({})).id
 					})
 				)[0] as unknown as Statement
 		);
@@ -161,7 +165,7 @@ export const test = base.extend<{
 						name: data.name ?? 'General',
 						color: data.color ?? 'red-200',
 						emoji: data.emoji ?? '🛍️',
-						ordinal: data.ordinal ?? 1
+						ordinal: data.ordinal
 					})
 				)[0] as unknown as Category
 		);
@@ -178,7 +182,8 @@ export const test = base.extend<{
 						category: data.category ?? (await createCategory()).id,
 						date: data.date ?? new Date(),
 						description: data.description,
-						statementDescription: data.statementDescription ?? 'STATEMENT DESCRIPTION'
+						statementDescription: data.statementDescription ?? 'STATEMENT DESCRIPTION',
+						type: data.type ?? 'unknown'
 					})
 				)[0] as unknown as Transaction
 		);

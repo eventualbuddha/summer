@@ -1,7 +1,9 @@
-import { RecordId, Surreal } from 'surrealdb';
+import { RecordId, Surreal, Table } from 'surrealdb';
 import {
+	getDefaultCategoryId,
 	getFilterOptions,
 	getTransactions,
+	updateDefaultCategoryId,
 	use,
 	type Account,
 	type Category,
@@ -75,6 +77,7 @@ export class State {
 
 	filters = $state(new Filters());
 	transactions = $state<Transactions>();
+	defaultCategoryId = $state<Category['id']>();
 
 	sort = $state(
 		new Sorting(
@@ -105,6 +108,7 @@ export class State {
 	async #updateFilters() {
 		if (!this.#surreal) return NEVER_PROMISE;
 		this.filters.resetOptions(await getFilterOptions(this.#surreal));
+		this.defaultCategoryId = await getDefaultCategoryId(this.#surreal);
 	}
 
 	#getTransactionsFetcher = new Fetcher<
@@ -250,7 +254,7 @@ export class State {
 			id: new RecordId('account', accountId),
 			name
 		});
-		this.#updateFilters();
+		await this.#updateFilters();
 	}
 
 	async updateAccountNumber(accountId: string, number?: string) {
@@ -261,7 +265,7 @@ export class State {
 			id: new RecordId('account', accountId),
 			number
 		});
-		this.#updateFilters();
+		await this.#updateFilters();
 	}
 
 	async updateAccountType(accountId: string, type: string) {
@@ -272,6 +276,54 @@ export class State {
 			id: new RecordId('account', accountId),
 			type
 		});
-		this.#updateFilters();
+		await this.#updateFilters();
+	}
+
+	async createCategory(category: Omit<Category, 'id' | 'ordinal'> & { id?: string }) {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		await this.#surreal.create(new Table('category'), category);
+		await this.#updateFilters();
+	}
+
+	async updateCategoryName(categoryId: string, name: string) {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		await this.#surreal.query(`UPDATE category SET name = $name WHERE id = $id`, {
+			id: new RecordId('category', categoryId),
+			name
+		});
+		await this.#updateFilters();
+	}
+
+	async updateCategoryEmoji(categoryId: string, emoji: string) {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		await this.#surreal.query(`UPDATE category SET emoji = $emoji WHERE id = $id`, {
+			id: new RecordId('category', categoryId),
+			emoji
+		});
+		await this.#updateFilters();
+	}
+
+	async updateCategoryColor(categoryId: string, color: string) {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		await this.#surreal.query(`UPDATE category SET color = $color WHERE id = $id`, {
+			id: new RecordId('category', categoryId),
+			color
+		});
+		await this.#updateFilters();
+	}
+
+	async updateDefaultCategoryId(newDefaultCategoryId: string) {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		await updateDefaultCategoryId(this.#surreal, newDefaultCategoryId);
 	}
 }

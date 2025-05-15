@@ -1,11 +1,12 @@
 <script lang="ts">
 	import type { Category } from '$lib/db';
+	import type { ClassValue } from 'svelte/elements';
 
 	let {
 		category,
 		style = 'full',
-		class: className = ''
-	}: { category: Category; style?: 'full' | 'short' | 'color'; class?: string } = $props();
+		class: className
+	}: { category: Category; style?: 'full' | 'short' | 'color'; class?: ClassValue } = $props();
 </script>
 
 {#if style === 'color'}

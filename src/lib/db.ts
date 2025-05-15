@@ -1,4 +1,4 @@
-import { Gap, PreparedQuery, Surreal } from 'surrealdb';
+import { Gap, PreparedQuery, RecordId, Surreal } from 'surrealdb';
 import { z } from 'zod';
 import type { Sorting, SortingDirection } from './state.svelte';
 import { NEVER_PROMISE } from './utils/promises';
@@ -294,5 +294,21 @@ export async function getFilterOptions(surreal: Surreal): Promise<FilterOptions>
 		categories,
 		accounts,
 		searchTerm: ''
+	});
+}
+
+export async function getDefaultCategoryId(surreal: Surreal): Promise<string | undefined> {
+	const [settings] = await surreal.query<[{ defaultCategoryId?: string }]>(
+		'SELECT defaultCategory?.id() as defaultCategoryId FROM ONLY settings:global'
+	);
+	return settings?.defaultCategoryId;
+}
+
+export async function updateDefaultCategoryId(
+	surreal: Surreal,
+	newDefaultCategoryId: string | undefined
+) {
+	await surreal.query('UPDATE settings:global SET defaultCategory = $defaultCategory', {
+		defaultCategory: newDefaultCategoryId ? new RecordId('category', newDefaultCategoryId) : null
 	});
 }
