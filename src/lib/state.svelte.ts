@@ -1,4 +1,4 @@
-import { RecordId, Surreal, Table } from 'surrealdb';
+import { RecordId, Surreal } from 'surrealdb';
 import {
 	getFilterOptions,
 	getTransactions,
@@ -242,14 +242,6 @@ export class State {
 		}
 	}
 
-	async createAccount(account: Omit<Account, 'id'> & { id?: string }) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await this.#surreal.create(new Table('account'), account);
-		await this.#updateFilters();
-	}
-
 	async updateAccountName(accountId: string, name: string) {
 		if (!this.#surreal) {
 			throw new Error('Not connected to SurrealDB');
@@ -258,6 +250,7 @@ export class State {
 			id: new RecordId('account', accountId),
 			name
 		});
+		this.#updateFilters();
 	}
 
 	async updateAccountNumber(accountId: string, number?: string) {
@@ -268,6 +261,7 @@ export class State {
 			id: new RecordId('account', accountId),
 			number
 		});
+		this.#updateFilters();
 	}
 
 	async updateAccountType(accountId: string, type: string) {
@@ -278,5 +272,6 @@ export class State {
 			id: new RecordId('account', accountId),
 			type
 		});
+		this.#updateFilters();
 	}
 }

@@ -31,6 +31,7 @@ async function waitForPortListening(hostname: string, port: number): Promise<voi
 export interface Account {
 	id: RecordId<'account'>;
 	name: string;
+	number?: string;
 	type: string;
 }
 
@@ -118,6 +119,7 @@ export const test = base.extend<{
 					await surreal.create('account', {
 						id: data.id,
 						name: data.name ?? 'Credit Card',
+						number: data.number ?? '0123456789',
 						type: data.type ?? 'credit'
 					})
 				)[0] as unknown as Account

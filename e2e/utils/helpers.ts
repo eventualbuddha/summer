@@ -9,9 +9,15 @@ export async function waitFor(
 		try {
 			const result = await fn();
 
-			if (result !== true) {
+			if (result === true) {
 				return;
 			}
+
+			if (result === false) {
+				continue;
+			}
+
+			return;
 		} catch (e) {
 			lastError = e as Error;
 		}
