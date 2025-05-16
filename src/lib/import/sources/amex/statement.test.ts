@@ -4,9 +4,9 @@ import { parseStatement } from './statement';
 import { parseStatementSummary } from './summary';
 
 test('account summary', () => {
-	expect(parseStatementSummary(fixtures.amex.skymiles.statement.pages[0]!)).toMatchSnapshot();
+	expect(parseStatementSummary(fixtures.amex.skymiles.statement().pages[0]!)).toMatchSnapshot();
 });
 
 test('transactions', async () => {
-	expect(parseStatement(fixtures.amex.skymiles.statement).toArray()).toMatchSnapshot();
+	expect(parseStatement(fixtures.amex.skymiles.statement()).toArray()).toMatchSnapshot();
 });

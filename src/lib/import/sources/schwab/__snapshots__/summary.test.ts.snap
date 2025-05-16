@@ -44,7 +44,7 @@ StatementSummary {
     "weekData": null,
   },
   "depositsAndCredits": 180424,
-  "endingBalance": 159407,
+  "endingBalance": 159408,
   "interestPaid": 37,
   "otherFees": 0,
   "period": Interval {

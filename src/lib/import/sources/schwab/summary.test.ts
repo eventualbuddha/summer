@@ -4,7 +4,7 @@ import { parseStatementSummary } from './summary';
 
 test('summary', () => {
 	const statementSummary = parseStatementSummary(
-		fixtures.schwab.checking.statement.pages[2]!
+		fixtures.schwab.checking.statement().pages[2]!
 	).unwrap();
 	expect(statementSummary).toMatchSnapshot();
 });
