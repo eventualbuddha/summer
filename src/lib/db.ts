@@ -354,6 +354,16 @@ LET $file = CREATE ONLY file SET
     name = $filename,
     data = $pdfData;
 
+LET $existingStatements = (
+		SELECT id FROM statement
+		WHERE account = $account.id
+			AND date = $statementDate
+).len();
+
+IF $existingStatements == 1 {
+		THROW 'Statement already exists for this account and date.';
+};
+
 LET $statement = CREATE ONLY statement SET
     account = $account.id,
     date = $statementDate,
@@ -402,23 +412,35 @@ COMMIT TRANSACTION;
 	);
 
 	const errors = results.filter((r) => r.status === 'ERR');
-	const errorMessage = errors.find(
-		({ status, result }) => status === 'ERR' && result.startsWith('An error occurred:')
-	)?.result;
+	const errorMessage = errors
+		.find(({ status, result }) => status === 'ERR' && !/failed transaction/.test(result))
+		?.result?.replace(/^An error occurred:\s*/, '');
 
 	if (errors.length > 0) {
 		return Result.err(new Error(errorMessage));
 	}
 
-	const [, accountResult, , , statementResult] = z
+	const [, accountResult, , , , , statementResult] = z
 		.tuple([
+			// LET $account = …
 			z.unknown(),
+			// Account record.
 			z.object({ status: z.union([z.literal('OK'), z.literal('ERR')]), result: AccountSchema }),
+			// LET $file = …
 			z.unknown(),
+			// LET $existingStatement = …
 			z.unknown(),
+			// IF $existingStatement { … }
+			z.unknown(),
+			// LET $statement = …
+			z.unknown(),
+			// Statement record.
 			z.object({ status: z.union([z.literal('OK'), z.literal('ERR')]), result: StatementSchema }),
+			// LET $defaultCategory = …
 			z.unknown(),
+			// IF !$defaultCategory { … }
 			z.unknown(),
+			// FOR $t IN $transactions { … }
 			z.unknown()
 		])
 		.parse(results);

@@ -30,6 +30,7 @@ DEFINE TABLE statement SCHEMAFULL;
 DEFINE FIELD account ON TABLE statement TYPE record<account>;
 DEFINE FIELD date ON TABLE statement TYPE datetime;
 DEFINE FIELD file ON TABLE statement TYPE record<file>;
+DEFINE INDEX statementAccountDateIndex ON TABLE statement COLUMNS account, date UNIQUE;
 
 REMOVE TABLE IF EXISTS transaction;
 DEFINE TABLE transaction SCHEMAFULL;
