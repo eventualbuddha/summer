@@ -13,7 +13,7 @@ export type ParseStatementResults = Array<{
 
 export function parseStatement(statement: Statement): ParseStatementResults {
 	return [schwab, amex].map((source) => ({
-		source: source.name,
+		source: source.id,
 		results: source.parseStatement(statement).toArray()
 	}));
 }
