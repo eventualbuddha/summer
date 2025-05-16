@@ -64,7 +64,7 @@
 				value={s.defaultCategoryId}
 				onchange={(event) => s.updateDefaultCategoryId(event.currentTarget.value)}
 			>
-				<option>Select Category</option>
+				<option value="" disabled>Select Category</option>
 				{#each s.filters.categories as category (category.value.id)}
 					<option value={category.value.id}>{category.value.emoji} {category.value.name}</option>
 				{/each}
@@ -112,7 +112,7 @@
 								onchange={(event) =>
 									s.updateCategoryColor(category.value.id, event.currentTarget.value)}
 							>
-								<option>Select a Color</option>
+								<option value="" disabled>Select a Color</option>
 								{#each COLORS as color (color.value)}
 									<option value={color.value}>{color.label}</option>
 								{/each}
@@ -151,7 +151,7 @@
 					<ButtonLike>
 						{#snippet children(className)}
 							<select class={className} bind:value={newCategory.color}>
-								<option value="">Select a Color</option>
+								<option value="" disabled>Select a Color</option>
 								{#each COLORS as color (color.value)}
 									<option value={color.value}>{color.label}</option>
 								{/each}

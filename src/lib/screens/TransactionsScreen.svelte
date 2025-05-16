@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
 	import Filters from '$lib/components/Filters.svelte';
+	import ImportButton from '$lib/components/ImportButton.svelte';
 	import NavigationButton from '$lib/components/NavigationButton.svelte';
 	import SortHeader from '$lib/components/SortHeader.svelte';
 	import TransactionRow from '$lib/components/TransactionRow.svelte';
@@ -21,15 +22,16 @@
 	<NavigationButton />
 	<h1 class="text-2xl font-bold">Transactions</h1>
 	{#if s.transactions}
-		<span class="flex items-center gap-1 text-sm">
+		<span aria-label="Transaction Count" class="flex items-center gap-1 text-sm">
 			<IconTallyMark5 />
 			{s.transactions.count.toLocaleString()}
 		</span>
-		<span class="flex items-center gap-1 text-sm">
+		<span aria-label="Transaction Sum" class="flex items-center gap-1 text-sm">
 			<IconDollarCoinSolid />
 			{formatWholeDollarAmount(s.transactions.total)}
 		</span>
 	{/if}
+	<ImportButton />
 </div>
 {#if s.filters}
 	<Filters

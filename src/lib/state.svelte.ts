@@ -1,8 +1,10 @@
+import { Result } from '@badrap/result';
 import { RecordId, Surreal, Table } from 'surrealdb';
 import {
 	getDefaultCategoryId,
 	getFilterOptions,
 	getTransactions,
+	importStatement,
 	updateDefaultCategoryId,
 	use,
 	type Account,
@@ -11,6 +13,8 @@ import {
 	type Transaction,
 	type Transactions
 } from './db';
+import type { ImportedTransaction } from './import/ImportedTransaction';
+import type { StatementMetadata } from './import/StatementMetadata';
 import type { Selection } from './types';
 import { Fetcher } from './utils/Fetcher';
 import { Filters } from './utils/Filters.svelte';
@@ -325,5 +329,31 @@ export class State {
 			throw new Error('Not connected to SurrealDB');
 		}
 		await updateDefaultCategoryId(this.#surreal, newDefaultCategoryId);
+	}
+
+	async importStatement(
+		filename: string,
+		pdfData: Uint8Array,
+		source: string,
+		metadata: StatementMetadata,
+		transactions: readonly ImportedTransaction[]
+	): Promise<Result<void>> {
+		const db = this.#surreal;
+		if (!db) {
+			throw new Error('Not connected to SurrealDB');
+		}
+
+		const result = await importStatement(db, filename, pdfData, source, metadata, transactions);
+
+		if (result.isErr) {
+			return Result.err(result.error);
+		}
+
+		const { account, statement } = result.value;
+		await this.#updateFilters();
+		this.selectAccounts([account.id]);
+		this.selectYears([statement.date.getFullYear().toString()]);
+		this.selectMonths([(statement.date.getMonth() + 1).toString()]);
+		return Result.ok(undefined);
 	}
 }

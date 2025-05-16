@@ -6,11 +6,12 @@
 	let {
 		label,
 		'aria-label': ariaLabel,
-		children
-	}: { label: string; 'aria-label'?: string; children: Snippet } = $props();
+		children,
+		open: isOpen = $bindable(false)
+	}: { label: string; 'aria-label'?: string; children: Snippet; open?: boolean } = $props();
 </script>
 
-<Dropdown>
+<Dropdown bind:open={isOpen}>
 	{#snippet root(contents)}
 		<div class="relative inline-block text-left">
 			{@render contents()}
