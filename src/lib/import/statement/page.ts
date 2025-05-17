@@ -81,7 +81,11 @@ export class PageText {
 
 	isVerticallyAlignedWith(
 		other: PageText,
-		{ alignment, maxGap = Infinity }: { alignment: 'left' | 'right' | 'either'; maxGap?: number }
+		{
+			alignment,
+			maxGap = Infinity,
+			maxAlignmentError = 1
+		}: { alignment: 'left' | 'right' | 'either'; maxGap?: number; maxAlignmentError?: number }
 	): boolean {
 		if (
 			Math.abs(
@@ -93,15 +97,15 @@ export class PageText {
 
 		switch (alignment) {
 			case 'left': {
-				return Math.abs(this.x - other.x) < 1;
+				return Math.abs(this.x - other.x) <= maxAlignmentError;
 			}
 			case 'right': {
-				return Math.abs(this.x + this.width - (other.x + other.width)) < 1;
+				return Math.abs(this.x + this.width - (other.x + other.width)) <= maxAlignmentError;
 			}
 			case 'either': {
 				return (
-					Math.abs(this.x - other.x) < 1 ||
-					Math.abs(this.x + this.width - (other.x + other.width)) < 1
+					Math.abs(this.x - other.x) <= maxAlignmentError ||
+					Math.abs(this.x + this.width - (other.x + other.width)) <= maxAlignmentError
 				);
 			}
 			default: {

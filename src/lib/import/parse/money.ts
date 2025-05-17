@@ -2,6 +2,8 @@ import { Result } from '@badrap/result';
 
 export class ParseMoneyError extends Error {}
 
+export const MONEY_PATTERN = /^\s*([-+])?\s*(\(\s*)?\$?([\d,]+)(?:\.(\d{2}))?(\s*\))?\s*$/;
+
 /**
  * Parses a money string into a number. Assumes USD.
  *
@@ -9,7 +11,7 @@ export class ParseMoneyError extends Error {}
  * @returns The number of cents in the amount.
  */
 export function parseAmount(str: string): Result<number, ParseMoneyError> {
-	const match = str.match(/^\s*([-+])?\s*(\(\s*)?\$?([\d,]+)(?:\.(\d{2}))?(\s*\))?\s*$/);
+	const match = str.match(MONEY_PATTERN);
 	if (!match) {
 		return Result.err(new ParseMoneyError(`Money does not match expected format: ${str}`));
 	}

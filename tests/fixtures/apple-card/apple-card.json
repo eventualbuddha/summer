@@ -1,0 +1,3560 @@
+[
+	{
+		"pageNumber": 1,
+		"texts": [
+			{
+				"str": "Statement",
+				"x": 480.816,
+				"y": 706.032,
+				"width": 94.60274399999999,
+				"height": 17.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Apple Card Co-Owners",
+				"x": 36,
+				"y": 696.384,
+				"width": 71.97399999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Harry Potter, harry@potters.cc",
+				"x": 36,
+				"y": 686.304,
+				"width": 115.92699999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Ginevra Weasley, ginny@weasleys.cc",
+				"x": 36,
+				"y": 676.44,
+				"width": 125.46099999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Jan 1 ",
+				"x": 505.512,
+				"y": 676.368,
+				"width": 18.529000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "— ",
+				"x": 524.088,
+				"y": 676.368,
+				"width": 8.893556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "Jan 31, 2025",
+				"x": 533.016,
+				"y": 676.368,
+				"width": 41.867000000000004,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "If you'd like to receive Apple Card",
+				"x": 401.904,
+				"y": 596.228,
+				"width": 109.34000000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "notifications on your iPhone in the future,",
+				"x": 401.904,
+				"y": 586.22,
+				"width": 134.456,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "just go to Settings > Notifications > Wallet,",
+				"x": 401.904,
+				"y": 576.212,
+				"width": 139.377,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "and turn on Allow Notifications.",
+				"x": 401.904,
+				"y": 566.204,
+				"width": 101.77300000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Your January Balance",
+				"x": 36,
+				"y": 506.732,
+				"width": 91.02488500000001,
+				"height": 8.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Minimum",
+				"x": 219.6,
+				"y": 506.732,
+				"width": 37.984778999999996,
+				"height": 8.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Payment",
+				"x": 401.904,
+				"y": 506.732,
+				"width": 36.616931,
+				"height": 8.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "as of Jan 31, 2025",
+				"x": 36,
+				"y": 495.932,
+				"width": 76.716475,
+				"height": 8.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Payment Due",
+				"x": 219.6,
+				"y": 495.932,
+				"width": 55.901787999999996,
+				"height": 8.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Due By",
+				"x": 401.904,
+				"y": 495.932,
+				"width": 29.813687,
+				"height": 8.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$979.20",
+				"x": 36,
+				"y": 468.716,
+				"width": 78.836058,
+				"height": 19.999,
+				"fontName": "g_d0_f4"
+			},
+			{
+				"str": "$25.00",
+				"x": 219.6,
+				"y": 468.716,
+				"width": 67.456627,
+				"height": 19.999,
+				"fontName": "g_d0_f4"
+			},
+			{
+				"str": "Feb 28, 2025",
+				"x": 401.904,
+				"y": 468.716,
+				"width": 119.49402499999997,
+				"height": 19.999,
+				"fontName": "g_d0_f4"
+			},
+			{
+				"str": "Account Information",
+				"x": 401.904,
+				"y": 447.116,
+				"width": 82.52568299999997,
+				"height": 7.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "If you pay your monthly balance in full every",
+				"x": 36,
+				"y": 436.748,
+				"width": 142.82799999999995,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "You have a recurring payment scheduled. Your",
+				"x": 401.904,
+				"y": 436.676,
+				"width": 153.06899999999996,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "month, you will avoid being charged interest.",
+				"x": 36,
+				"y": 427.748,
+				"width": 146.195,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "balance of $979.20 for January will be made from ",
+				"x": 401.904,
+				"y": 427.676,
+				"width": 164.12199999999996,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "your bank account on February 28th. Please go to",
+				"x": 401.904,
+				"y": 418.676,
+				"width": 162.85499999999993,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Wallet or card.apple.com to schedule new payments",
+				"x": 401.904,
+				"y": 409.676,
+				"width": 170.93999999999997,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "or view existing payments.",
+				"x": 401.904,
+				"y": 400.676,
+				"width": 86.35899999999997,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Previous Monthly Balance",
+				"x": 401.904,
+				"y": 379.868,
+				"width": 103.89901099999999,
+				"height": 7.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "$854.45 ",
+				"x": 538.128,
+				"y": 379.868,
+				"width": 37.507311,
+				"height": 7.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "as of Dec 31, 2024",
+				"x": 401.904,
+				"y": 370.796,
+				"width": 61.17999999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Previous Total Balance",
+				"x": 401.904,
+				"y": 357.044,
+				"width": 91.66854,
+				"height": 7.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "$854.45 ",
+				"x": 537.408,
+				"y": 357.044,
+				"width": 37.507311,
+				"height": 7.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "as of Dec 31, 2024",
+				"x": 401.904,
+				"y": 347.972,
+				"width": 61.17999999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total Balance",
+				"x": 401.904,
+				"y": 334.508,
+				"width": 54.48118899999999,
+				"height": 7.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "$979.20 ",
+				"x": 538.632,
+				"y": 334.508,
+				"width": 36.739407,
+				"height": 7.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "as of Jan 31, 2025",
+				"x": 401.904,
+				"y": 325.508,
+				"width": 59.675,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": " ",
+				"x": 401.904,
+				"y": 310.604,
+				"width": 1.8900000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": " ",
+				"x": 401.904,
+				"y": 301.604,
+				"width": 1.8900000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": " ",
+				"x": 401.904,
+				"y": 292.604,
+				"width": 1.8900000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": " ",
+				"x": 36,
+				"y": 225.356,
+				"width": 2.055743,
+				"height": 7.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": " ",
+				"x": 36,
+				"y": 215.852,
+				"width": 1.4906,
+				"height": 5.8,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "If you make only the minimum payment each period, you will pay more in interest and",
+				"x": 218.88,
+				"y": 202.676,
+				"width": 298.4800000000001,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Minimum Payment Warning",
+				"x": 47.232,
+				"y": 198.644,
+				"width": 123.79024400000002,
+				"height": 8.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "it will take you ",
+				"x": 218.88,
+				"y": 194.684,
+				"width": 52.464999999999996,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "longer to pay off your balance.",
+				"x": 271.008,
+				"y": 194.684,
+				"width": 107.58300000000001,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "If you make no additional charges using",
+				"x": 47.232,
+				"y": 175.82,
+				"width": 121.17699999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "You will pay off the balance shown on this ",
+				"x": 218.88,
+				"y": 175.82,
+				"width": 129.332,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "this card and each month you pay:",
+				"x": 47.232,
+				"y": 165.812,
+				"width": 105.21000000000001,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "statement in about:",
+				"x": 218.88,
+				"y": 165.812,
+				"width": 59.653999999999996,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "And will end up paying an estimated total of:",
+				"x": 400.392,
+				"y": 165.812,
+				"width": 135.156,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Only minimum payment",
+				"x": 47.232,
+				"y": 146.66,
+				"width": 76.503,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "5 years",
+				"x": 218.88,
+				"y": 146.66,
+				"width": 23.940000000000005,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$1,366 ",
+				"x": 400.392,
+				"y": 146.66,
+				"width": 24.64,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$34",
+				"x": 47.232,
+				"y": 128.948,
+				"width": 13.3,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3 years",
+				"x": 218.88,
+				"y": 128.948,
+				"width": 23.954,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$1,226 (saving $140 vs. minimum payment)",
+				"x": 400.392,
+				"y": 128.948,
+				"width": 141.82700000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "If you would like information about credit counseling services, call us at 1-877-255-5923. See Legal section for important information about ",
+				"x": 46.08,
+				"y": 111.884,
+				"width": 521.9347500000003,
+				"height": 7.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "your account.",
+				"x": 46.08,
+				"y": 102.308,
+				"width": 51.20959799999999,
+				"height": 7.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "New York residents may contact the New York State Department of Financial Services by telephone or visit its website for free information on ",
+				"x": 46.08,
+				"y": 92.732,
+				"width": 527.782019,
+				"height": 7.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "comparative credit card rates, fees and grace periods. 1-800-342-3736 or www.dfs.ny.gov",
+				"x": 46.08,
+				"y": 83.156,
+				"width": 340.71740500000004,
+				"height": 7.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "If your obligation has been discharged on this account because of a prior bankruptcy, or if you are the subject of a pending bankruptcy, this ",
+				"x": 45.216,
+				"y": 72.86,
+				"width": 522.0947300000001,
+				"height": 7.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "communication is for informational purposes only and is not an attempt for payment or to impose liability for any obligation.",
+				"x": 45.216,
+				"y": 63.284,
+				"width": 457.7907689999999,
+				"height": 7.999,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.",
+				"x": 36,
+				"y": 36.324,
+				"width": 238.7279999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Page 1 /6",
+				"x": 36,
+				"y": 17.46,
+				"width": 30.044,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			}
+		]
+	},
+	{
+		"pageNumber": 2,
+		"texts": [
+			{
+				"str": "Statement",
+				"x": 480.816,
+				"y": 706.032,
+				"width": 94.60274399999999,
+				"height": 17.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Apple Card Co-Owners",
+				"x": 36,
+				"y": 696.384,
+				"width": 71.97399999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Harry Potter, harry@potters.cc",
+				"x": 36,
+				"y": 686.304,
+				"width": 115.92699999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Ginevra Weasley, ginny@weasleys.cc",
+				"x": 36,
+				"y": 676.44,
+				"width": 125.46099999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Jan 1 ",
+				"x": 505.512,
+				"y": 676.368,
+				"width": 18.529000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "— ",
+				"x": 524.088,
+				"y": 676.368,
+				"width": 8.893556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "Jan 31, 2025",
+				"x": 533.016,
+				"y": 676.368,
+				"width": 41.867000000000004,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Account Activity",
+				"x": 36,
+				"y": 622.94,
+				"width": 131.086717,
+				"height": 17.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Payments",
+				"x": 36,
+				"y": 595.22,
+				"width": 48.659576,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "-$854.45 ",
+				"x": 543.528,
+				"y": 571.604,
+				"width": 32.51475,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total payments made by Harry Potter",
+				"x": 36,
+				"y": 571.532,
+				"width": 129.69600000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.00 ",
+				"x": 555.264,
+				"y": 551.588,
+				"width": 20.78325,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total payments made by Ginevra Weasley",
+				"x": 36,
+				"y": 551.516,
+				"width": 142.569,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total payments for this period ",
+				"x": 36,
+				"y": 533.3,
+				"width": 93.26799999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "-$854.45 ",
+				"x": 542.88,
+				"y": 533.156,
+				"width": 32.557,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Transactions",
+				"x": 36.216,
+				"y": 484.052,
+				"width": 63.25524900000001,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Total charges, credits, and returns by Harry Potter",
+				"x": 36.216,
+				"y": 460.364,
+				"width": 171.91299999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$762.70 ",
+				"x": 547.848,
+				"y": 460.364,
+				"width": 28.24875,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$216.50 ",
+				"x": 548.496,
+				"y": 440.42,
+				"width": 27.74925,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total charges, credits, and returns by Ginevra Weasley",
+				"x": 36.216,
+				"y": 440.348,
+				"width": 184.78599999999997,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total charges, credits, and returns for this period",
+				"x": 36.216,
+				"y": 422.06,
+				"width": 149.317,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "$979.20 ",
+				"x": 547.056,
+				"y": 421.988,
+				"width": 28.993999999999996,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Daily Cash",
+				"x": 36,
+				"y": 370.076,
+				"width": 51.618307,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "$11.60 ",
+				"x": 553.32,
+				"y": 346.46,
+				"width": 22.59225,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total Daily Cash for Harry Potter",
+				"x": 36,
+				"y": 346.388,
+				"width": 113.14100000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$2.17 ",
+				"x": 556.776,
+				"y": 326.444,
+				"width": 18.97425,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total Daily Cash for Ginevra Weasley",
+				"x": 36,
+				"y": 326.372,
+				"width": 126.01400000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total Daily Cash to account",
+				"x": 36,
+				"y": 308.156,
+				"width": 84.16100000000002,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "$13.77 ",
+				"x": 552.6,
+				"y": 308.012,
+				"width": 23.135,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Interest Charged",
+				"x": 36,
+				"y": 262.94,
+				"width": 81.755567,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": " —",
+				"x": 36,
+				"y": 235.94,
+				"width": 8.893556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "$0.00 ",
+				"x": 555.768,
+				"y": 235.94,
+				"width": 20.78325,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total interest for this month",
+				"x": 36,
+				"y": 218.948,
+				"width": 98.90299999999999,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "$0.00 ",
+				"x": 554.04,
+				"y": 218.948,
+				"width": 22.585500000000003,
+				"height": 6.75,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Interest Charges",
+				"x": 36,
+				"y": 186.692,
+				"width": 59.108000000000004,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Interest Charge Calculation",
+				"x": 305.28,
+				"y": 186.692,
+				"width": 96.61399999999998,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "2025 Total Year-to-Date: ",
+				"x": 36,
+				"y": 176.684,
+				"width": 84.77,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Annual Percentage Rate (APR)",
+				"x": 305.28,
+				"y": 176.684,
+				"width": 98.987,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "15.24 %",
+				"x": 411.984,
+				"y": 176.684,
+				"width": 27.993000000000002,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": " (variable)",
+				"x": 439.632,
+				"y": 176.684,
+				"width": 32.585,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.00 ",
+				"x": 145.008,
+				"y": 167.972,
+				"width": 22.585500000000003,
+				"height": 6.75,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "– ",
+				"x": 36,
+				"y": 167.684,
+				"width": 5.393556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "Total interest charged in 2025",
+				"x": 41.4,
+				"y": 167.684,
+				"width": 98.69999999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Balance subject to interest rate",
+				"x": 305.28,
+				"y": 166.676,
+				"width": 101.843,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.00",
+				"x": 411.984,
+				"y": 166.676,
+				"width": 21.623,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.",
+				"x": 36,
+				"y": 36.324,
+				"width": 238.7279999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Page 2 /6",
+				"x": 36,
+				"y": 17.46,
+				"width": 31.101,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			}
+		]
+	},
+	{
+		"pageNumber": 3,
+		"texts": [
+			{
+				"str": "Statement",
+				"x": 480.816,
+				"y": 706.032,
+				"width": 94.60274399999999,
+				"height": 17.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Apple Card Co-Owners",
+				"x": 36,
+				"y": 696.384,
+				"width": 71.97399999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Harry Potter, harry@potters.cc",
+				"x": 36,
+				"y": 686.304,
+				"width": 115.92699999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Ginevra Weasley, ginny@weasleys.cc",
+				"x": 36,
+				"y": 676.44,
+				"width": 125.46099999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Jan 1 ",
+				"x": 505.512,
+				"y": 676.368,
+				"width": 18.529000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "— ",
+				"x": 524.088,
+				"y": 676.368,
+				"width": 8.893556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "Jan 31, 2025",
+				"x": 533.016,
+				"y": 676.368,
+				"width": 41.867000000000004,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Payments",
+				"x": 36,
+				"y": 622.94,
+				"width": 79.62757599999999,
+				"height": 17.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Payments made by Harry Potter",
+				"x": 36,
+				"y": 586.58,
+				"width": 165.67793699999996,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Date",
+				"x": 37.008,
+				"y": 570.524,
+				"width": 14.672,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Description",
+				"x": 105.912,
+				"y": 570.524,
+				"width": 35.539,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Amount",
+				"x": 551.448,
+				"y": 570.524,
+				"width": 24.619,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "-$854.45 ",
+				"x": 544.032,
+				"y": 553.604,
+				"width": 32.51475,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "ACH Deposit Internet transfer from account ending in 8061",
+				"x": 105.408,
+				"y": 553.532,
+				"width": 192.08,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/31/2025",
+				"x": 36,
+				"y": 553.46,
+				"width": 36.53999999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total payments for this period ",
+				"x": 36,
+				"y": 535.244,
+				"width": 93.26799999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "-$854.45 ",
+				"x": 543.384,
+				"y": 535.172,
+				"width": 32.557,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Payments made by Ginevra Weasley",
+				"x": 36,
+				"y": 483.26,
+				"width": 185.12416899999997,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Date",
+				"x": 37.008,
+				"y": 467.204,
+				"width": 14.672,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Description",
+				"x": 105.912,
+				"y": 467.204,
+				"width": 35.539,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Amount",
+				"x": 551.448,
+				"y": 467.204,
+				"width": 24.619,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "$0.00 ",
+				"x": 555.768,
+				"y": 450.284,
+				"width": 20.78325,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": " —",
+				"x": 105.408,
+				"y": 450.212,
+				"width": 8.893556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": " —",
+				"x": 36,
+				"y": 450.14,
+				"width": 8.893556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "Total payments for this period ",
+				"x": 36,
+				"y": 431.924,
+				"width": 93.26799999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "$0.00 ",
+				"x": 555.12,
+				"y": 431.852,
+				"width": 21.076999999999998,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Transactions",
+				"x": 36,
+				"y": 347.18,
+				"width": 103.51224899999998,
+				"height": 17.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Transactions by Harry Potter",
+				"x": 36,
+				"y": 310.892,
+				"width": 150.6863,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Date",
+				"x": 37.008,
+				"y": 294.908,
+				"width": 14.672,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Description",
+				"x": 105.912,
+				"y": 294.908,
+				"width": 35.539,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Daily Cash",
+				"x": 415.728,
+				"y": 294.908,
+				"width": 32.851000000000006,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Amount",
+				"x": 551.376,
+				"y": 294.908,
+				"width": 24.619,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "01/02/2025",
+				"x": 36,
+				"y": 276.764,
+				"width": 37.667,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "CITY OF ALAMEDA IPS 2263 SANTA CLARA AVE 202 ALAMEDA 94501 CA USA",
+				"x": 105.408,
+				"y": 276.764,
+				"width": 257.3409999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 276.764,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.02",
+				"x": 446.256,
+				"y": 276.764,
+				"width": 19.46,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$1.50 ",
+				"x": 556.272,
+				"y": 276.764,
+				"width": 20.209000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/04/2025",
+				"x": 36,
+				"y": 256.676,
+				"width": 37.974999999999994,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "OAKLAND PARK METER IPS250 FRANK OGAWA PLZ 6300 OAKLAND 94612 CA USA",
+				"x": 105.408,
+				"y": 256.676,
+				"width": 275.01599999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 256.676,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.03",
+				"x": 446.256,
+				"y": 256.676,
+				"width": 19.593,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$3.00 ",
+				"x": 555.048,
+				"y": 256.676,
+				"width": 21.483,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/09/2025",
+				"x": 36,
+				"y": 236.588,
+				"width": 37.891000000000005,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY 866-712-7753 95014 CA USA",
+				"x": 105.408,
+				"y": 236.588,
+				"width": 232.81999999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 236.588,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.39",
+				"x": 446.256,
+				"y": 236.588,
+				"width": 19.614,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$12.99 ",
+				"x": 551.808,
+				"y": 236.588,
+				"width": 24.507,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/12/2025",
+				"x": 36,
+				"y": 216.5,
+				"width": 36.407,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY 866-712-7753 95014 CA USA",
+				"x": 105.408,
+				"y": 216.5,
+				"width": 232.81999999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 216.5,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.30",
+				"x": 446.256,
+				"y": 216.5,
+				"width": 19.593,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$9.99 ",
+				"x": 554.904,
+				"y": 216.5,
+				"width": 21.616000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/12/2025",
+				"x": 36,
+				"y": 196.484,
+				"width": 36.407,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY 866-712-7753 95014 CA USA",
+				"x": 105.408,
+				"y": 196.484,
+				"width": 232.81999999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 196.484,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.45",
+				"x": 446.256,
+				"y": 196.484,
+				"width": 19.684,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$14.99 ",
+				"x": 551.736,
+				"y": 196.484,
+				"width": 24.815,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/13/2025",
+				"x": 36,
+				"y": 176.396,
+				"width": 36.53999999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY 866-712-7753 95014 CA USA",
+				"x": 105.408,
+				"y": 176.396,
+				"width": 232.81999999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 176.396,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.48",
+				"x": 446.256,
+				"y": 176.396,
+				"width": 19.810000000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$15.99 ",
+				"x": 551.88,
+				"y": 176.396,
+				"width": 24.626,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/13/2025",
+				"x": 36,
+				"y": 156.308,
+				"width": 36.53999999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY 866-712-7753 95014 CA USA",
+				"x": 105.408,
+				"y": 156.308,
+				"width": 232.81999999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 156.308,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.45",
+				"x": 446.256,
+				"y": 156.308,
+				"width": 19.684,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$14.99 ",
+				"x": 551.736,
+				"y": 156.308,
+				"width": 24.815,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/14/2025",
+				"x": 36,
+				"y": 136.22,
+				"width": 36.715,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "LONGBOTTOM & CO. DDS 291 GROVE ST OXFORDSHIRE 29384 UK",
+				"x": 105.408,
+				"y": 136.22,
+				"width": 236.22199999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 136.22,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$2.06",
+				"x": 446.256,
+				"y": 136.22,
+				"width": 19.481,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$206.00 ",
+				"x": 546.408,
+				"y": 136.22,
+				"width": 30.121000000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/16/2025",
+				"x": 36,
+				"y": 116.132,
+				"width": 36.631,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "YOGOFINA OXFORD 3412 PARK AVE OXFORD 84710 UK",
+				"x": 105.408,
+				"y": 116.132,
+				"width": 203.96599999999995,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 116.132,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.10",
+				"x": 446.256,
+				"y": 116.132,
+				"width": 18.403,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$10.17 ",
+				"x": 553.536,
+				"y": 116.132,
+				"width": 22.995,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/21/2025",
+				"x": 36,
+				"y": 96.044,
+				"width": 36.407,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY 866-712-7753 95014 CA USA",
+				"x": 105.408,
+				"y": 96.044,
+				"width": 232.81999999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 96.044,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.30",
+				"x": 446.256,
+				"y": 96.044,
+				"width": 19.593,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$9.99 ",
+				"x": 554.904,
+				"y": 96.044,
+				"width": 21.616000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/21/2025",
+				"x": 36,
+				"y": 75.956,
+				"width": 36.407,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY 866-712-7753 95014 CA USA",
+				"x": 105.408,
+				"y": 75.956,
+				"width": 232.81999999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 75.956,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.24",
+				"x": 446.256,
+				"y": 75.956,
+				"width": 19.565,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$7.99 ",
+				"x": 555.912,
+				"y": 75.956,
+				"width": 21.182000000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.",
+				"x": 36,
+				"y": 36.324,
+				"width": 238.7279999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Page 3 /6",
+				"x": 36,
+				"y": 17.46,
+				"width": 31.233999999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			}
+		]
+	},
+	{
+		"pageNumber": 4,
+		"texts": [
+			{
+				"str": "Statement",
+				"x": 480.816,
+				"y": 706.032,
+				"width": 94.60274399999999,
+				"height": 17.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Apple Card Co-Owners",
+				"x": 36,
+				"y": 696.384,
+				"width": 71.97399999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Harry Potter, harry@potters.cc",
+				"x": 36,
+				"y": 686.304,
+				"width": 115.92699999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Ginevra Weasley, ginny@weasleys.cc",
+				"x": 36,
+				"y": 676.44,
+				"width": 125.46099999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Jan 1 ",
+				"x": 505.512,
+				"y": 676.368,
+				"width": 18.529000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "— ",
+				"x": 524.088,
+				"y": 676.368,
+				"width": 8.893556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "Jan 31, 2025",
+				"x": 533.016,
+				"y": 676.368,
+				"width": 41.867000000000004,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Transactions by Harry Potter",
+				"x": 36,
+				"y": 634.604,
+				"width": 150.6863,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Date",
+				"x": 37.008,
+				"y": 618.62,
+				"width": 14.672,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Description",
+				"x": 105.912,
+				"y": 618.62,
+				"width": 35.539,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Daily Cash",
+				"x": 415.728,
+				"y": 618.62,
+				"width": 32.851000000000006,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Amount",
+				"x": 551.376,
+				"y": 618.62,
+				"width": 24.619,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "01/22/2025",
+				"x": 36,
+				"y": 600.548,
+				"width": 37.464,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY CUPERTINO 95014 CA USA",
+				"x": 105.408,
+				"y": 600.548,
+				"width": 224.67199999999994,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 600.548,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.57",
+				"x": 446.256,
+				"y": 600.548,
+				"width": 19.166,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$18.98 ",
+				"x": 551.664,
+				"y": 600.548,
+				"width": 24.773000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/22/2025",
+				"x": 36,
+				"y": 580.46,
+				"width": 37.464,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "FLOURISH AND BLOTTSCO2000 GRAND STREET 0571839400 89205 UK",
+				"x": 105.408,
+				"y": 580.46,
+				"width": 260.0359999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 580.46,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$2.57",
+				"x": 446.256,
+				"y": 580.46,
+				"width": 18.963,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$257.30 ",
+				"x": 547.56,
+				"y": 580.46,
+				"width": 29.533,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/25/2025",
+				"x": 36,
+				"y": 560.372,
+				"width": 37.583,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "THE THREE BROOMSTICKS KITCHEN AND BAR HOGSMEADE UK",
+				"x": 105.408,
+				"y": 560.372,
+				"width": 279.97899999999987,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "2%",
+				"x": 415.296,
+				"y": 560.372,
+				"width": 9.996,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$1.45",
+				"x": 446.256,
+				"y": 560.372,
+				"width": 18.424,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$72.40 ",
+				"x": 550.944,
+				"y": 560.372,
+				"width": 25.417,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/28/2025",
+				"x": 36,
+				"y": 540.284,
+				"width": 37.709,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY 866-712-7753 95014 CA USA",
+				"x": 105.408,
+				"y": 540.284,
+				"width": 232.81999999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 540.284,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.10",
+				"x": 446.256,
+				"y": 540.284,
+				"width": 18.403,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$3.49 ",
+				"x": 554.904,
+				"y": 540.284,
+				"width": 21.609,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/28/2025",
+				"x": 36,
+				"y": 520.196,
+				"width": 37.709,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK CUPERTINO 95014 CA USA",
+				"x": 105.408,
+				"y": 520.196,
+				"width": 206.92699999999994,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 520.196,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.45",
+				"x": 446.256,
+				"y": 520.196,
+				"width": 19.684,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$14.99 ",
+				"x": 551.736,
+				"y": 520.196,
+				"width": 24.815,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/29/2025",
+				"x": 36,
+				"y": 500.108,
+				"width": 37.688,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "MUGGLE MANIA MADNESS INC. CITY OF LONDON UK",
+				"x": 105.408,
+				"y": 500.108,
+				"width": 199.90599999999992,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 500.108,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.50",
+				"x": 446.256,
+				"y": 500.108,
+				"width": 19.579,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$49.99 ",
+				"x": 550.44,
+				"y": 500.108,
+				"width": 26.096000000000004,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/30/2025",
+				"x": 36,
+				"y": 480.02,
+				"width": 37.8,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "APPLE.COM/BILL ONE APPLE PARK WAY 866-712-7753 95014 CA USA",
+				"x": 105.408,
+				"y": 480.02,
+				"width": 232.81999999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3%",
+				"x": 415.152,
+				"y": 480.02,
+				"width": 10.129000000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$1.14",
+				"x": 446.256,
+				"y": 480.02,
+				"width": 17.248,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$37.95 ",
+				"x": 551.736,
+				"y": 480.02,
+				"width": 25.382,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$11.60 ",
+				"x": 446.256,
+				"y": 460.076,
+				"width": 22.59225,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total Daily Cash this month",
+				"x": 36,
+				"y": 459.932,
+				"width": 89.15200000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total charges, credits and returns",
+				"x": 36,
+				"y": 442.076,
+				"width": 119.84000000000003,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "$762.70 ",
+				"x": 544.752,
+				"y": 442.076,
+				"width": 31.591000000000005,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "If you have an iPhone, you can check to see your accumulated Daily Cash balance through Apple Wallet. If you do not have an iPhone, you can still apply your accumulated Daily Cash as statement credit.",
+				"x": 36,
+				"y": 429.116,
+				"width": 471.00500000000034,
+				"height": 5,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Transactions by Ginevra Weasley",
+				"x": 36,
+				"y": 375.188,
+				"width": 170.132532,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Date",
+				"x": 37.008,
+				"y": 359.276,
+				"width": 14.672,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Description",
+				"x": 105.912,
+				"y": 359.276,
+				"width": 35.539,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Daily Cash",
+				"x": 415.728,
+				"y": 359.276,
+				"width": 32.851000000000006,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Amount",
+				"x": 551.376,
+				"y": 359.276,
+				"width": 24.619,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "01/04/2025",
+				"x": 36,
+				"y": 341.132,
+				"width": 37.974999999999994,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "OAKLAND PARK METER IPS250 FRANK OGAWA PLZ 6300 OAKLAND 94612 CA USA",
+				"x": 105.408,
+				"y": 341.132,
+				"width": 275.01599999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 341.132,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.01",
+				"x": 446.256,
+				"y": 341.132,
+				"width": 18.403,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$1.00 ",
+				"x": 556.2,
+				"y": 341.132,
+				"width": 20.293,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/06/2025",
+				"x": 36,
+				"y": 321.044,
+				"width": 37.891000000000005,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "COUNTY SPECIALTY POTIONS CRESTMORE AVE GODRICS HOLLOW UK",
+				"x": 105.408,
+				"y": 321.044,
+				"width": 245.51799999999992,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 321.044,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$1.07",
+				"x": 446.256,
+				"y": 321.044,
+				"width": 17.990000000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$107.00 ",
+				"x": 548.64,
+				"y": 321.044,
+				"width": 28.630000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/16/2025",
+				"x": 36,
+				"y": 300.956,
+				"width": 36.631,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "CITY OF ALAMEDA IPS 2263 SANTA CLARA AVE 202 ALAMEDA 94501 CA USA",
+				"x": 105.408,
+				"y": 300.956,
+				"width": 257.3409999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 300.956,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$0.02",
+				"x": 446.256,
+				"y": 300.956,
+				"width": 19.46,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$1.50 ",
+				"x": 556.272,
+				"y": 300.956,
+				"width": 20.209000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "01/27/2025",
+				"x": 36,
+				"y": 280.868,
+				"width": 37.254000000000005,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "COUNTY SPECIALTY POTIONS CRESTMORE AVE GODRICS HOLLOW UK",
+				"x": 105.408,
+				"y": 280.868,
+				"width": 245.51799999999992,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1%",
+				"x": 416.376,
+				"y": 280.868,
+				"width": 8.939,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$1.07",
+				"x": 446.256,
+				"y": 280.868,
+				"width": 17.990000000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$107.00 ",
+				"x": 548.64,
+				"y": 280.868,
+				"width": 28.630000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$2.17 ",
+				"x": 446.256,
+				"y": 260.924,
+				"width": 18.97425,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total Daily Cash this month",
+				"x": 36,
+				"y": 260.78,
+				"width": 89.15200000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Total charges, credits and returns",
+				"x": 36,
+				"y": 242.852,
+				"width": 119.84000000000003,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "$216.50 ",
+				"x": 545.184,
+				"y": 242.852,
+				"width": 31.367,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "If you have an iPhone, you can check to see your accumulated Daily Cash balance through Apple Wallet. If you do not have an iPhone, you can still apply your accumulated Daily Cash as statement credit.",
+				"x": 36,
+				"y": 229.964,
+				"width": 471.00500000000034,
+				"height": 5,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.",
+				"x": 36,
+				"y": 36.324,
+				"width": 238.7279999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Page 4 /6",
+				"x": 36,
+				"y": 17.46,
+				"width": 31.409,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			}
+		]
+	},
+	{
+		"pageNumber": 5,
+		"texts": [
+			{
+				"str": "Statement",
+				"x": 480.816,
+				"y": 706.032,
+				"width": 94.60274399999999,
+				"height": 17.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Apple Card Co-Owners",
+				"x": 36,
+				"y": 696.384,
+				"width": 71.97399999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Harry Potter, harry@potters.cc",
+				"x": 36,
+				"y": 686.304,
+				"width": 115.92699999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Ginevra Weasley, ginny@weasleys.cc",
+				"x": 36,
+				"y": 676.44,
+				"width": 125.46099999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Jan 1 ",
+				"x": 505.512,
+				"y": 676.368,
+				"width": 18.529000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "— ",
+				"x": 524.088,
+				"y": 676.368,
+				"width": 8.893556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "Jan 31, 2025",
+				"x": 533.016,
+				"y": 676.368,
+				"width": 41.867000000000004,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Daily Cash",
+				"x": 36,
+				"y": 622.94,
+				"width": 84.469307,
+				"height": 17.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Daily Cash for Harry Potter",
+				"x": 36,
+				"y": 586.58,
+				"width": 160.343422,
+				"height": 10.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Daily Cash from Apple Card",
+				"x": 37.008,
+				"y": 556.628,
+				"width": 89.74,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$11.60 ",
+				"x": 553.824,
+				"y": 556.628,
+				"width": 22.59225,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$11.60 ",
+				"x": 550.656,
+				"y": 539.132,
+				"width": 25.816,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Total Daily Cash",
+				"x": 36,
+				"y": 536.756,
+				"width": 56.945,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Daily Cash for Ginevra Weasley",
+				"x": 36,
+				"y": 479.012,
+				"width": 181.626487,
+				"height": 10.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Daily Cash from Apple Card",
+				"x": 37.008,
+				"y": 449.06,
+				"width": 89.74,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$2.17 ",
+				"x": 557.28,
+				"y": 449.06,
+				"width": 18.97425,
+				"height": 6.75,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "$2.17 ",
+				"x": 554.976,
+				"y": 431.492,
+				"width": 21.378,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Total Daily Cash",
+				"x": 36,
+				"y": 429.188,
+				"width": 56.945,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.",
+				"x": 36,
+				"y": 36.324,
+				"width": 238.7279999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Page 5 /6",
+				"x": 36,
+				"y": 17.46,
+				"width": 31.22,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			}
+		]
+	},
+	{
+		"pageNumber": 6,
+		"texts": [
+			{
+				"str": "Statement",
+				"x": 480.816,
+				"y": 706.032,
+				"width": 94.60274399999999,
+				"height": 17.999,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Apple Card Co-Owners",
+				"x": 36,
+				"y": 696.384,
+				"width": 71.97399999999999,
+				"height": 7,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "Harry Potter, harry@potters.cc",
+				"x": 36,
+				"y": 686.304,
+				"width": 115.92699999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Ginevra Weasley, ginny@weasleys.cc",
+				"x": 36,
+				"y": 676.44,
+				"width": 125.46099999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Jan 1 ",
+				"x": 505.512,
+				"y": 676.368,
+				"width": 18.529000000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "— ",
+				"x": 524.088,
+				"y": 676.368,
+				"width": 8.893556,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "Jan 31, 2025",
+				"x": 533.016,
+				"y": 676.368,
+				"width": 41.867000000000004,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Legal",
+				"x": 36.504,
+				"y": 645.692,
+				"width": 26.50759,
+				"height": 10.999,
+				"fontName": "g_d0_f2"
+			},
+			{
+				"str": "How can I avoid being charged interest?",
+				"x": 36.504,
+				"y": 628.844,
+				"width": 140.65099999999995,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Goldman Sachs Bank USA, Salt Lake City Branch",
+				"x": 316.296,
+				"y": 626.684,
+				"width": 158.27700000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Pay your Monthly Balance as of the end of last month in full by the payment due",
+				"x": 36.504,
+				"y": 619.628,
+				"width": 259.5459999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Lockbox 6112",
+				"x": 316.296,
+				"y": 617.468,
+				"width": 44.324,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "date this month in order to obtain your Grace Period.",
+				"x": 36.504,
+				"y": 610.412,
+				"width": 171.766,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "P.O. Box 7247",
+				"x": 316.296,
+				"y": 608.324,
+				"width": 46.291,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Philadelphia, PA 19170-6112",
+				"x": 316.296,
+				"y": 599.108,
+				"width": 91.34299999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "How do you calculate the Balance Subject to Interest Charge?",
+				"x": 36.504,
+				"y": 593.708,
+				"width": 216.57999999999993,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "We use the ",
+				"x": 36.504,
+				"y": 584.492,
+				"width": 38.67500000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "“",
+				"x": 74.88,
+				"y": 584.492,
+				"width": 3.089842,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "daily balance method (including new Transactions)",
+				"x": 77.976,
+				"y": 584.492,
+				"width": 165.63400000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "” ",
+				"x": 243.216,
+				"y": 584.492,
+				"width": 4.983397999999999,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "to calculate ",
+				"x": 248.184,
+				"y": 584.492,
+				"width": 39.77400000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "interest owed on each category of Transactions on your Account each month. ",
+				"x": 36.504,
+				"y": 575.348,
+				"width": 255.78699999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "In your letter, give us the following information:",
+				"x": 316.296,
+				"y": 571.46,
+				"width": 153.11100000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "We determine the daily balance for each balance of your Account as follows:",
+				"x": 36.504,
+				"y": 558.644,
+				"width": 249.36799999999988,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 316.296,
+				"y": 553.244,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "Account information",
+				"x": 323.496,
+				"y": 553.1,
+				"width": 66.213,
+				"height": 7.378574090567906,
+				"fontName": "g_d0_f7"
+			},
+			{
+				"str": ": Your name and email address associated with your ",
+				"x": 389.448,
+				"y": 553.1,
+				"width": 171.46499999999995,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "account.",
+				"x": 323.496,
+				"y": 543.884,
+				"width": 28.433999999999997,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 36.504,
+				"y": 542.084,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "we begin with the balance at the end of the prior day (excluding interest for ",
+				"x": 43.704,
+				"y": 541.94,
+				"width": 247.43599999999984,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 316.296,
+				"y": 534.812,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "Dollar amount:",
+				"x": 323.496,
+				"y": 534.668,
+				"width": 47.488,
+				"height": 7.378574090567906,
+				"fontName": "g_d0_f7"
+			},
+			{
+				"str": " The dollar amount of the suspected error.",
+				"x": 371.016,
+				"y": 534.668,
+				"width": 137.99799999999996,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "that day); then",
+				"x": 43.704,
+				"y": 532.724,
+				"width": 47.78200000000001,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 316.296,
+				"y": 525.668,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "Description of Problem",
+				"x": 323.496,
+				"y": 525.524,
+				"width": 74.80199999999999,
+				"height": 7.378574090567906,
+				"fontName": "g_d0_f7"
+			},
+			{
+				"str": ": If you think there is an error on your bill, describe ",
+				"x": 398.232,
+				"y": 525.524,
+				"width": 165.494,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 36.504,
+				"y": 523.652,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "we add the prior day",
+				"x": 43.704,
+				"y": 523.508,
+				"width": 66.997,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "’",
+				"x": 110.52,
+				"y": 523.508,
+				"width": 1.845704,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "s interest; then",
+				"x": 112.392,
+				"y": 523.508,
+				"width": 49,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "what you believe is wrong and why you believe it is a mistake.",
+				"x": 323.496,
+				"y": 516.308,
+				"width": 200.4239999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 36.504,
+				"y": 514.436,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "we add any new Transactions from that day (unless your Account qualifies for",
+				"x": 43.704,
+				"y": 514.292,
+				"width": 253.3509999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "a Grace Period on New Transactions); and then",
+				"x": 43.704,
+				"y": 505.148,
+				"width": 153.944,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "You must contact us within 60 days after the error appeared on your statement.",
+				"x": 316.296,
+				"y": 497.876,
+				"width": 260.27399999999983,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 36.504,
+				"y": 496.076,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "we subtract any new payments or credits posted to your Account that day (and",
+				"x": 43.704,
+				"y": 495.932,
+				"width": 258.0619999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "not already deducted from your Account).",
+				"x": 43.704,
+				"y": 486.716,
+				"width": 136.95500000000004,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "You must notify us of any potential errors in writing. You may call us, but if",
+				"x": 316.296,
+				"y": 479.516,
+				"width": 241.4439999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "you do we are not required to investigate any potential errors and you",
+				"x": 316.296,
+				"y": 470.3,
+				"width": 227.05899999999986,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "If any daily balance is less than zero, we treat it as zero. Additionally, if you had a",
+				"x": 36.504,
+				"y": 470.012,
+				"width": 262.7169999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "may have to pay the amount in question.",
+				"x": 316.296,
+				"y": 461.084,
+				"width": 132.08300000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Grace Period on New Transactions in the prior month, we subtract all payments ",
+				"x": 36.504,
+				"y": 460.796,
+				"width": 260.1829999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "and credits that are posted within the current month as of the first day of the ",
+				"x": 36.504,
+				"y": 451.58,
+				"width": 252.07699999999977,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "While we investigate whether or not there has been an error, the following are ",
+				"x": 316.296,
+				"y": 442.652,
+				"width": 255.26199999999977,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "current month.",
+				"x": 36.504,
+				"y": 442.436,
+				"width": 48.531000000000006,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "true:",
+				"x": 316.296,
+				"y": 433.508,
+				"width": 15.189999999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "How can my variable APR change?",
+				"x": 36.504,
+				"y": 425.732,
+				"width": 120.624,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "Variable APRs may increase or decrease each month if the Prime Rate changes.  ",
+				"x": 36.504,
+				"y": 416.516,
+				"width": 263.1789999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 316.296,
+				"y": 415.22,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "We cannot try to collect the amount in question, or report you as delinquent",
+				"x": 323.496,
+				"y": 415.076,
+				"width": 246.8339999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Your APR for purchases is a variable rate. If the Prime Rate changes, the new ",
+				"x": 36.504,
+				"y": 407.3,
+				"width": 252.14699999999988,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "on that amount.",
+				"x": 323.496,
+				"y": 405.86,
+				"width": 51.55499999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "variable APRs will take effect as of the first day of the next month and apply ",
+				"x": 36.504,
+				"y": 398.084,
+				"width": 247.86999999999978,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 316.296,
+				"y": 396.86,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "The charge in question may remain on your statement, and we may continue ",
+				"x": 323.496,
+				"y": 396.716,
+				"width": 250.87299999999996,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "to existing and new balances.  Any increase in the Prime Rate may result in an ",
+				"x": 36.504,
+				"y": 388.94,
+				"width": 254.56199999999987,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "to charge you interest on that amount. But, if we determine that we made a ",
+				"x": 323.496,
+				"y": 387.5,
+				"width": 246.2599999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "increase to your interest and Minimum Payment Due.",
+				"x": 36.504,
+				"y": 379.724,
+				"width": 172.29799999999997,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "mistake, you will not have to pay the amount in question or any interest or ",
+				"x": 323.496,
+				"y": 378.284,
+				"width": 241.8149999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "other fees related to that amount.",
+				"x": 323.496,
+				"y": 369.068,
+				"width": 109.95600000000003,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "The ",
+				"x": 36.504,
+				"y": 363.02,
+				"width": 14.405999999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "“",
+				"x": 50.904,
+				"y": 363.02,
+				"width": 3.089842,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "Prime Rate",
+				"x": 54,
+				"y": 363.02,
+				"width": 38.325,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "” ",
+				"x": 92.304,
+				"y": 363.02,
+				"width": 4.983397999999999,
+				"height": 7,
+				"fontName": "g_d0_f5"
+			},
+			{
+				"str": "in effect for a given month is the highest U.S. Prime Rate ",
+				"x": 97.272,
+				"y": 363.02,
+				"width": 186.28399999999993,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 316.296,
+				"y": 359.996,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "While you do not have to pay the amount in question, you are responsible",
+				"x": 323.496,
+				"y": 359.852,
+				"width": 239.15499999999992,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "published in the print edition of The Wall Street Journal (WSJ) on the last day",
+				"x": 36.504,
+				"y": 353.804,
+				"width": 251.1459999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "for the remainder of your balance.",
+				"x": 323.496,
+				"y": 350.708,
+				"width": 111.104,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "of the prior month that the Prime Rate was published. If the WSJ does not ",
+				"x": 36.504,
+				"y": 344.588,
+				"width": 241.64699999999988,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "·",
+				"x": 316.296,
+				"y": 341.636,
+				"width": 2.299805,
+				"height": 5,
+				"fontName": "g_d0_f6"
+			},
+			{
+				"str": "We can apply any unpaid amount against your credit limit.",
+				"x": 323.496,
+				"y": 341.492,
+				"width": 188.251,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "publish the Prime Rate on that day, then we will look to the last day before ",
+				"x": 36.504,
+				"y": 335.444,
+				"width": 243.00499999999977,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "then that such rate was published.",
+				"x": 36.504,
+				"y": 326.228,
+				"width": 112.483,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Your Rights If You Are Dissatisfied With Your Purchase:",
+				"x": 316.296,
+				"y": 323.06,
+				"width": 195.32099999999997,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "If you are dissatisfied with the goods or services that you have purchased with ",
+				"x": 316.296,
+				"y": 313.916,
+				"width": 257.27799999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "How do I make payments?",
+				"x": 36.504,
+				"y": 309.524,
+				"width": 91.735,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "your credit card, and you have tried in good faith to correct the problem with",
+				"x": 316.296,
+				"y": 304.7,
+				"width": 249.79499999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "You may make electronic payments on your Account through Apple Wallet or at",
+				"x": 36.504,
+				"y": 300.308,
+				"width": 258.9299999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "the merchant, you may have the right not to pay the remaining amount due on",
+				"x": 316.296,
+				"y": 295.484,
+				"width": 254.0719999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "card.apple.com",
+				"x": 36.504,
+				"y": 291.092,
+				"width": 50.79899999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "the purchase.",
+				"x": 316.296,
+				"y": 286.268,
+				"width": 44.961,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "When will you Credit my Payments?",
+				"x": 36.504,
+				"y": 274.388,
+				"width": 125.47500000000002,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "To use this right, all of the following must be true:",
+				"x": 316.296,
+				"y": 267.908,
+				"width": 161.44099999999997,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "We credit electronic payments made by 11:59 p.m. Eastern time on the day the ",
+				"x": 36.504,
+				"y": 265.244,
+				"width": 258.07599999999985,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "payment is made. ",
+				"x": 36.504,
+				"y": 256.028,
+				"width": 59.521000000000015,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "1.",
+				"x": 316.296,
+				"y": 249.476,
+				"width": 5.138,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "The purchase must have been made in your home state or within 100 miles ",
+				"x": 323.496,
+				"y": 249.476,
+				"width": 245.67199999999988,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "of ",
+				"x": 323.496,
+				"y": 240.26,
+				"width": 8.463,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "your current mailing address, and the purchase price must have been",
+				"x": 331.992,
+				"y": 240.26,
+				"width": 226.52699999999987,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Do you report my information to credit bureaus?",
+				"x": 36.504,
+				"y": 239.324,
+				"width": 169.23899999999995,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "more  than $50. (Note: Neither of these is necessary if your purchase was",
+				"x": 323.496,
+				"y": 231.116,
+				"width": 240.60399999999981,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "We may report information about your account to credit bureaus. Late payments, ",
+				"x": 36.504,
+				"y": 230.108,
+				"width": 266.09799999999996,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "based on an advertisement we mailed to you, or if we own the company",
+				"x": 323.496,
+				"y": 221.9,
+				"width": 233.12799999999987,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "missed payments, or other defaults on your Account may be reflected in your ",
+				"x": 36.504,
+				"y": 220.892,
+				"width": 253.7149999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "that sold you the goods or services.)",
+				"x": 323.496,
+				"y": 212.684,
+				"width": 119.23799999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "credit bureau report.  If you believe that there is an error in the information we ",
+				"x": 36.504,
+				"y": 211.676,
+				"width": 255.57699999999983,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "2.",
+				"x": 316.296,
+				"y": 203.468,
+				"width": 6.194999999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "You must have used your credit card for the purchase. ",
+				"x": 323.496,
+				"y": 203.468,
+				"width": 179.81599999999995,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "have reported about you to a credit bureau, contact us at Goldman Sachs Bank ",
+				"x": 36.504,
+				"y": 202.532,
+				"width": 259.48999999999995,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "3.",
+				"x": 316.296,
+				"y": 194.252,
+				"width": 6.327999999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "You must not yet have fully paid for the purchase.",
+				"x": 323.496,
+				"y": 194.252,
+				"width": 162.23899999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "USA, Salt Lake City Branch, Lockbox 6112, P.O. 7247, Philadelphia, PA 19170-",
+				"x": 36.504,
+				"y": 193.316,
+				"width": 252.17499999999987,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "6112.  Please include a copy of the information you believe is incorrect.",
+				"x": 36.504,
+				"y": 184.1,
+				"width": 230.55899999999994,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "If all of the criteria above are met and you are still dissatisfied with the",
+				"x": 316.296,
+				"y": 175.892,
+				"width": 227.58399999999992,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "We credit report to the following credit bureaus: Equifax, Experian, and",
+				"x": 36.504,
+				"y": 169.916,
+				"width": 230.85999999999987,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "purchase, write us at:",
+				"x": 316.296,
+				"y": 166.676,
+				"width": 70.231,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "TransUnion. You may contact Equifax, Experian, and TransUnion at Central",
+				"x": 36.504,
+				"y": 160.7,
+				"width": 243.3549999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Goldman Sachs Bank USA, Salt Lake City Branch",
+				"x": 316.296,
+				"y": 152.492,
+				"width": 158.27700000000002,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Source, LLC P.O. Box 105283 Atlanta, GA 30348-5283.",
+				"x": 36.504,
+				"y": 151.484,
+				"width": 180.99899999999997,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Lockbox 6112, P.O. Box 7247, Philadelphia, PA 19170-6112",
+				"x": 316.296,
+				"y": 143.276,
+				"width": 189.78399999999993,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "What if my card is lost or stolen?",
+				"x": 36.504,
+				"y": 137.3,
+				"width": 114.80000000000003,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "While we investigate, the same rules apply to the disputed amount as",
+				"x": 316.296,
+				"y": 129.092,
+				"width": 225.70799999999988,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Contact us immediately using Messages or at 877-255-5923. ",
+				"x": 36.504,
+				"y": 128.084,
+				"width": 202.62199999999984,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "discussed above. After we finish our investigation, we will tell you our decision. ",
+				"x": 316.296,
+				"y": 119.876,
+				"width": 258.53099999999995,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "See your Apple Card Customer Agreement for definitions and other ",
+				"x": 36.504,
+				"y": 111.38,
+				"width": 237.832,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "At that point, if we think you owe an amount and you do not pay, we may report",
+				"x": 316.296,
+				"y": 110.66,
+				"width": 258.1179999999998,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "important information.",
+				"x": 36.504,
+				"y": 102.236,
+				"width": 79.744,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "you as delinquent.",
+				"x": 316.296,
+				"y": 101.516,
+				"width": 59.70299999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Billing Rights Summary",
+				"x": 36.504,
+				"y": 85.532,
+				"width": 81.61300000000003,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "What To Do If You Think You Find A Mistake On Your Statement: ",
+				"x": 36.504,
+				"y": 68.828,
+				"width": 226.485,
+				"height": 7,
+				"fontName": "g_d0_f1"
+			},
+			{
+				"str": "If you think there is an error on your statement, write to us at:",
+				"x": 36.504,
+				"y": 59.612,
+				"width": 199.465,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Apple Card is issued by Goldman Sachs Bank USA, Salt Lake City Branch.",
+				"x": 36,
+				"y": 36.324,
+				"width": 238.7279999999999,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			},
+			{
+				"str": "Page 6 /6",
+				"x": 36,
+				"y": 17.46,
+				"width": 31.325,
+				"height": 7,
+				"fontName": "g_d0_f3"
+			}
+		]
+	}
+]

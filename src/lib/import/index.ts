@@ -4,6 +4,7 @@ import type { ImportedTransaction } from './ImportedTransaction';
 import type { StatementMetadata } from './StatementMetadata';
 import type { ParseStatementError } from './parse/errors';
 import * as amex from './sources/amex';
+import * as apple from './sources/apple-card';
 import * as schwab from './sources/schwab';
 
 export type ParseStatementResults = Array<{
@@ -12,7 +13,7 @@ export type ParseStatementResults = Array<{
 }>;
 
 export function parseStatement(statement: Statement): ParseStatementResults {
-	return [schwab, amex].map((source) => ({
+	return [schwab, amex, apple].map((source) => ({
 		source: source.id,
 		results: source.parseStatement(statement).toArray()
 	}));
