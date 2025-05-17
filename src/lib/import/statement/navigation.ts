@@ -134,10 +134,18 @@ export class StatementTextLocation {
 
 	findDown(
 		finder: Finder,
-		{ alignment, maxGap }: { alignment: Alignment; maxGap?: number }
+		{
+			alignment,
+			maxGap,
+			maxAlignmentError
+		}: { alignment: Alignment; maxGap?: number; maxAlignmentError?: number }
 	): StatementTextLocation | undefined {
 		const predicate = predicateForFinder(finder);
-		const pageLocation = this.#pageLocation.findDown(predicate, { alignment, maxGap });
+		const pageLocation = this.#pageLocation.findDown(predicate, {
+			alignment,
+			maxGap,
+			maxAlignmentError
+		});
 
 		if (pageLocation) {
 			return new StatementTextLocation(
@@ -488,7 +496,11 @@ export class PageTextLocation {
 	 */
 	findDown(
 		finder: Finder,
-		{ alignment, maxGap }: { alignment: Alignment; maxGap?: number }
+		{
+			alignment,
+			maxGap,
+			maxAlignmentError
+		}: { alignment: Alignment; maxGap?: number; maxAlignmentError?: number }
 	): PageTextLocation | undefined {
 		const predicate = predicateForFinder(finder);
 		const maxY = this.#text.bottom;
@@ -496,7 +508,7 @@ export class PageTextLocation {
 			(text) =>
 				text.top <= maxY + 1 &&
 				predicate(text) &&
-				text.isVerticallyAlignedWith(this.#text, { alignment, maxGap })
+				text.isVerticallyAlignedWith(this.#text, { alignment, maxGap, maxAlignmentError })
 		);
 	}
 
