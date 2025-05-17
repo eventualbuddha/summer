@@ -38,9 +38,7 @@ test('adding a description', async ({ page, pageHelpers, createTransaction, surr
 
 	// Update the description
 	await page.getByText(transaction.statementDescription).click();
-	await page
-		.getByRole('textbox', { name: 'Transaction description' })
-		.fill('Custom Description');
+	await page.getByRole('textbox', { name: 'Transaction description' }).fill('Custom Description');
 	await page.getByRole('textbox', { name: 'Transaction description' }).press('Enter');
 
 	// Check for the updated description
