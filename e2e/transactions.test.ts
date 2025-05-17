@@ -22,6 +22,37 @@ test('view transactions', async ({ page, pageHelpers, createTransaction }) => {
 	await expect(page.getByText('$1.23')).toBeVisible();
 });
 
+test('adding a description', async ({ page, pageHelpers, createTransaction, surreal }) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	const transaction = await createTransaction({
+		statementDescription: 'Bank Description',
+		date: new Date(2025, 0, 1),
+		amount: -123
+	});
+
+	// Connect to the database
+	await pageHelpers.connect(page);
+
+	// Update the description
+	await page.getByText(transaction.statementDescription).click();
+	await page.getByRole('textbox', { name: 'Transaction description' }).fill('Custom Description');
+	await page.getByRole('textbox', { name: 'Transaction description' }).press('Enter');
+
+	// Check for the updated description
+	await waitFor(async () => {
+		const [[refreshedTransaction]] = await surreal.query<[{ description: string }[]]>(
+			'SELECT description FROM transaction WHERE id = $id',
+			{ id: transaction.id }
+		);
+		return refreshedTransaction.description === 'Custom Description';
+	});
+
+	await expect(page.getByText('Custom Description Bank Description')).toBeVisible();
+});
+
 test('clear category', async ({
 	page,
 	pageHelpers,

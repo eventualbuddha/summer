@@ -10,6 +10,21 @@
 	let s: State = getContext('state');
 	let { transaction, categories }: { transaction: Transaction; categories: Category[] } = $props();
 
+	let isEditingDescription = $state(false);
+	let descriptionInput = $state<HTMLInputElement>();
+
+	async function updateDescription(newDescription: string) {
+		transaction.description = newDescription;
+		await s.updateTransactionDescription(transaction.id, transaction.description);
+	}
+
+	$effect(() => {
+		if (isEditingDescription) {
+			descriptionInput?.focus();
+			descriptionInput?.select();
+		}
+	});
+
 	let isSelectingCategory = $state(false);
 
 	async function setCategory(category: Category | undefined) {
@@ -70,7 +85,35 @@
 		{/snippet}
 	</Dropdown>
 	<div class="flex-1 overflow-hidden text-lg overflow-ellipsis whitespace-nowrap">
-		<TransactionDescription {transaction} />
+		{#if isEditingDescription}
+			<input
+				type="text"
+				aria-label="Transaction description"
+				bind:this={descriptionInput}
+				class="w-full py-1 font-mono text-sm ring-0 focus:ring-0"
+				value={transaction.description}
+				placeholder={transaction.statementDescription}
+				onblur={async (e) => {
+					await updateDescription(e.currentTarget.value);
+					isEditingDescription = false;
+				}}
+				onkeydown={async (e) => {
+					switch (e.key) {
+						case 'Enter': {
+							await updateDescription(e.currentTarget.value);
+							isEditingDescription = false;
+							break;
+						}
+						case 'Escape': {
+							isEditingDescription = false;
+							break;
+						}
+					}
+				}}
+			/>
+		{:else}
+			<TransactionDescription {transaction} onclick={() => (isEditingDescription = true)} />
+		{/if}
 	</div>
 	<div>{formatTransactionAmount(transaction.amount)}</div>
 </div>
