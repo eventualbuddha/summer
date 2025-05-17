@@ -100,7 +100,7 @@
 				onkeydown={async (e) => {
 					switch (e.key) {
 						case 'Enter': {
-							await s.updateTransactionDescription(transaction.id, e.currentTarget.value);
+							await updateDescription(e.currentTarget.value);
 							isEditingDescription = false;
 							break;
 						}
