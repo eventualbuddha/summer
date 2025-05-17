@@ -3,13 +3,13 @@
 	import { tidyBankDescription } from '$lib/utils/tidyBankDescription';
 	import TransactionIcon from './TransactionIcon.svelte';
 
-	let { transaction }: { transaction: Transaction } = $props();
+	let { transaction, onclick }: { transaction: Transaction; onclick?: () => void } = $props();
 
 	let bankDescription = $derived(tidyBankDescription(transaction.statementDescription));
 	let ownDescription = $derived(transaction.description);
 </script>
 
-<span class="flex flex-row items-center gap-2">
+<button class="flex flex-row items-center gap-2" {onclick}>
 	{#if bankDescription.amazon}
 		<TransactionIcon path="/amazon.svg" alt="Amazon" />
 	{/if}
@@ -45,4 +45,4 @@
 	>
 		{bankDescription.text}
 	</span>
-</span>
+</button>

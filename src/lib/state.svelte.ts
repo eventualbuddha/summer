@@ -331,6 +331,16 @@ export class State {
 		await updateDefaultCategoryId(this.#surreal, newDefaultCategoryId);
 	}
 
+	async updateTransactionDescription(transactionId: string, description?: string) {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		await this.#surreal.query(`UPDATE transaction SET description = $description WHERE id = $id`, {
+			id: new RecordId('transaction', transactionId),
+			description
+		});
+	}
+
 	async importStatement(
 		filename: string,
 		pdfData: Uint8Array,
