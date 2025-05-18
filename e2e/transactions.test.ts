@@ -84,7 +84,7 @@ test('clear category', async ({
 	await expect(categorySummaryValue).toHaveText('$1');
 
 	// Remove the category from the transaction
-	await page.getByRole('button', { name: category.emoji }).click();
+	await page.getByRole('button', { name: category.name }).click();
 	await page.getByRole('button', { name: 'None' }).click();
 
 	await waitFor(async () => {
@@ -149,7 +149,7 @@ test('update category', async ({
 	await expect(category2SummaryValue).toHaveText('$0');
 
 	// Change the category
-	await page.getByRole('button', { name: category1.emoji }).click();
+	await page.getByRole('button', { name: category1.name }).click();
 	await page.getByRole('button', { name: category2.name }).click();
 
 	await waitFor(async () => {
@@ -202,13 +202,13 @@ test('updating to hidden category', async ({
 
 	// Hide "Utilities".
 	await page.getByLabel('Category Filter').click();
-	await expect(page.getByRole('checkbox', { name: '🛍️ General' })).toBeVisible();
-	await expect(page.getByRole('checkbox', { name: '⚡ Utilities' })).toBeVisible();
-	await page.getByRole('checkbox', { name: '⚡ Utilities' }).click();
+	await expect(page.getByRole('checkbox', { name: 'General' })).toBeVisible();
+	await expect(page.getByRole('checkbox', { name: 'Utilities' })).toBeVisible();
+	await page.getByRole('checkbox', { name: 'Utilities' }).click();
 
 	// Change the category
-	await page.getByRole('button', { name: generalCategory.emoji }).click();
-	await page.getByRole('button', { name: '⚡ Utilities' }).click();
+	await page.getByRole('button', { name: 'General' }).click();
+	await page.getByRole('button', { name: 'Utilities' }).click();
 
 	await waitFor(async () => {
 		const [refreshedTransaction] = await surreal.query<[{ category?: RecordId }]>(
