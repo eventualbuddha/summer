@@ -6,6 +6,7 @@
 	import CategoryPill from './CategoryPill.svelte';
 	import Dropdown from './Dropdown.svelte';
 	import TransactionDescription from './TransactionDescription.svelte';
+	import { tidyBankDescription } from '$lib/utils/tidyBankDescription';
 
 	let s: State = getContext('state');
 	let { transaction, categories }: { transaction: Transaction; categories: Category[] } = $props();
@@ -92,7 +93,7 @@
 				bind:this={descriptionInput}
 				class="w-full py-1 font-mono text-sm ring-0 focus:ring-0"
 				value={transaction.description}
-				placeholder={transaction.statementDescription}
+				placeholder={tidyBankDescription(transaction.statementDescription).text}
 				onblur={async (e) => {
 					await updateDescription(e.currentTarget.value);
 					isEditingDescription = false;
