@@ -61,7 +61,7 @@
 		{#snippet children(classNames)}
 			<select
 				class={classNames}
-				value={s.defaultCategoryId}
+				value={s.defaultCategoryId ?? ''}
 				onchange={(event) => s.updateDefaultCategoryId(event.currentTarget.value)}
 			>
 				<option value="" disabled>Select Category</option>
