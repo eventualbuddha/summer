@@ -2,11 +2,10 @@
 	import type { Category, Transaction } from '$lib/db';
 	import type { State } from '$lib/state.svelte';
 	import { formatTransactionAmount } from '$lib/utils/formatting';
-	import { getContext } from 'svelte';
-	import CategoryPill from './CategoryPill.svelte';
-	import Dropdown from './Dropdown.svelte';
-	import TransactionDescription from './TransactionDescription.svelte';
 	import { tidyBankDescription } from '$lib/utils/tidyBankDescription';
+	import { getContext } from 'svelte';
+	import CategorySelect from './CategorySelect.svelte';
+	import TransactionDescription from './TransactionDescription.svelte';
 
 	let s: State = getContext('state');
 	let { transaction, categories }: { transaction: Transaction; categories: Category[] } = $props();
@@ -32,14 +31,6 @@
 		await s.setCategory(transaction, category);
 		isSelectingCategory = false;
 	}
-
-	const NONE_CATEGORY: Category = {
-		id: 'none',
-		name: 'None',
-		ordinal: categories.length,
-		color: 'gray-300',
-		emoji: '🚫'
-	};
 </script>
 
 <div data-transaction class="flex grow-0 flex-row items-center gap-2">
@@ -50,41 +41,14 @@
 			{transaction.date.toLocaleDateString(undefined, { year: 'numeric' })}
 		</div>
 	</div>
-	<Dropdown bind:open={isSelectingCategory}>
-		{#snippet root(contents)}
-			<div class="relative">
-				{@render contents()}
-			</div>
-		{/snippet}
-		{#snippet trigger()}
-			<CategoryPill
-				category={categories.find((c) => c.id === transaction.categoryId) ?? NONE_CATEGORY}
-				style="short"
-			/>
-		{/snippet}
-		{#snippet portal()}
-			<div
-				class="absolute z-50 flex flex-col gap-0.5 rounded-md border border-gray-400 bg-gray-200 p-2 pr-1 pl-3 dark:border-gray-200 dark:bg-gray-800"
-			>
-				{#each categories as category, index (category.id)}
-					<button
-						tabindex={index}
-						onclick={() => setCategory(category)}
-						class="cursor-pointer rounded-md text-left hover:bg-gray-500 hover:text-gray-50"
-					>
-						<CategoryPill {category} style="full" />
-					</button>
-				{/each}
-				<button
-					tabindex={categories.length}
-					onclick={() => setCategory(undefined)}
-					class="cursor-pointer rounded-md text-left hover:bg-gray-500 hover:text-gray-50"
-				>
-					<CategoryPill category={NONE_CATEGORY} style="full" />
-				</button>
-			</div>
-		{/snippet}
-	</Dropdown>
+	<CategorySelect
+		bind:isOpen={isSelectingCategory}
+		bind:value={
+			() => categories.find((c) => c.id === transaction.categoryId),
+			(newCategory) => setCategory(newCategory)
+		}
+		{categories}
+	/>
 	<div class="flex-1 overflow-hidden text-lg overflow-ellipsis whitespace-nowrap">
 		{#if isEditingDescription}
 			<input

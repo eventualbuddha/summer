@@ -1,46 +1,90 @@
 <script lang="ts">
 	import type { Category } from '$lib/db';
-	import type { Selection } from '$lib/types';
+	import { createSingleSelection } from '$lib/utils/Selection.svelte';
 	import CategoryPill from './CategoryPill.svelte';
-	import Select from './Select.svelte';
-	import MultiSelector from './MultiSelector.svelte';
+	import Dropdown from './Dropdown.svelte';
 
 	let {
-		selections = $bindable(),
-		'aria-label': ariaLabel
+		isOpen = $bindable(),
+		value = $bindable(),
+		categories
 	}: {
-		selections: Selection<Category>[];
-		'aria-label'?: string;
+		isOpen: boolean;
+		value?: Category;
+		categories: Category[];
 	} = $props();
 
-	let label = $derived(
-		(() => {
-			const selected = selections.filter((s) => s.selected);
+	const NONE_CATEGORY: Category = {
+		id: 'none',
+		name: 'None',
+		ordinal: categories.length,
+		color: 'gray-300',
+		emoji: '🚫'
+	};
 
-			switch (selected.length) {
-				case selections.length:
-					return 'All Categories';
-				case 0:
-					return 'No Categories';
-				case 1:
-					return selected[0]!.value.name;
-				case 2:
-					return `${selected[0]!.value.name} & ${selected[1]!.value.name}`;
-				default: {
-					return `${selected.length} Categories`;
-				}
-			}
-		})()
+	function setValue(newValue: Category | undefined) {
+		value = newValue;
+		isOpen = false;
+	}
+
+	const selection = $derived(
+		isOpen
+			? createSingleSelection({
+					options: [...categories, NONE_CATEGORY],
+					onchange: setValue,
+					onclose: () => {
+						isOpen = false;
+					}
+				})
+			: undefined
 	);
 </script>
 
-<Select aria-label={ariaLabel} {label}>
-	<MultiSelector bind:selections allToggle>
-		{#snippet item(selection: Selection<Category>)}
-			<span class="text-sm">
-				<CategoryPill category={selection.value} />
-			</span>
-		{/snippet}
-	</MultiSelector>
-	<div class="mt-4 text-xs text-gray-400">Tip: alt+click for just one</div>
-</Select>
+<Dropdown bind:open={isOpen}>
+	{#snippet root(contents)}
+		<div class="relative">
+			{@render contents()}
+		</div>
+	{/snippet}
+	{#snippet trigger()}
+		<CategoryPill category={value ?? NONE_CATEGORY} style="short" />
+	{/snippet}
+	{#snippet portal()}
+		<div
+			class="absolute z-50 flex flex-col gap-0.5 rounded-md border border-gray-400 bg-gray-200 p-2 pr-1 pl-3 dark:border-gray-200 dark:bg-gray-800"
+		>
+			{#each categories as category, index (category.id)}
+				<button
+					tabindex={index}
+					onclick={() => setValue(category)}
+					onmouseenter={() => {
+						if (selection) selection.hoverIndex = index;
+					}}
+					onmouseleave={() => {
+						if (selection) selection.hoverIndex = -1;
+					}}
+					class="cursor-pointer rounded-md text-left {selection?.hoverIndex === index
+						? 'bg-gray-500 text-gray-50'
+						: ''}"
+				>
+					<CategoryPill {category} style="full" />
+				</button>
+			{/each}
+			<button
+				tabindex={categories.length}
+				onclick={() => setValue(undefined)}
+				onmouseenter={() => {
+					if (selection) selection.hoverIndex = categories.length;
+				}}
+				onmouseleave={() => {
+					if (selection) selection.hoverIndex = -1;
+				}}
+				class="cursor-pointer rounded-md text-left {selection?.hoverIndex === categories.length
+					? 'bg-gray-500 text-gray-50'
+					: ''}"
+			>
+				<CategoryPill category={NONE_CATEGORY} style="full" />
+			</button>
+		</div>
+	{/snippet}
+</Dropdown>
