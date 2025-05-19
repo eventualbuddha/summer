@@ -36,8 +36,7 @@
 <div data-transaction class="flex grow-0 flex-row items-center gap-2">
 	<div class="text-xs text-gray-600">
 		<div class="w-12 text-center">
-			{transaction.date.toLocaleDateString(undefined, { month: 'short' })}
-			{transaction.date.toLocaleDateString(undefined, { day: 'numeric' })}<br />
+			{transaction.date.toLocaleDateString(undefined, { month: 'short', day: '2-digit' })}<br />
 			{transaction.date.toLocaleDateString(undefined, { year: 'numeric' })}
 		</div>
 	</div>
