@@ -17,7 +17,7 @@ test('view transactions', async ({ page, pageHelpers, createTransaction }) => {
 	await pageHelpers.connect(page);
 
 	// Check for the transaction
-	await expect(page.getByText('Jan 1 2025')).toBeVisible();
+	await expect(page.getByText('Jan 01 2025')).toBeVisible();
 	await expect(page.getByText(transaction.statementDescription)).toBeVisible();
 	await expect(page.getByText('$1.23')).toBeVisible();
 });
@@ -76,7 +76,7 @@ test('clear category', async ({
 	await pageHelpers.connect(page);
 
 	// Check for the transaction
-	await expect(page.getByText('Jan 1 2025')).toBeVisible();
+	await expect(page.getByText('Jan 01 2025')).toBeVisible();
 	await expect(page.getByText(transaction.statementDescription)).toBeVisible();
 	await expect(page.getByText('$1.23')).toBeVisible();
 
@@ -105,7 +105,7 @@ test('clear category', async ({
 
 	// The transaction should no longer appear
 	await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible();
-	await expect(page.getByText('Jan 1 2025')).not.toBeVisible();
+	await expect(page.getByText('Jan 01 2025')).not.toBeVisible();
 	await expect(page.getByText('$').first()).toHaveText('$0');
 	for (const locator of await page.getByText('$').all()) {
 		await expect(locator).toHaveText('$0');
