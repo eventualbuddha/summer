@@ -31,6 +31,7 @@
 		isOpen
 			? createSingleSelection({
 					options: [...categories, NONE_CATEGORY],
+					search: (category) => category.name,
 					onchange: setValue,
 					onclose: () => {
 						isOpen = false;
@@ -38,6 +39,20 @@
 				})
 			: undefined
 	);
+
+	let optionsContainer: HTMLDivElement | undefined;
+
+	$effect(() => {
+		if (typeof selection?.hoverIndex === 'number') {
+			const option = optionsContainer?.children[selection.hoverIndex];
+			if (option) {
+				option.scrollIntoView({
+					block: 'nearest',
+					inline: 'nearest'
+				});
+			}
+		}
+	});
 </script>
 
 <Dropdown bind:open={isOpen}>
@@ -51,6 +66,7 @@
 	{/snippet}
 	{#snippet portal()}
 		<div
+			bind:this={optionsContainer}
 			class="absolute z-50 flex flex-col gap-0.5 rounded-md border border-gray-400 bg-gray-200 p-2 pr-1 pl-3 dark:border-gray-200 dark:bg-gray-800"
 		>
 			{#each categories as category, index (category.id)}
