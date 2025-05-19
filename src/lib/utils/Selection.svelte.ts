@@ -1,9 +1,11 @@
 export function createSingleSelection<T>({
 	options,
+	search,
 	onchange,
 	onclose
 }: {
 	options: readonly T[];
+	search?: (value: T) => string;
 	onchange?: (value?: T) => void;
 	onclose?: () => void;
 }): {
@@ -12,6 +14,8 @@ export function createSingleSelection<T>({
 } {
 	let selectedIndex = $state<number>();
 	let hoverIndex = $state<number>();
+	let prefix = $state<string>();
+	let prefixTimeout = $state<Timer>();
 
 	function focusNext() {
 		if (hoverIndex === undefined) {
@@ -48,33 +52,53 @@ export function createSingleSelection<T>({
 		}
 
 		switch (e.key) {
-			case 'Enter':
-			case ' ': {
+			case 'Enter': {
 				e.preventDefault();
 				if (typeof hoverIndex === 'number') {
 					selectedIndex = hoverIndex;
 					onchange?.(options[selectedIndex]);
 					onclose?.();
 				}
-				break;
+				return;
 			}
 
 			case 'Escape': {
 				e.preventDefault();
 				onclose?.();
-				break;
+				return;
 			}
 
 			case 'ArrowDown': {
 				e.preventDefault();
 				focusNext();
-				break;
+				return;
 			}
 
 			case 'ArrowUp': {
 				e.preventDefault();
 				focusPrevious();
-				break;
+				return;
+			}
+		}
+
+		if (search && e.key.length === 1) {
+			if (prefixTimeout) {
+				clearTimeout(prefixTimeout);
+			}
+
+			prefix ??= '';
+			prefix += e.key;
+			prefixTimeout = setTimeout(() => {
+				prefix = '';
+			}, 500);
+			const prefixLower = prefix.toLowerCase();
+
+			const index = options.findIndex((option) =>
+				search(option).toLowerCase().startsWith(prefixLower)
+			);
+
+			if (index !== -1) {
+				hoverIndex = index;
 			}
 		}
 	}
