@@ -3,6 +3,7 @@ import { test as base, expect, type Page } from '@playwright/test';
 import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { type AddressInfo, createServer, Socket } from 'node:net';
 import Surreal, { RecordId } from 'surrealdb';
+import { waitFor } from './helpers';
 
 export { expect };
 
@@ -67,6 +68,17 @@ export interface Transaction {
 	description?: string;
 }
 
+export interface Tagged {
+	id: RecordId<'tagged'>;
+	name: string;
+	year?: number;
+}
+
+export interface Tag {
+	id: RecordId<'tag'>;
+	name: string;
+}
+
 export const test = base.extend<{
 	port: number;
 	hostname: string;
@@ -79,8 +91,13 @@ export const test = base.extend<{
 	createFile: (data?: Partial<File>) => Promise<File>;
 	createCategory: (data?: Partial<Category>) => Promise<Category>;
 	createTransaction: (data?: Partial<Transaction>) => Promise<Transaction>;
+	tagTransaction: (transactionId: Transaction['id'], name: string, year?: number) => Promise<void>;
 	pageHelpers: {
 		connect(page: Page): Promise<void>;
+		waitForTaggedTransaction(
+			transactionId: Transaction['id'],
+			tags: Array<{ name: string; year?: number }>
+		): Promise<void>;
 	};
 }>({
 	hostname: '127.0.0.1',
@@ -189,13 +206,47 @@ export const test = base.extend<{
 		);
 	},
 
-	pageHelpers: async ({ hostname, port, namespace, database }, use) =>
+	tagTransaction: async ({ surreal }, use) => {
+		await use(async (transactionId, name, year) => {
+			const tag =
+				(await surreal.query<[Tag]>('SELECT * FROM tag WHERE name = $name', { name }))[0]?.[0] ??
+				((await surreal.create('tag', { name }))?.[0] as unknown as Tag);
+			await surreal.relate(transactionId, 'tagged', tag.id, { year });
+		});
+	},
+
+	pageHelpers: async ({ hostname, port, namespace, database, surreal }, use) =>
 		await use({
-			async connect(page: Page) {
+			async connect(page) {
 				await page.getByRole('textbox', { name: 'URL' }).fill(`ws://${hostname}:${port}`);
 				await page.getByRole('textbox', { name: 'Namespace' }).fill(namespace);
 				await page.getByRole('textbox', { name: 'Database' }).fill(database);
 				await page.getByRole('button').click();
+			},
+
+			async waitForTaggedTransaction(transactionId, tags) {
+				await waitFor(async () => {
+					const [taggedRecords] = await surreal.query<
+						[Array<{ tags: Array<{ name: string; year?: number }> }>]
+					>(
+						`
+						SELECT ->(
+							SELECT ->(SELECT name FROM tag)[0].name AS name, year
+								FROM tagged) AS tags
+						FROM transaction
+						WHERE id = $transactionId`,
+						{
+							transactionId
+						}
+					);
+					return (
+						taggedRecords.length === 1 &&
+						taggedRecords[0].tags.length === tags.length &&
+						taggedRecords[0].tags.every((tag) =>
+							tags.some((t) => tag.name === t.name && tag.year === t.year)
+						)
+					);
+				});
 			}
 		})
 });

@@ -3,16 +3,19 @@ import { RecordId, Surreal, Table } from 'surrealdb';
 import {
 	getDefaultCategoryId,
 	getFilterOptions,
+	getTags,
 	getTransactions,
-	importStatement,
 	updateDefaultCategoryId,
 	use,
 	type Account,
 	type Category,
 	type GetTransactionsOptions,
+	type Tag,
 	type Transaction,
 	type Transactions
 } from './db';
+import { importStatement } from './db/importStatement';
+import { updateTransactionDescription } from './db/updateTransactionDescription';
 import type { ImportedTransaction } from './import/ImportedTransaction';
 import type { StatementMetadata } from './import/StatementMetadata';
 import type { Selection } from './types';
@@ -82,6 +85,7 @@ export class State {
 	filters = $state(new Filters());
 	transactions = $state<Transactions>();
 	defaultCategoryId = $state<Category['id']>();
+	tags = $state<Tag[]>([]);
 
 	sort = $state(
 		new Sorting(
@@ -113,6 +117,7 @@ export class State {
 		if (!this.#surreal) return NEVER_PROMISE;
 		this.filters.resetOptions(await getFilterOptions(this.#surreal));
 		this.defaultCategoryId = await getDefaultCategoryId(this.#surreal);
+		this.tags = await getTags(this.#surreal);
 	}
 
 	#getTransactionsFetcher = new Fetcher<
@@ -331,14 +336,15 @@ export class State {
 		await updateDefaultCategoryId(this.#surreal, newDefaultCategoryId);
 	}
 
-	async updateTransactionDescription(transactionId: string, description?: string) {
+	async updateTransactionDescription(
+		transaction: Transaction,
+		description?: string
+	): Promise<Result<void>> {
 		if (!this.#surreal) {
 			throw new Error('Not connected to SurrealDB');
 		}
-		await this.#surreal.query(`UPDATE transaction SET description = $description WHERE id = $id`, {
-			id: new RecordId('transaction', transactionId),
-			description
-		});
+
+		return await updateTransactionDescription(this.#surreal, transaction, description ?? '');
 	}
 
 	async importStatement(

@@ -7,6 +7,10 @@
 
 	let bankDescription = $derived(tidyBankDescription(transaction.statementDescription));
 	let ownDescription = $derived(transaction.description);
+
+	// This is here to ensure the tags have separation as far as screen readers
+	// are concerned, which is important for accessibility and testing.
+	const space = ' ';
 </script>
 
 <button class="flex flex-row items-center gap-2" {onclick}>
@@ -41,8 +45,13 @@
 
 	<span
 		title={bankDescription.text}
-		class="overflow-hidden font-mono text-sm overflow-ellipsis text-gray-600 dark:text-gray-300"
+		class="flex flex-row gap-2 overflow-hidden font-mono text-sm overflow-ellipsis text-gray-400 dark:text-gray-400"
 	>
+		{#each transaction.tagged as tagged (tagged.tag.id)}
+			<span class="text-gray-700 dark:text-gray-300">
+				{space}#{tagged.tag.name}{#if tagged.year}-{tagged.year}{/if}
+			</span>
+		{/each}
 		{bankDescription.text}
 	</span>
 </button>

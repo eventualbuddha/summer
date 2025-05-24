@@ -6,17 +6,18 @@
 	import { getContext } from 'svelte';
 	import CategorySelect from './CategorySelect.svelte';
 	import TransactionDescription from './TransactionDescription.svelte';
+	import ErrorAlert from './ErrorAlert.svelte';
 
 	let s: State = getContext('state');
 	let { transaction, categories }: { transaction: Transaction; categories: Category[] } = $props();
 
 	let isEditingDescription = $state(false);
 	let descriptionInput = $state<HTMLInputElement>();
-
-	async function updateDescription(newDescription: string) {
-		transaction.description = newDescription;
-		await s.updateTransactionDescription(transaction.id, transaction.description);
-	}
+	let editableDescription = $derived.by(() =>
+		`${transaction.description} ${transaction.tagged
+			.map((tagged) => (tagged.year ? `#${tagged.tag.name}-${tagged.year}` : `#${tagged.tag.name}`))
+			.join(' ')}`.trim()
+	);
 
 	$effect(() => {
 		if (isEditingDescription) {
@@ -31,6 +32,8 @@
 		await s.setCategory(transaction, category);
 		isSelectingCategory = false;
 	}
+
+	let error = $state<string>();
 </script>
 
 <div data-transaction class="flex grow-0 flex-row items-center gap-2">
@@ -55,17 +58,24 @@
 				aria-label="Transaction description"
 				bind:this={descriptionInput}
 				class="w-full py-1 font-mono text-sm ring-0 focus:ring-0"
-				value={transaction.description}
+				value={editableDescription}
 				placeholder={tidyBankDescription(transaction.statementDescription).text}
 				onblur={async (e) => {
-					await updateDescription(e.currentTarget.value);
-					isEditingDescription = false;
+					if (isEditingDescription) {
+						isEditingDescription = false;
+						const result = await s.updateTransactionDescription(transaction, e.currentTarget.value);
+						error = result.isErr ? result.error.message : undefined;
+					}
 				}}
 				onkeydown={async (e) => {
 					switch (e.key) {
 						case 'Enter': {
-							await updateDescription(e.currentTarget.value);
 							isEditingDescription = false;
+							const result = await s.updateTransactionDescription(
+								transaction,
+								e.currentTarget.value
+							);
+							error = result.isErr ? result.error.message : undefined;
 							break;
 						}
 						case 'Escape': {
@@ -81,3 +91,7 @@
 	</div>
 	<div>{formatTransactionAmount(transaction.amount)}</div>
 </div>
+
+{#if error}
+	<ErrorAlert title="Update Error" body={error} />
+{/if}

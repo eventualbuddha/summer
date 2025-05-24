@@ -1,10 +1,7 @@
-import { Result } from '@badrap/result';
 import { Gap, PreparedQuery, RecordId, Surreal } from 'surrealdb';
 import { z } from 'zod';
 import type { Sorting, SortingDirection } from './state.svelte';
 import { NEVER_PROMISE } from './utils/promises';
-import type { StatementMetadata } from './import/StatementMetadata';
-import type { ImportedTransaction } from './import/ImportedTransaction';
 
 export interface Transactions {
 	count: number;
@@ -83,6 +80,7 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
 							 statementDescription,
 							 statement.id() as statementId,
 							 statement.date.year() as year,
+							 ->(SELECT id.id() as id, ->(SELECT id.id() as id, name FROM tag LIMIT 1)[0] as tag, year FROM tagged) as tagged,
 							 type::field($orderByField) as orderField
             FROM transaction
            WHERE id.id() IN $stickyTransactionIds
@@ -96,6 +94,7 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
       					  OR (description AND description.lowercase().contains($searchTerm.lowercase()))
       					  OR (statementDescription AND statementDescription.lowercase().contains($searchTerm.lowercase()))
      							OR (amount IN $amounts)
+									OR count(->(tagged WHERE ->tag[0].name.lowercase().contains($searchTerm.lowercase()))) > 0
       			    )
               )
      		ORDER BY orderField COLLATE ${sortDirection === 'asc' ? 'ASC' : 'DESC'}
@@ -217,6 +216,7 @@ export interface Transaction {
 	statementId: string;
 	description?: string;
 	statementDescription: string;
+	tagged: Tagged[];
 }
 
 export const TransactionRecordSchema = z.object({
@@ -226,7 +226,8 @@ export const TransactionRecordSchema = z.object({
 	categoryId: z.string().optional(),
 	statementId: z.string(),
 	description: z.string().optional(),
-	statementDescription: z.string()
+	statementDescription: z.string(),
+	tagged: z.lazy(() => SortedTaggedArraySchema)
 });
 
 export interface Account {
@@ -258,6 +259,32 @@ export const CategorySchema = z.object({
 	color: z.string(),
 	ordinal: z.number().min(0)
 });
+
+export interface Tag {
+	id: string;
+	name: string;
+}
+
+export const TagSchema = z.object({
+	id: z.string().nonempty(),
+	name: z.string().nonempty()
+});
+
+export interface Tagged {
+	id: string;
+	tag: Tag;
+	year?: number;
+}
+
+export const TaggedSchema = z.object({
+	id: z.string().nonempty(),
+	tag: TagSchema,
+	year: z.number().min(0).optional()
+});
+
+export const SortedTaggedArraySchema = TaggedSchema.array().transform((tagged) =>
+	tagged.sort((a, b) => a.tag.name.localeCompare(b.tag.name))
+);
 
 export interface FilterOptions {
 	years: number[];
@@ -316,144 +343,7 @@ export async function updateDefaultCategoryId(
 	});
 }
 
-export async function importStatement(
-	surreal: Surreal,
-	filename: string,
-	pdfData: Uint8Array,
-	source: string,
-	metadata: StatementMetadata,
-	transactions: readonly ImportedTransaction[]
-): Promise<Result<{ account: Account; statement: Statement }>> {
-	const results = await surreal.queryRaw(
-		`
-BEGIN TRANSACTION;
-
-LET $account = (
-    SELECT * FROM ONLY account
-     WHERE source = $source
-       AND number = $accountNumber
-       AND type = $accountType
-     LIMIT 1
-) ?? (
-    CREATE ONLY account SET
-        source = $source,
-        number = $accountNumber,
-        name = $accountName,
-        type = $accountType
-);
-
-{
-  id: $account.id.id(),
-  name: $account.name,
-  source: $account.source,
-  number: $account.number,
-  type: $account.type,
-};
-
-LET $file = CREATE ONLY file SET
-    name = $filename,
-    data = $pdfData;
-
-LET $existingStatements = (
-		SELECT id FROM statement
-		WHERE account = $account.id
-			AND date = $statementDate
-).len();
-
-IF $existingStatements == 1 {
-		THROW 'Statement already exists for this account and date.';
-};
-
-LET $statement = CREATE ONLY statement SET
-    account = $account.id,
-    date = $statementDate,
-    file = $file.id;
-
-{
-  id: $statement.id.id(),
-  account: $statement.account.id(),
-  date: $statement.date,
-  file: $statement.file.id(),
-};
-
-LET $defaultCategory = (SELECT defaultCategory FROM ONLY settings:global).defaultCategory;
-
-IF !$defaultCategory {
-    THROW 'No default category set.';
-};
-
-FOR $t IN $transactions {
-    CREATE ONLY transaction SET
-        statement = $statement.id,
-        date = $t.date,
-        amount = $t.amount,
-        statementDescription = $t.statementDescription,
-        category = $defaultCategory,
-        type = $t.type;
-};
-
-COMMIT TRANSACTION;
-		`,
-		{
-			source,
-			accountNumber: metadata.account,
-			accountName: metadata.accountName,
-			accountType: metadata.accountType,
-			filename,
-			pdfData,
-			statementDate: metadata.closingDate.toJSDate(),
-			transactions: transactions.map((t) => ({
-				date: t.date.toJSDate(),
-				amount: t.amount,
-				statementDescription: t.statementDescription,
-				type: t.kind
-			}))
-		}
-	);
-
-	const errors = results.filter((r) => r.status === 'ERR');
-	const errorMessage = errors
-		.find(({ status, result }) => status === 'ERR' && !/failed transaction/.test(result))
-		?.result?.replace(/^An error occurred:\s*/, '');
-
-	if (errors.length > 0) {
-		return Result.err(new Error(errorMessage));
-	}
-
-	const [, accountResult, , , , , statementResult] = z
-		.tuple([
-			// LET $account = …
-			z.unknown(),
-			// Account record.
-			z.object({ status: z.union([z.literal('OK'), z.literal('ERR')]), result: AccountSchema }),
-			// LET $file = …
-			z.unknown(),
-			// LET $existingStatement = …
-			z.unknown(),
-			// IF $existingStatement { … }
-			z.unknown(),
-			// LET $statement = …
-			z.unknown(),
-			// Statement record.
-			z.object({ status: z.union([z.literal('OK'), z.literal('ERR')]), result: StatementSchema }),
-			// LET $defaultCategory = …
-			z.unknown(),
-			// IF !$defaultCategory { … }
-			z.unknown(),
-			// FOR $t IN $transactions { … }
-			z.unknown()
-		])
-		.parse(results);
-
-	if (accountResult.status !== 'OK' || statementResult.status !== 'OK') {
-		throw new Error('Results should be OK');
-	}
-
-	return Result.ok({
-		account: accountResult.result,
-		statement: {
-			...statementResult.result,
-			account: accountResult.result
-		}
-	});
+export async function getTags(surreal: Surreal): Promise<Tag[]> {
+	const [tags] = await surreal.query('SELECT id.id() AS id, name FROM tag ORDER BY name ASC');
+	return TagSchema.array().parse(tags);
 }
