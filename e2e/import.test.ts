@@ -1,5 +1,5 @@
-import { expect, test } from './utils/surrealdb-test';
 import { waitFor } from './utils/helpers';
+import { expect, test } from './utils/surrealdb-test';
 
 test('import Amex statement', async ({ page, pageHelpers, createCategory, surreal }) => {
 	await page.goto('/');
@@ -7,7 +7,7 @@ test('import Amex statement', async ({ page, pageHelpers, createCategory, surrea
 	await newConnectionButton.click();
 
 	const category = await createCategory({ name: 'Test Category' });
-	await surreal.query('UPDATE settings:global SET defaultCategory = $defaultCategory', {
+	await surreal.query('UPSERT settings:global SET defaultCategory = $defaultCategory', {
 		defaultCategory: category.id
 	});
 
@@ -23,7 +23,7 @@ test('import Amex statement', async ({ page, pageHelpers, createCategory, surrea
 
 	// Wait for the import to finish
 	await waitFor(async () => {
-		const [statementCount] = await surreal.query<[number]>('(SELECT 1 FROM statement).len();');
+		const [statementCount] = await surreal.query<[number]>('count(SELECT 1 FROM statement);');
 		return statementCount === 1;
 	});
 
@@ -38,7 +38,7 @@ test('import Schwab statement', async ({ page, pageHelpers, createCategory, surr
 	await newConnectionButton.click();
 
 	const category = await createCategory({ name: 'Test Category' });
-	await surreal.query('UPDATE settings:global SET defaultCategory = $defaultCategory', {
+	await surreal.query('UPSERT settings:global SET defaultCategory = $defaultCategory', {
 		defaultCategory: category.id
 	});
 
