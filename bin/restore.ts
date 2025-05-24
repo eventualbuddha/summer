@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 
+import assert from 'node:assert';
 import { createReadStream } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path, { join } from 'node:path';
@@ -113,13 +114,32 @@ export async function restore({
 		const lines = createInterface(file);
 
 		for await (const line of lines) {
-			const record = parseRecord(line);
+			const parsed = parseRecord(line);
 
-			if ('id' in record && typeof record.id === 'string') {
-				record.id = new StringRecordId(record.id);
+			switch (parsed.type) {
+				case 'record': {
+					const record = parsed.value;
+					if ('id' in record && typeof record.id === 'string') {
+						record.id = new StringRecordId(record.id);
+					}
+
+					await db.create(table, record);
+					break;
+				}
+
+				case 'relation': {
+					const { in: inId, out: outId, ...data } = parsed.value;
+					assert(inId instanceof StringRecordId);
+					assert(outId instanceof StringRecordId);
+					await db.relate(inId, table, outId, data);
+					break;
+				}
+
+				default: {
+					throw new Error(`Unknown type: ${parsed.type}`);
+				}
 			}
 
-			await db.create(table, record);
 			progress?.(table);
 		}
 	}
