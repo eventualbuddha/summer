@@ -45,13 +45,13 @@
 
 	<span
 		title={bankDescription.text}
-		class="flex flex-row gap-2 overflow-hidden font-mono text-sm overflow-ellipsis text-gray-400 dark:text-gray-400"
+		class="flex flex-row gap-2 overflow-hidden text-sm overflow-ellipsis text-gray-400 dark:text-gray-400"
 	>
 		{#each transaction.tagged as tagged (tagged.tag.id)}
 			<span class="text-gray-700 dark:text-gray-300">
 				{space}#{tagged.tag.name}{#if tagged.year}-{tagged.year}{/if}
 			</span>
 		{/each}
-		{bankDescription.text}
+		<span class="font-mono">{bankDescription.text}</span>
 	</span>
 </button>

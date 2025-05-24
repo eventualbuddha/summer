@@ -57,7 +57,7 @@
 				type="text"
 				aria-label="Transaction description"
 				bind:this={descriptionInput}
-				class="w-full py-1 font-mono text-sm ring-0 focus:ring-0"
+				class="w-full py-1 {editableDescription ? '' : 'font-mono'} text-sm ring-0 focus:ring-0"
 				value={editableDescription}
 				placeholder={tidyBankDescription(transaction.statementDescription).text}
 				onblur={async (e) => {
