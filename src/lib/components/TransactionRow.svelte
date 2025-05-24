@@ -14,7 +14,7 @@
 	let isEditingDescription = $state(false);
 	let descriptionInput = $state<HTMLInputElement>();
 	let editableDescription = $derived.by(() =>
-		`${transaction.description} ${transaction.tagged
+		`${transaction.description ?? ''} ${transaction.tagged
 			.map((tagged) => (tagged.year ? `#${tagged.tag.name}-${tagged.year}` : `#${tagged.tag.name}`))
 			.join(' ')}`.trim()
 	);
