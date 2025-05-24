@@ -19,5 +19,8 @@ test.each([
 		p: { date: new Date(), buf: Buffer.of(1, 2, 3, 4, 5) }
 	}
 ])('%o', (value) => {
-	expect(parseRecord(serializeRecord({ a: value }))).toEqual({ a: value });
+	expect(parseRecord(serializeRecord({ a: value }))).toEqual({
+		type: 'record',
+		value: { a: value }
+	});
 });
