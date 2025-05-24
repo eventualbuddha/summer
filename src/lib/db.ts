@@ -311,7 +311,7 @@ export async function updateDefaultCategoryId(
 	surreal: Surreal,
 	newDefaultCategoryId: string | undefined
 ) {
-	await surreal.query('UPDATE settings:global SET defaultCategory = $defaultCategory', {
+	await surreal.query('UPSERT settings:global SET defaultCategory = $defaultCategory', {
 		defaultCategory: newDefaultCategoryId ? new RecordId('category', newDefaultCategoryId) : null
 	});
 }
