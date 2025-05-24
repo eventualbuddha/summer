@@ -18,11 +18,13 @@
 			.map((tagged) => (tagged.year ? `#${tagged.tag.name}-${tagged.year}` : `#${tagged.tag.name}`))
 			.join(' ')}`.trim()
 	);
+	let hasDescriptionText = $state(false);
 
 	$effect(() => {
 		if (isEditingDescription) {
 			descriptionInput?.focus();
 			descriptionInput?.select();
+			hasDescriptionText = editableDescription.length > 0;
 		}
 	});
 
@@ -57,7 +59,7 @@
 				type="text"
 				aria-label="Transaction description"
 				bind:this={descriptionInput}
-				class="w-full py-1 {editableDescription ? '' : 'font-mono'} text-sm ring-0 focus:ring-0"
+				class="w-full py-1 {hasDescriptionText ? '' : 'font-mono'} text-sm ring-0 focus:ring-0"
 				value={editableDescription}
 				placeholder={tidyBankDescription(transaction.statementDescription).text}
 				onblur={async (e) => {
@@ -66,6 +68,9 @@
 						const result = await s.updateTransactionDescription(transaction, e.currentTarget.value);
 						error = result.isErr ? result.error.message : undefined;
 					}
+				}}
+				oninput={(e) => {
+					hasDescriptionText = e.currentTarget.value.length > 0;
 				}}
 				onkeydown={async (e) => {
 					switch (e.key) {
