@@ -6,6 +6,7 @@
 	import { getContext } from 'svelte';
 	import CategorySelect from './CategorySelect.svelte';
 	import TransactionDescription from './TransactionDescription.svelte';
+	import ErrorAlert from './ErrorAlert.svelte';
 
 	let s: State = getContext('state');
 	let { transaction, categories }: { transaction: Transaction; categories: Category[] } = $props();
@@ -31,6 +32,8 @@
 		await s.setCategory(transaction, category);
 		isSelectingCategory = false;
 	}
+
+	let error = $state<string>();
 </script>
 
 <div data-transaction class="flex grow-0 flex-row items-center gap-2">
@@ -60,14 +63,19 @@
 				onblur={async (e) => {
 					if (isEditingDescription) {
 						isEditingDescription = false;
-						await s.updateTransactionDescription(transaction, e.currentTarget.value);
+						const result = await s.updateTransactionDescription(transaction, e.currentTarget.value);
+						error = result.isErr ? result.error.message : undefined;
 					}
 				}}
 				onkeydown={async (e) => {
 					switch (e.key) {
 						case 'Enter': {
 							isEditingDescription = false;
-							await s.updateTransactionDescription(transaction, e.currentTarget.value);
+							const result = await s.updateTransactionDescription(
+								transaction,
+								e.currentTarget.value
+							);
+							error = result.isErr ? result.error.message : undefined;
 							break;
 						}
 						case 'Escape': {
@@ -83,3 +91,7 @@
 	</div>
 	<div>{formatTransactionAmount(transaction.amount)}</div>
 </div>
+
+{#if error}
+	<ErrorAlert title="Update Error" body={error} />
+{/if}

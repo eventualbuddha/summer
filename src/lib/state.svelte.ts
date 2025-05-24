@@ -336,12 +336,15 @@ export class State {
 		await updateDefaultCategoryId(this.#surreal, newDefaultCategoryId);
 	}
 
-	async updateTransactionDescription(transaction: Transaction, description?: string) {
+	async updateTransactionDescription(
+		transaction: Transaction,
+		description?: string
+	): Promise<Result<void>> {
 		if (!this.#surreal) {
 			throw new Error('Not connected to SurrealDB');
 		}
 
-		await updateTransactionDescription(this.#surreal, transaction, description ?? '');
+		return await updateTransactionDescription(this.#surreal, transaction, description ?? '');
 	}
 
 	async importStatement(
