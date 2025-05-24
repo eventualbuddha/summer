@@ -45,4 +45,3 @@ DEFINE FIELD type ON TABLE transaction TYPE string;
 REMOVE TABLE IF EXISTS settings;
 DEFINE TABLE settings SCHEMAFULL;
 DEFINE FIELD defaultCategory ON TABLE settings TYPE option<record<category>>;
-CREATE settings:global;
