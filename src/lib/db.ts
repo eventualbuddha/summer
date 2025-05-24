@@ -344,6 +344,6 @@ export async function updateDefaultCategoryId(
 }
 
 export async function getTags(surreal: Surreal): Promise<Tag[]> {
-	const [tags] = await surreal.query('SELECT id.id(), name FROM tag ORDER BY name ASC');
+	const [tags] = await surreal.query('SELECT id.id() AS id, name FROM tag ORDER BY name ASC');
 	return TagSchema.array().parse(tags);
 }
