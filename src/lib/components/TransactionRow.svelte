@@ -12,11 +12,11 @@
 
 	let isEditingDescription = $state(false);
 	let descriptionInput = $state<HTMLInputElement>();
-
-	async function updateDescription(newDescription: string) {
-		transaction.description = newDescription;
-		await s.updateTransactionDescription(transaction.id, transaction.description);
-	}
+	let editableDescription = $derived.by(() =>
+		`${transaction.description} ${transaction.tagged
+			.map((tagged) => (tagged.year ? `#${tagged.tag.name}-${tagged.year}` : `#${tagged.tag.name}`))
+			.join(' ')}`.trim()
+	);
 
 	$effect(() => {
 		if (isEditingDescription) {
@@ -55,17 +55,19 @@
 				aria-label="Transaction description"
 				bind:this={descriptionInput}
 				class="w-full py-1 font-mono text-sm ring-0 focus:ring-0"
-				value={transaction.description}
+				value={editableDescription}
 				placeholder={tidyBankDescription(transaction.statementDescription).text}
 				onblur={async (e) => {
-					await updateDescription(e.currentTarget.value);
-					isEditingDescription = false;
+					if (isEditingDescription) {
+						isEditingDescription = false;
+						await s.updateTransactionDescription(transaction, e.currentTarget.value);
+					}
 				}}
 				onkeydown={async (e) => {
 					switch (e.key) {
 						case 'Enter': {
-							await updateDescription(e.currentTarget.value);
 							isEditingDescription = false;
+							await s.updateTransactionDescription(transaction, e.currentTarget.value);
 							break;
 						}
 						case 'Escape': {
