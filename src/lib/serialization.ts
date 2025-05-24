@@ -1,7 +1,19 @@
 import { RecordId, StringRecordId } from 'surrealdb';
 
-export function parseRecord(json: string): Record<string, unknown> {
-	return JSON.parse(json, (key, value) => {
+export function parseRecord(raw: string): {
+	type: 'record' | 'relation';
+	value: Record<string, unknown>;
+} {
+	const match = raw.match(/^RELATE: (.+)$/);
+	let type: 'record' | 'relation' = 'record';
+	let json = raw;
+
+	if (match) {
+		json = match[1] as string;
+		type = 'relation';
+	}
+
+	const value = JSON.parse(json, (key, value) => {
 		if (
 			typeof value !== 'object' ||
 			value === null ||
@@ -30,6 +42,8 @@ export function parseRecord(json: string): Record<string, unknown> {
 
 		throw new Error(`Unsupported type: ${value.type}`);
 	});
+
+	return { type, value };
 }
 
 export function serializeRecord(record: Record<string, unknown>): string {
