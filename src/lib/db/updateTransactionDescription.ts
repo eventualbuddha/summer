@@ -3,7 +3,7 @@ import { Result } from '@badrap/result';
 import { RecordId, Surreal } from 'surrealdb';
 import { z } from 'zod';
 
-interface NewTagged {
+export interface NewTagged {
 	name: string;
 	year?: number;
 }
