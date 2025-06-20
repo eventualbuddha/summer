@@ -57,15 +57,25 @@ export function parseTransactionDescriptionAndTags(description: string): {
 			}
 		} else {
 			if (c === '#') {
-				finishDescriptionPart();
-				isParsingTag = true;
-				tagStart = p;
+				const cp = description[p - 1];
+				if (!cp || /\s/.test(cp)) {
+					finishDescriptionPart();
+					isParsingTag = true;
+					tagStart = p;
+				}
 			}
 		}
 	}
 
 	if (isParsingTag) {
-		finishTag();
+		if (tagStart === p - 1) {
+			// only got the "#" character, bail on the whole tag thing
+			isParsingTag = false;
+			descriptionPartStart = tagStart;
+			tagStart = -1;
+		} else {
+			finishTag();
+		}
 	}
 
 	finishDescriptionPart();

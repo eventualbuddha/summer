@@ -36,6 +36,13 @@ test('multiple tags', () => {
 	});
 });
 
+test('description part with # in the middle', () => {
+	expect(parseTransactionDescriptionAndTags('hello#world')).toEqual({
+		description: 'hello#world',
+		tagged: []
+	});
+});
+
 test('one tag with year', () => {
 	expect(parseTransactionDescriptionAndTags('test #tag-2025')).toEqual({
 		description: 'test',
@@ -54,5 +61,12 @@ test('whitespace around tags', () => {
 	expect(parseTransactionDescriptionAndTags('  test\t #tag1  #tag2  test3     ')).toEqual({
 		description: 'test test3',
 		tagged: [{ name: 'tag1' }, { name: 'tag2' }]
+	});
+});
+
+test('invalid tag', () => {
+	expect(parseTransactionDescriptionAndTags('#')).toEqual({
+		description: '#',
+		tagged: []
 	});
 });
