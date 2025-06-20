@@ -2,6 +2,10 @@ import { Gap, PreparedQuery, RecordId, Surreal } from 'surrealdb';
 import { z } from 'zod';
 import type { Sorting, SortingDirection } from './state.svelte';
 import { NEVER_PROMISE } from './utils/promises';
+import {
+	parseTransactionDescriptionAndTags,
+	type NewTagged
+} from './db/updateTransactionDescription';
 
 export interface Transactions {
 	count: number;
@@ -60,7 +64,8 @@ const getTransactionsQueryBindings = {
 	months: new Gap<number[]>(),
 	categories: new Gap<Category['id'][]>(),
 	accounts: new Gap<Account['id'][]>(),
-	searchTerm: new Gap<string>(),
+	descriptionFilter: new Gap<string>(),
+	taggedFilter: new Gap<NewTagged[]>(),
 	amounts: new Gap<number[]>(),
 	stickyTransactionIds: new Gap<Transaction['id'][]>(),
 	orderByField: new Gap<string>()
@@ -90,11 +95,11 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
                 AND category AND category.id() IN $categories
       					AND statement.account AND statement.account.id() IN $accounts
       					AND (
-      					  (!$searchTerm AND !$amounts)
-      					  OR (description AND description.lowercase().contains($searchTerm.lowercase()))
-      					  OR (statementDescription AND statementDescription.lowercase().contains($searchTerm.lowercase()))
+      					  (!$descriptionFilter AND $taggedFilter.len() == 0 AND !$amounts)
+      					  OR (description AND $descriptionFilter AND description.lowercase().contains($descriptionFilter.lowercase()))
+      					  OR (statementDescription AND $descriptionFilter AND statementDescription.lowercase().contains($descriptionFilter.lowercase()))
      							OR (amount IN $amounts)
-									OR count(->(tagged WHERE ->tag[0].name.lowercase().contains($searchTerm.lowercase()))) > 0
+									OR count(->(tagged WHERE $taggedFilter.any(|$tag| out.name.lowercase().contains($tag.name.lowercase()) AND (!$tag.year OR year == $tag.year)))) > 0
       			    )
               )
      		ORDER BY orderField COLLATE ${sortDirection === 'asc' ? 'ASC' : 'DESC'}
@@ -130,6 +135,8 @@ export async function getTransactions(
 	}
 	abortSignal.addEventListener('abort', onAbort);
 
+	const searchTermAsDescriptionAndTagged = parseTransactionDescriptionAndTags(options.searchTerm);
+
 	const data = await surreal.query(
 		options.sort.direction === 'asc'
 			? getTransactionsAscendingQuery
@@ -140,7 +147,8 @@ export async function getTransactions(
 			b.months.fill(options.months),
 			b.categories.fill(options.categories.map((c) => c.id)),
 			b.accounts.fill(options.accounts.map((c) => c.id)),
-			b.searchTerm.fill(options.searchTerm),
+			b.descriptionFilter.fill(searchTermAsDescriptionAndTagged.description),
+			b.taggedFilter.fill(searchTermAsDescriptionAndTagged.tagged),
 			b.amounts.fill(amountsToMatchForSearchTerm(options.searchTerm)),
 			b.orderByField.fill(options.sort.field)
 		]

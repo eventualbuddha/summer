@@ -105,3 +105,50 @@ test('editing tags', async ({ page, pageHelpers, createTransaction }) => {
 
 	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'maui' }]);
 });
+
+test('searching by tag', async ({ page, pageHelpers, createTransaction, tagTransaction }) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	const taggedTransaction = await createTransaction({
+		statementDescription: 'ONO GELATO',
+		date: new Date(2025, 0, 1),
+		amount: -123
+	});
+	const untaggedTransaction = await createTransaction({
+		statementDescription: 'PARKING',
+		date: new Date(2025, 0, 1),
+		amount: -1800
+	});
+
+	await tagTransaction(taggedTransaction.id, 'hawaii', 2025);
+	await tagTransaction(taggedTransaction.id, 'gelato');
+	await pageHelpers.connect(page);
+
+	// Check for both transactions
+	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
+	await expect(page.getByText(untaggedTransaction.statementDescription)).toBeVisible();
+
+	const $search = page.getByRole('textbox', { name: 'Search' });
+
+	// Filter by tag without year
+	$search.fill('#hawaii');
+	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
+	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
+
+	// Filter by tag with year
+	$search.fill('#hawaii-2025');
+	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
+	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
+
+	// Filter by tag that has no year
+	$search.fill('#gelato');
+	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
+	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
+
+	// Filter by tag that has no transactions
+	$search.fill('#nothing');
+	await expect(page.getByText(taggedTransaction.statementDescription)).not.toBeVisible();
+	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
+});
