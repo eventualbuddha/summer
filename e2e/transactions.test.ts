@@ -222,8 +222,81 @@ test('updating to hidden category', async ({
 	await expect(page.getByText(generalTransaction.statementDescription)).toBeVisible();
 
 	// Update the filters.
-	await page.getByRole('textbox', { name: 'Search' }).fill('test');
+	await page.getByPlaceholder('Search (/)').fill('test');
 
 	// Check that the transaction is now hidden.
 	await expect(page.getByText(generalTransaction.statementDescription)).not.toBeVisible();
+});
+
+test('search keyboard shortcuts', async ({ page, pageHelpers, createTransaction }) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	await createTransaction({
+		statementDescription: 'Keyboard shortcut test transaction',
+		date: new Date(2025, 0, 1),
+		amount: -123
+	});
+
+	// Connect to the database
+	await pageHelpers.connect(page);
+
+	const searchInput = page.getByPlaceholder('Search (/)');
+
+	// Verify the placeholder includes the keyboard shortcut hint
+	await expect(searchInput).toHaveAttribute('placeholder', 'Search (/)');
+
+	// Verify search input is not focused initially
+	await expect(searchInput).not.toBeFocused();
+
+	// Press "/" key to focus search input
+	await page.keyboard.press('/');
+
+	// Verify search input is focused and "/" character is not typed
+	await expect(searchInput).toBeFocused();
+	await expect(searchInput).toHaveValue('');
+
+	// Type a search term to verify functionality
+	await page.keyboard.type('keyboard');
+	await expect(searchInput).toHaveValue('keyboard');
+
+	// Press Escape to blur the search input
+	await page.keyboard.press('Escape');
+
+	// Verify search input is no longer focused
+	await expect(searchInput).not.toBeFocused();
+
+	// Verify search term is still there
+	await expect(searchInput).toHaveValue('keyboard');
+
+	// Clear and test "/" doesn't focus when already focused in the search input
+	await searchInput.focus();
+	await searchInput.fill('');
+	await expect(searchInput).toBeFocused();
+
+	// Type "/" while focused in search input - should add the character
+	await page.keyboard.press('/');
+	await expect(searchInput).toHaveValue('/');
+
+	// Clear the input and test the shortcut works again when not focused
+	await searchInput.fill('');
+	await page.keyboard.press('Escape'); // blur the input
+	await expect(searchInput).not.toBeFocused();
+
+	// Press "/" again to test the shortcut still works
+	await page.keyboard.press('/');
+	await expect(searchInput).toBeFocused();
+	await expect(searchInput).toHaveValue('');
+
+	// Test that it selects existing text when using the shortcut
+	await page.keyboard.type('existing text');
+	await expect(searchInput).toHaveValue('existing text');
+	await page.keyboard.press('Escape'); // blur
+	await page.keyboard.press('/'); // focus with shortcut
+
+	// When using shortcut, existing text should be selected
+	// We can test this by typing, which should replace selected text
+	await page.keyboard.type('replaced');
+	await expect(searchInput).toHaveValue('replaced');
 });
