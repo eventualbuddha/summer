@@ -113,7 +113,7 @@
 						</div>
 						<div class="text-sm text-gray-600 dark:text-gray-400">
 							{summary.count}
-							{pluralize(summary.count, 'transaction', 'transactions')}
+							{pluralize(summary.count, 'transaction', 'transactions')},
 							{formatWholeDollarAmount(summary.total)}
 						</div>
 					</div>
