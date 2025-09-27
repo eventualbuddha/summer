@@ -617,7 +617,6 @@ test('bulk category editing modal cancel', async ({
 			'select category from transaction where id = $id',
 			{ id: transaction.id }
 		);
-		console.log(refreshedTransaction);
 		expect(refreshedTransaction.category).toEqual(generalCategory.id);
 	});
 });
