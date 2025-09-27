@@ -95,7 +95,7 @@
 		<h2 id="modal-title" class="mb-4 text-xl font-bold">Update Category</h2>
 
 		<p class="mb-4">
-			You are about to change the category of {transactionCount}&nbsp;{pluralize(
+			You are about to change the category of {transactionCount.toLocaleString()}&nbsp;{pluralize(
 				transactionCount,
 				'transaction',
 				'transactions'
@@ -112,7 +112,7 @@
 							<CategoryPill category={summary.category ?? NONE_CATEGORY} style="full" />
 						</div>
 						<div class="text-sm text-gray-600 dark:text-gray-400">
-							{summary.count}
+							{summary.count.toLocaleString()}
 							{pluralize(summary.count, 'transaction', 'transactions')},
 							{formatWholeDollarAmount(summary.total)}
 						</div>
@@ -129,7 +129,7 @@
 				type="button"
 				class="inline-flex cursor-pointer justify-center gap-x-1.5 rounded-md bg-blue-600 px-3 py-1 text-sm font-semibold text-white shadow-xs ring-1 ring-blue-600 ring-inset hover:bg-blue-700 focus:ring-blue-500 disabled:cursor-not-allowed disabled:text-gray-400 dark:bg-blue-500 dark:ring-blue-500 hover:dark:bg-blue-600 disabled:dark:text-gray-600"
 			>
-				Update {transactionCount}
+				Update {transactionCount.toLocaleString()}
 				{pluralize(transactionCount, 'transaction', 'transactions')}
 			</button>
 		</div>
