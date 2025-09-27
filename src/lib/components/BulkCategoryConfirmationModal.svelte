@@ -77,7 +77,7 @@
 
 <!-- Modal backdrop -->
 <div
-	class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+	class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black"
 	onclick={(e) => {
 		if (e.target === e.currentTarget) onCancel();
 	}}
