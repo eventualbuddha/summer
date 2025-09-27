@@ -255,6 +255,56 @@ export class State {
 		}
 	}
 
+	async setBulkCategory(transactions: readonly Transaction[], category: Category | undefined) {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+
+		if (!this.filters) {
+			throw new Error('No filters have been loaded');
+		}
+
+		// Store original category IDs for rollback on error
+		const originalCategories = new Map<string, string | undefined>();
+		for (const transaction of transactions) {
+			originalCategories.set(transaction.id, transaction.categoryId);
+		}
+
+		// Update local state first
+		for (const transaction of transactions) {
+			transaction.categoryId = category?.id;
+		}
+
+		try {
+			// Build array of transaction RecordIds
+			const transactionIds = transactions.map((t) => new RecordId('transaction', t.id));
+
+			if (category) {
+				await this.#surreal.query(`UPDATE $transactions SET category = $category`, {
+					transactions: transactionIds,
+					category: new RecordId('category', category.id)
+				});
+			} else {
+				await this.#surreal.query(`UPDATE $transactions SET category = none`, {
+					transactions: transactionIds
+				});
+			}
+
+			// Add all transactions to sticky list to keep them visible
+			for (const transaction of transactions) {
+				this.filters.addStickyTransactionId(transaction.id);
+			}
+		} catch (error) {
+			console.error(error);
+			this.lastError = error as Error;
+
+			// Rollback local state changes
+			for (const transaction of transactions) {
+				transaction.categoryId = originalCategories.get(transaction.id);
+			}
+		}
+	}
+
 	async updateAccountName(accountId: string, name: string) {
 		if (!this.#surreal) {
 			throw new Error('Not connected to SurrealDB');

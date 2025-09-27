@@ -17,13 +17,14 @@
 			{@render contents()}
 		</div>
 	{/snippet}
-	{#snippet trigger(expanded)}
+	{#snippet trigger(isOpen, setIsOpen)}
 		<Button
 			id="menu-button"
 			aria-label={ariaLabel}
-			aria-expanded={expanded}
+			aria-expanded={isOpen}
 			aria-haspopup="true"
 			class="w-full"
+			onclick={() => setIsOpen(!isOpen)}
 		>
 			{label}
 			<svg
