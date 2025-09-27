@@ -22,6 +22,51 @@ test('view transactions', async ({ page, pageHelpers, createTransaction }) => {
 	await expect(page.getByText('$1.23')).toBeVisible();
 });
 
+test('filter by category', async ({ page, pageHelpers, createTransaction, createCategory }) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	const unknownCategory = await createCategory({
+		name: 'Unknown',
+		emoji: '❓'
+	});
+	const generalCategory = await createCategory({
+		name: 'General',
+		emoji: '🛍️'
+	});
+	const transaction1 = await createTransaction({
+		category: generalCategory.id,
+		statementDescription: 'Transaction #1',
+		date: new Date(2025, 0, 1),
+		amount: -123
+	});
+	const transaction2 = await createTransaction({
+		category: unknownCategory.id,
+		statementDescription: 'Transaction #2',
+		date: new Date(2025, 0, 2),
+		amount: -321
+	});
+
+	// Connect to the database
+	await pageHelpers.connect(page);
+
+	await expect(page.getByText('Jan 01 2025')).toBeVisible();
+	await expect(page.getByText('Jan 02 2025')).toBeVisible();
+	await expect(page.getByText(transaction1.statementDescription)).toBeVisible();
+	await expect(page.getByText(transaction2.statementDescription)).toBeVisible();
+	await expect(page.getByText('$1.23')).toBeVisible();
+	await expect(page.getByText('$3.21')).toBeVisible();
+
+	await page.getByRole('button', { name: 'Category Filter' }).click();
+	await page.getByRole('checkbox', { name: generalCategory.name }).click();
+
+	await expect(page.getByText(transaction1.statementDescription)).not.toBeVisible();
+	await expect(page.getByText(transaction2.statementDescription)).toBeVisible();
+	await expect(page.getByText('$1.23')).not.toBeVisible();
+	await expect(page.getByText('$3.21')).toBeVisible();
+});
+
 test('adding a description', async ({ page, pageHelpers, createTransaction, surreal }) => {
 	await page.goto('/');
 	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
