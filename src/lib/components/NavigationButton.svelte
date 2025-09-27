@@ -11,10 +11,11 @@
 </script>
 
 <Dropdown content-class="flex items-center">
-	{#snippet trigger(isOpen)}
+	{#snippet trigger(isOpen, setIsOpen)}
 		<MenuButton
 			role="button"
 			aria-label={isOpen ? 'Close Navigation' : 'Open Navigation'}
+			onclick={() => setIsOpen(!isOpen)}
 			{isOpen}
 		/>
 	{/snippet}

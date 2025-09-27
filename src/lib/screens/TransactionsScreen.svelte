@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BulkTransactionActions from '$lib/components/BulkTransactionActions.svelte';
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
 	import Filters from '$lib/components/Filters.svelte';
 	import ImportButton from '$lib/components/ImportButton.svelte';
@@ -41,6 +42,7 @@
 		bind:accountSelections={s.filters.accounts}
 		bind:searchTerm={s.filters.searchTerm}
 	/>
+	<BulkTransactionActions />
 {/if}
 
 <div class="flex min-h-0 flex-row gap-6">

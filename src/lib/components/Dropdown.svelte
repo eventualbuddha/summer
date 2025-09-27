@@ -10,7 +10,7 @@
 		'content-class': contentClass
 	}: {
 		root: Snippet<[Snippet]>;
-		trigger: Snippet<[boolean]>;
+		trigger: Snippet<[boolean, (isOpen: boolean) => void]>;
 		portal: Snippet;
 		open?: boolean;
 		'content-class'?: ClassValue;
@@ -59,9 +59,9 @@
 
 {#snippet rootContents()}
 	<div class={contentClass} bind:this={self}>
-		<button onclick={() => (isOpen = !isOpen)}>
-			{@render trigger(isOpen)}
-		</button>
+		{@render trigger(isOpen, (newIsOpen) => {
+			isOpen = newIsOpen;
+		})}
 
 		{#if isOpen}
 			{@render portal()}

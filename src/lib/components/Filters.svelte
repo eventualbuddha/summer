@@ -61,18 +61,20 @@
 	});
 </script>
 
-<div class="flex flex-row items-center gap-1">
-	<span class="font-bold">Filters:</span>
-	<YearMultiSelect aria-label="Year Filter" bind:selections={yearSelections} />
-	<MonthMultiSelect aria-label="Month Filter" bind:selections={monthSelections} />
-	<CategoryMultiSelect aria-label="Category Filter" bind:selections={categorySelections} />
-	<AccountMultiSelect aria-label="Account Filter" bind:selections={accountSelections} />
-	<input
-		bind:this={searchInput}
-		type="text"
-		placeholder="Search (/)"
-		bind:value={editableSearchTerm}
-		onkeydown={handleSearchKeydown}
-		class="rounded-md border border-gray-300 bg-white px-2 dark:border-gray-600 dark:bg-gray-800"
-	/>
+<div class="flex flex-col gap-2">
+	<div class="flex flex-row items-center gap-1">
+		<span class="font-bold">Filters:</span>
+		<YearMultiSelect aria-label="Year Filter" bind:selections={yearSelections} />
+		<MonthMultiSelect aria-label="Month Filter" bind:selections={monthSelections} />
+		<CategoryMultiSelect aria-label="Category Filter" bind:selections={categorySelections} />
+		<AccountMultiSelect aria-label="Account Filter" bind:selections={accountSelections} />
+		<input
+			bind:this={searchInput}
+			type="text"
+			placeholder="Search (/)"
+			bind:value={editableSearchTerm}
+			onkeydown={handleSearchKeydown}
+			class="rounded-md border border-gray-300 bg-white px-2 dark:border-gray-600 dark:bg-gray-800"
+		/>
+	</div>
 </div>
