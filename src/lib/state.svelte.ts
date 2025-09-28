@@ -1,13 +1,18 @@
 import { Result } from '@badrap/result';
 import { RecordId, Surreal, Table } from 'surrealdb';
 import {
+	createBudget,
+	deleteBudget,
+	getBudgets,
 	getDefaultCategoryId,
 	getFilterOptions,
 	getTags,
 	getTransactions,
+	updateBudget,
 	updateDefaultCategoryId,
 	use,
 	type Account,
+	type Budget,
 	type Category,
 	type GetTransactionsOptions,
 	type Tag,
@@ -86,6 +91,7 @@ export class State {
 	transactions = $state<Transactions>();
 	defaultCategoryId = $state<Category['id']>();
 	tags = $state<Tag[]>([]);
+	budgets = $state<Budget[]>();
 
 	sort = $state(
 		new Sorting(
@@ -118,6 +124,7 @@ export class State {
 		this.filters.resetOptions(await getFilterOptions(this.#surreal));
 		this.defaultCategoryId = await getDefaultCategoryId(this.#surreal);
 		this.tags = await getTags(this.#surreal);
+		this.budgets = await getBudgets(this.#surreal);
 	}
 
 	#getTransactionsFetcher = new Fetcher<
@@ -421,5 +428,29 @@ export class State {
 		this.selectYears([statement.date.getFullYear().toString()]);
 		this.selectMonths([(statement.date.getMonth() + 1).toString()]);
 		return Result.ok(undefined);
+	}
+
+	async createBudget(budget: Omit<Budget, 'id'>): Promise<void> {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		await createBudget(this.#surreal, budget);
+		this.budgets = await getBudgets(this.#surreal);
+	}
+
+	async updateBudget(budget: Budget): Promise<void> {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		await updateBudget(this.#surreal, budget);
+		this.budgets = await getBudgets(this.#surreal);
+	}
+
+	async deleteBudget(budgetId: string): Promise<void> {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		await deleteBudget(this.#surreal, budgetId);
+		this.budgets = await getBudgets(this.#surreal);
 	}
 }

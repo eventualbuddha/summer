@@ -6,7 +6,8 @@
 	let routes = [
 		{ label: 'Transactions', pathname: '/' },
 		{ label: 'Accounts', pathname: '/accounts' },
-		{ label: 'Categories', pathname: '/categories' }
+		{ label: 'Categories', pathname: '/categories' },
+		{ label: 'Budgets', pathname: '/budgets' }
 	];
 </script>
 

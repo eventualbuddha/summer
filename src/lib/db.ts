@@ -355,3 +355,71 @@ export async function getTags(surreal: Surreal): Promise<Tag[]> {
 	const [tags] = await surreal.query('SELECT id.id() AS id, name FROM tag ORDER BY name ASC');
 	return TagSchema.array().parse(tags);
 }
+
+export interface Budget {
+	id: string;
+	name: string;
+	year: number;
+	amount: number;
+	categories: Category[];
+}
+
+export const BudgetSchema = z.object({
+	id: z.string().nonempty(),
+	name: z.string().nonempty(),
+	year: z.number(),
+	amount: z.number(),
+	categories: z.array(CategorySchema)
+});
+
+export async function getBudgets(surreal: Surreal): Promise<Budget[]> {
+	const [budgets] = await surreal.query(
+		'SELECT id.id() AS id, name, year, amount, categories[*].{id: id.id(), name, emoji, color, ordinal} FROM budget ORDER BY year DESC'
+	);
+	return BudgetSchema.array().parse(budgets);
+}
+
+export async function getBudget(surreal: Surreal, id: string): Promise<Budget | null> {
+	const [budget] = await surreal.query(
+		'SELECT id.id() AS id, name, year, amount, categories[*].{id: id.id(), name, emoji, color, ordinal} FROM ONLY budget:$id',
+		{ id }
+	);
+	if (!budget) return null;
+	return BudgetSchema.parse(budget);
+}
+
+export async function createBudget(surreal: Surreal, budget: Omit<Budget, 'id'>): Promise<Budget> {
+	const categoryRecords = budget.categories.map((cat) => new RecordId('category', cat.id));
+	const [created] = await surreal.query(
+		`
+		CREATE budget SET name = $name, year = $year, amount = $amount, categories = $categories
+		RETURN id.id() AS id, name, year, amount, categories[*].{id: id.id(), name, emoji, color, ordinal}
+		`,
+		{
+			name: budget.name,
+			year: budget.year,
+			amount: budget.amount,
+			categories: categoryRecords
+		}
+	);
+	return BudgetSchema.array().parse(created)[0]!;
+}
+
+export async function updateBudget(surreal: Surreal, budget: Budget): Promise<Budget> {
+	const categoryRecords = budget.categories.map((cat) => new RecordId('category', cat.id));
+	const [updated] = await surreal.query(
+		'UPDATE $id SET name = $name, year = $year, amount = $amount, categories = $categories RETURN id.id() AS id, name, year, amount, categories[*].{id: id.id(), name, emoji, color, ordinal}',
+		{
+			id: new RecordId('budget', budget.id),
+			name: budget.name,
+			year: budget.year,
+			amount: budget.amount,
+			categories: categoryRecords
+		}
+	);
+	return BudgetSchema.array().parse(updated)[0]!;
+}
+
+export async function deleteBudget(surreal: Surreal, id: string): Promise<void> {
+	await surreal.query('DELETE $id', { id: new RecordId('budget', id) });
+}
