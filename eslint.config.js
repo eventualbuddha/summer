@@ -9,7 +9,9 @@ import svelteConfig from './svelte.config.js';
 const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
 export default ts.config(
-	{ ignores: ['**/static/**'] },
+	{
+		ignores: ['**/static/**', '.claude/settings.local.json']
+	},
 	includeIgnoreFile(gitignorePath),
 	js.configs.recommended,
 	...ts.configs.recommended,
@@ -30,9 +32,8 @@ export default ts.config(
 
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
-				extraFileExtensions: ['.svelte'],
 				parser: ts.parser,
+				extraFileExtensions: ['.svelte'],
 				svelteConfig
 			}
 		}

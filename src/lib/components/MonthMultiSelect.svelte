@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SvelteDate as Date } from 'svelte/reactivity';
 	import type { Selection } from '$lib/types';
 	import { getSelectionRange } from '$lib/utils/getSelectionRange';
 	import Select from './Select.svelte';
