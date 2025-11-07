@@ -103,7 +103,7 @@ test('createBudgetLookupMap - single budget', () => {
 	const result = createBudgetLookupMap(budgets, ['Food Budget'], [2024]);
 
 	expect(result['Food Budget']).toBeDefined();
-	expect(result['Food Budget']![2024]).toEqual(budgets[0]);
+	expect(result['Food Budget']![2024]).toEqual(budgets[0]!);
 });
 
 test('createBudgetLookupMap - fills in missing budget with null', () => {
@@ -129,7 +129,7 @@ test('createBudgetLookupMap - fills in missing budget with null', () => {
 	const result = createBudgetLookupMap(budgets, ['Food Budget'], [2023, 2024]);
 
 	expect(result['Food Budget']![2023]).toBeNull();
-	expect(result['Food Budget']![2024]).toEqual(budgets[0]);
+	expect(result['Food Budget']![2024]).toEqual(budgets[0]!);
 });
 
 test('createBudgetLookupMap - multiple budgets across years', () => {
@@ -171,10 +171,10 @@ test('createBudgetLookupMap - multiple budgets across years', () => {
 		[2023, 2024]
 	);
 
-	expect(result['Food Budget']![2023]).toEqual(budgets[0]);
-	expect(result['Food Budget']![2024]).toEqual(budgets[1]);
+	expect(result['Food Budget']![2023]).toEqual(budgets[0]!);
+	expect(result['Food Budget']![2024]).toEqual(budgets[1]!);
 	expect(result['Transportation Budget']![2023]).toBeNull();
-	expect(result['Transportation Budget']![2024]).toEqual(budgets[2]);
+	expect(result['Transportation Budget']![2024]).toEqual(budgets[2]!);
 });
 
 test('createActualSpendingLookupMap - empty arrays', () => {
