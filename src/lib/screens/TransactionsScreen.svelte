@@ -46,7 +46,7 @@
 {/if}
 
 <div class="flex min-h-0 flex-row gap-6">
-	<div class="flex w-9/12 grow-1 flex-col gap-2 overflow-y-scroll">
+	<div class="flex w-9/12 grow-1 flex-col gap-2">
 		{#if !s.transactions}
 			<div class="flex flex-col items-center justify-center">
 				<div class="text-2xl font-bold">Loading…</div>

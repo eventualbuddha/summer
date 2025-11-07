@@ -355,3 +355,346 @@ export async function getTags(surreal: Surreal): Promise<Tag[]> {
 	const [tags] = await surreal.query('SELECT id.id() AS id, name FROM tag ORDER BY name ASC');
 	return TagSchema.array().parse(tags);
 }
+
+export interface Budget {
+	id: string;
+	name: string;
+	year: number;
+	amount: number;
+	categories: Category[];
+}
+
+export const BudgetSchema = z.object({
+	id: z.string().nonempty(),
+	name: z.string().nonempty(),
+	year: z.number(),
+	amount: z.number(),
+	categories: z.array(CategorySchema)
+});
+
+export async function getBudgets(surreal: Surreal): Promise<Budget[]> {
+	const [budgets] = await surreal.query(
+		'SELECT id.id() AS id, name, year, amount, categories[*].{id: id.id(), name, emoji, color, ordinal} FROM budget ORDER BY year DESC'
+	);
+	return BudgetSchema.array().parse(budgets);
+}
+
+export async function getBudget(surreal: Surreal, id: string): Promise<Budget | null> {
+	const [budget] = await surreal.query(
+		'SELECT id.id() AS id, name, year, amount, categories[*].{id: id.id(), name, emoji, color, ordinal} FROM ONLY budget:$id',
+		{ id }
+	);
+	if (!budget) return null;
+	return BudgetSchema.parse(budget);
+}
+
+export async function createBudget(surreal: Surreal, budget: Omit<Budget, 'id'>): Promise<Budget> {
+	const categoryRecords = budget.categories.map((cat) => new RecordId('category', cat.id));
+	const [created] = await surreal.query(
+		`
+		CREATE budget SET name = $name, year = $year, amount = $amount, categories = $categories
+		RETURN id.id() AS id, name, year, amount, categories[*].{id: id.id(), name, emoji, color, ordinal}
+		`,
+		{
+			name: budget.name,
+			year: budget.year,
+			amount: budget.amount,
+			categories: categoryRecords
+		}
+	);
+	return BudgetSchema.array().parse(created)[0]!;
+}
+
+export async function updateBudget(surreal: Surreal, budget: Budget): Promise<Budget> {
+	const categoryRecords = budget.categories.map((cat) => new RecordId('category', cat.id));
+	const [updated] = await surreal.query(
+		'UPDATE $id SET name = $name, year = $year, amount = $amount, categories = $categories RETURN id.id() AS id, name, year, amount, categories[*].{id: id.id(), name, emoji, color, ordinal}',
+		{
+			id: new RecordId('budget', budget.id),
+			name: budget.name,
+			year: budget.year,
+			amount: budget.amount,
+			categories: categoryRecords
+		}
+	);
+	return BudgetSchema.array().parse(updated)[0]!;
+}
+
+export async function deleteBudget(surreal: Surreal, id: string): Promise<void> {
+	await surreal.query('DELETE $id', { id: new RecordId('budget', id) });
+}
+
+export interface BudgetReportData {
+	budgetNames: string[];
+	years: number[];
+	budgetsByNameAndYear: Record<string, Record<number, Budget | null>>;
+	actualSpendingByNameAndYear: Record<string, Record<number, number>>;
+	monthlySpendingByNameYearMonth: Record<string, Record<number, Record<number, number>>>;
+	previousYearSpendingByNameYearMonth: Record<string, Record<number, Record<number, number>>>;
+}
+
+export interface MonthlySpendingRaw {
+	budgetName: string;
+	budgetYear: number;
+	monthlyData: Array<{
+		month: number;
+		monthlyAmount: number;
+	}>;
+}
+
+export interface MonthlySpendingFlat {
+	budgetName: string;
+	budgetYear: number;
+	month: number;
+	monthlyAmount: number;
+}
+
+/**
+ * Flattens nested monthly spending data from database query into a flat array
+ */
+export function flattenMonthlySpending(raw: MonthlySpendingRaw[]): MonthlySpendingFlat[] {
+	const flattened: MonthlySpendingFlat[] = [];
+	raw.forEach((budget) => {
+		budget.monthlyData.forEach((monthData) => {
+			flattened.push({
+				budgetName: budget.budgetName,
+				budgetYear: budget.budgetYear,
+				month: monthData.month,
+				monthlyAmount: monthData.monthlyAmount
+			});
+		});
+	});
+	return flattened;
+}
+
+export interface ActualSpending {
+	budgetName: string;
+	budgetYear: number;
+	actualAmount: number;
+}
+
+/**
+ * Creates a lookup map: budgetName -> year -> Budget | null
+ */
+export function createBudgetLookupMap(
+	budgets: Budget[],
+	budgetNames: string[],
+	years: number[]
+): Record<string, Record<number, Budget | null>> {
+	const lookup: Record<string, Record<number, Budget | null>> = {};
+	budgetNames.forEach((name) => {
+		lookup[name] = {};
+		years.forEach((year) => {
+			const budget = budgets.find((b) => b.name === name && b.year === year);
+			lookup[name]![year] = budget || null;
+		});
+	});
+	return lookup;
+}
+
+/**
+ * Creates a lookup map: budgetName -> year -> actualAmount
+ */
+export function createActualSpendingLookupMap(
+	actualSpending: ActualSpending[],
+	budgetNames: string[],
+	years: number[]
+): Record<string, Record<number, number>> {
+	const lookup: Record<string, Record<number, number>> = {};
+	budgetNames.forEach((name) => {
+		lookup[name] = {};
+		years.forEach((year) => {
+			const spending = actualSpending.find((s) => s.budgetName === name && s.budgetYear === year);
+			lookup[name]![year] = spending?.actualAmount || 0;
+		});
+	});
+	return lookup;
+}
+
+/**
+ * Creates a lookup map: budgetName -> year -> month -> amount
+ */
+export function createMonthlySpendingLookupMap(
+	monthlySpending: MonthlySpendingFlat[],
+	budgetNames: string[],
+	years: number[]
+): Record<string, Record<number, Record<number, number>>> {
+	const lookup: Record<string, Record<number, Record<number, number>>> = {};
+	budgetNames.forEach((name) => {
+		lookup[name] = {};
+		years.forEach((year) => {
+			lookup[name]![year] = {};
+			for (let month = 1; month <= 12; month++) {
+				const spending = monthlySpending.find(
+					(s) => s.budgetName === name && s.budgetYear === year && s.month === month
+				);
+				lookup[name]![year]![month] = spending?.monthlyAmount || 0;
+			}
+		});
+	});
+	return lookup;
+}
+
+export async function getBudgetReportData(surreal: Surreal): Promise<BudgetReportData> {
+	const [, , , , budgets, actualSpending, monthlySpending, previousYearSpending] =
+		await surreal.query(`
+		let $budgets = (
+			SELECT
+				id.id() AS id,
+				name,
+				year,
+				amount,
+				categories[*].{id: id.id(), name, emoji, color, ordinal} AS categories,
+				categories[*].id.id() AS categoryIds
+			FROM budget
+			ORDER BY name ASC, year ASC
+		);
+
+		let $actualSpending = (
+			SELECT
+				name AS budgetName,
+				year AS budgetYear,
+				math::sum((
+					SELECT VALUE amount
+					FROM transaction
+					WHERE date IS NOT NONE
+					AND date.year() == $parent.year
+					AND category IS NOT NONE
+					AND category.id() IN $parent.categories[*].id.id()
+				)) AS actualAmount
+			FROM budget
+		);
+
+		let $monthlySpending = (
+			SELECT
+				name AS budgetName,
+				year AS budgetYear,
+				(
+					SELECT
+						month,
+						math::sum(amount) AS monthlyAmount
+					FROM (
+						SELECT
+							date.month() AS month,
+							amount
+						FROM transaction
+						WHERE date IS NOT NONE
+						AND date.year() == $parent.year
+						AND category IS NOT NONE
+						AND category.id() IN $parent.categories[*].id.id()
+					)
+					GROUP BY month
+					ORDER BY month
+				) AS monthlyData
+			FROM budget
+		);
+
+		let $previousYearSpending = (
+			SELECT
+				name AS budgetName,
+				year AS budgetYear,
+				categories[*].id.id() AS categoryIds,
+				(
+					SELECT
+						month,
+						math::sum(amount) AS monthlyAmount
+					FROM (
+						SELECT
+							date.month() AS month,
+							amount
+						FROM transaction
+						WHERE date IS NOT NONE
+						AND date.year() == $parent.year - 1
+						AND category IS NOT NONE
+						AND category.id() IN $parent.categories[*].id.id()
+					)
+					GROUP BY month
+					ORDER BY month
+				) AS monthlyData
+			FROM budget
+		);
+
+		$budgets;
+		$actualSpending;
+		$monthlySpending;
+		$previousYearSpending;
+	`);
+
+	const parsedBudgets = BudgetSchema.array().parse(budgets);
+
+	// Parse actual spending data
+	const actualSpendingData = z
+		.array(
+			z.object({
+				budgetName: z.string(),
+				budgetYear: z.number(),
+				actualAmount: z.number()
+			})
+		)
+		.parse(actualSpending);
+
+	// Parse and flatten monthly spending data
+	const monthlySpendingRaw = z
+		.array(
+			z.object({
+				budgetName: z.string(),
+				budgetYear: z.number(),
+				monthlyData: z.array(
+					z.object({
+						month: z.number(),
+						monthlyAmount: z.number()
+					})
+				)
+			})
+		)
+		.parse(monthlySpending);
+	const monthlySpendingData = flattenMonthlySpending(monthlySpendingRaw);
+
+	// Parse and flatten previous year spending data
+	const previousYearSpendingRaw = z
+		.array(
+			z.object({
+				budgetName: z.string(),
+				budgetYear: z.number(),
+				monthlyData: z.array(
+					z.object({
+						month: z.number(),
+						monthlyAmount: z.number()
+					})
+				)
+			})
+		)
+		.parse(previousYearSpending);
+	const previousYearSpendingData = flattenMonthlySpending(previousYearSpendingRaw);
+
+	// Get unique budget names and years
+	const budgetNames = Array.from(new Set(parsedBudgets.map((b) => b.name))).sort();
+	const years = Array.from(new Set(parsedBudgets.map((b) => b.year))).sort();
+
+	// Create lookup maps using extracted functions
+	const budgetsByNameAndYear = createBudgetLookupMap(parsedBudgets, budgetNames, years);
+	const actualSpendingByNameAndYear = createActualSpendingLookupMap(
+		actualSpendingData,
+		budgetNames,
+		years
+	);
+	const monthlySpendingByNameYearMonth = createMonthlySpendingLookupMap(
+		monthlySpendingData,
+		budgetNames,
+		years
+	);
+	const previousYearSpendingByNameYearMonth = createMonthlySpendingLookupMap(
+		previousYearSpendingData,
+		budgetNames,
+		years
+	);
+
+	return {
+		budgetNames,
+		years,
+		budgetsByNameAndYear,
+		actualSpendingByNameAndYear,
+		monthlySpendingByNameYearMonth,
+		previousYearSpendingByNameYearMonth
+	};
+}

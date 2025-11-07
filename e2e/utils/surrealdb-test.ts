@@ -79,6 +79,14 @@ export interface Tag {
 	name: string;
 }
 
+export interface Budget {
+	id: RecordId<'budget'>;
+	name: string;
+	year: number;
+	amount: number;
+	categories: RecordId<'category'>[];
+}
+
 export const test = base.extend<{
 	port: number;
 	hostname: string;
@@ -91,6 +99,7 @@ export const test = base.extend<{
 	createFile: (data?: Partial<File>) => Promise<File>;
 	createCategory: (data?: Partial<Category>) => Promise<Category>;
 	createTransaction: (data?: Partial<Transaction>) => Promise<Transaction>;
+	createBudget: (data?: Partial<Budget>) => Promise<Budget>;
 	tagTransaction: (transactionId: Transaction['id'], name: string, year?: number) => Promise<void>;
 	pageHelpers: {
 		connect(page: Page): Promise<void>;
@@ -204,6 +213,21 @@ export const test = base.extend<{
 					})
 				)[0] as unknown as Transaction
 		);
+	},
+
+	createBudget: async ({ surreal, createCategory }, use) => {
+		await use(async (data = {}) => {
+			const categories = data.categories ?? [(await createCategory()).id];
+			return (
+				await surreal.create('budget', {
+					id: data.id,
+					name: data.name ?? '2025 Budget',
+					year: data.year ?? 2025,
+					amount: data.amount ?? 1000,
+					categories
+				})
+			)[0] as unknown as Budget;
+		});
 	},
 
 	tagTransaction: async ({ surreal }, use) => {

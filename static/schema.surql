@@ -43,6 +43,13 @@ DEFINE FIELD description ON TABLE transaction TYPE option<string>;
 DEFINE FIELD category ON TABLE transaction TYPE option<record<category>>;
 DEFINE FIELD type ON TABLE transaction TYPE string;
 
+REMOVE TABLE IF EXISTS budget;
+DEFINE TABLE budget SCHEMAFULL;
+DEFINE FIELD name ON TABLE budget TYPE string;
+DEFINE FIELD year ON TABLE budget TYPE number;
+DEFINE FIELD amount ON TABLE budget TYPE number;
+DEFINE FIELD categories ON TABLE budget TYPE array<record<category>>;
+
 REMOVE TABLE IF EXISTS settings;
 DEFINE TABLE settings SCHEMAFULL;
 DEFINE FIELD defaultCategory ON TABLE settings TYPE option<record<category>>;
