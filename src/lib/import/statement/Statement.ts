@@ -29,7 +29,9 @@ export class Statement {
 		GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
 		const pdf = await getDocument(data).promise;
 
-		async function* getAllPageText(page: Awaited<ReturnType<typeof pdf.getPage>>): AsyncGenerator<PageText> {
+		async function* getAllPageText(
+			page: Awaited<ReturnType<typeof pdf.getPage>>
+		): AsyncGenerator<PageText> {
 			const textContent = await page.getTextContent();
 			for (const item of textContent.items) {
 				if ('str' in item) {
