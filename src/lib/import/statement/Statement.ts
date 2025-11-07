@@ -24,8 +24,7 @@ export class Statement {
 	 */
 	static async fromPDF(data: Uint8Array | BufferSource): Promise<Statement> {
 		// Dynamic import to avoid bundling PDF.js in the main bundle
-		const { getDocument } = await import('pdfjs-dist');
-		const { GlobalWorkerOptions } = await import('pdfjs-dist');
+		const { getDocument, GlobalWorkerOptions } = await import('pdfjs-dist');
 
 		GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
 		const pdf = await getDocument(data).promise;
