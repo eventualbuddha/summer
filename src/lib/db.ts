@@ -622,11 +622,6 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 
 	const parsedBudgets = BudgetSchema.array().parse(budgets);
 
-	// Debug logging
-	console.log('Raw budgets:', budgets);
-	console.log('Raw monthlySpending data:', monthlySpending);
-	console.log('Raw previousYearSpending data:', previousYearSpending);
-
 	// Parse actual spending data
 	const actualSpendingData = z
 		.array(
@@ -654,7 +649,6 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 		)
 		.parse(monthlySpending);
 	const monthlySpendingData = flattenMonthlySpending(monthlySpendingRaw);
-
 
 	// Parse and flatten previous year spending data
 	const previousYearSpendingRaw = z
