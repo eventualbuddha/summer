@@ -655,7 +655,6 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 		.parse(monthlySpending);
 	const monthlySpendingData = flattenMonthlySpending(monthlySpendingRaw);
 
-	console.log('Parsed monthlySpendingData:', monthlySpendingData);
 
 	// Parse and flatten previous year spending data
 	const previousYearSpendingRaw = z
