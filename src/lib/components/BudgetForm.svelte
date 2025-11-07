@@ -25,7 +25,7 @@
 	let formData = $state({
 		name: budget?.name ?? '',
 		year: budget?.year ?? currentYear,
-		amount: budget?.amount ? Math.abs(budget.amount) : 0, // Show as positive in form
+		amount: budget?.amount ? Math.abs(budget.amount) / 100 : 0, // Convert cents to dollars, show as positive
 		selectedCategoryIds: new Set(budget?.categories.map((c) => c.id) ?? [])
 	});
 
@@ -49,7 +49,7 @@
 		const budgetData = {
 			name: formData.name.trim(),
 			year: formData.year,
-			amount: -Math.abs(formData.amount), // Store as negative amount
+			amount: -Math.abs(formData.amount * 100), // Convert dollars to cents, store as negative
 			categories: selectedCategories
 		};
 

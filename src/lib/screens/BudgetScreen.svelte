@@ -47,79 +47,82 @@
 	<h1 class="text-2xl font-bold">Budgets</h1>
 </div>
 
-{#if isCreatingBudget || editingBudget}
-	<div class="rounded-lg border border-gray-200 p-6">
-		<h2 class="mb-4 text-lg font-semibold">
-			{isCreatingBudget ? 'Create New Budget' : `Edit "${editingBudget?.name}"`}
-		</h2>
-		<BudgetForm
-			budget={editingBudget}
-			categories={s.filters?.categories.map(({ value }) => value) ?? []}
-			onSaved={onBudgetSaved}
-			onCancelled={onBudgetCancelled}
-		/>
-	</div>
-{:else}
-	<div class="flex gap-2">
-		<Button onclick={onClickNewBudget}>New Budget</Button>
-	</div>
-
-	{#if !s.budgets}
-		<div class="flex flex-col items-center justify-center p-8">
-			<div class="text-lg">Loading budgets...</div>
-		</div>
-	{:else if s.budgets.length === 0}
-		<div class="flex flex-col items-center justify-center p-8">
-			<div class="text-lg text-gray-600">No budgets created yet</div>
-			<div class="mt-2 text-sm text-gray-500">Click "New Budget" to create your first budget</div>
+<div class="flex min-h-0 flex-col overflow-y-auto">
+	{#if isCreatingBudget || editingBudget}
+		<div class="rounded-lg border border-gray-200 p-6">
+			<h2 class="mb-4 text-lg font-semibold">
+				{isCreatingBudget ? 'Create New Budget' : `Edit "${editingBudget?.name}"`}
+			</h2>
+			<BudgetForm
+				budget={editingBudget}
+				categories={s.filters?.categories.map(({ value }) => value) ?? []}
+				onSaved={onBudgetSaved}
+				onCancelled={onBudgetCancelled}
+			/>
 		</div>
 	{:else}
-		<div class="grid gap-4">
-			{#each s.budgets as budget (budget.id)}
-				<div class="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-sm">
-					<div class="mb-4 flex items-start justify-between">
-						<div>
-							<h3 class="text-lg font-semibold">{budget.name}</h3>
-							<p class="text-sm text-gray-600">{budget.year}</p>
-						</div>
-						<div class="flex gap-2">
-							<Button
-								onclick={() => onClickEditBudget(budget)}
-								class="!p-2"
-								aria-label="Edit {budget.name}"
-							>
-								<IconEdit />
-							</Button>
-							<Button
-								onclick={() => onClickDeleteBudget(budget)}
-								class="!bg-red-100 !p-2 !text-red-700 hover:!bg-red-200"
-								aria-label="Delete {budget.name}"
-							>
-								<IconTrash />
-							</Button>
-						</div>
-					</div>
+		<div class="mb-4 flex gap-2">
+			<Button onclick={onClickNewBudget}>New Budget</Button>
+		</div>
 
-					<div class="mb-4">
-						<div class="text-2xl font-bold">
-							{formatWholeDollarAmount(budget.amount * 100)}
+		{#if !s.budgets}
+			<div class="flex flex-col items-center justify-center p-8">
+				<div class="text-lg">Loading budgets...</div>
+			</div>
+		{:else if s.budgets.length === 0}
+			<div class="flex flex-col items-center justify-center p-8">
+				<div class="text-lg text-gray-600">No budgets created yet</div>
+				<div class="mt-2 text-sm text-gray-500">Click "New Budget" to create your first budget</div>
+			</div>
+		{:else}
+			<div class="grid gap-3">
+				{#each s.budgets as budget (budget.id)}
+					<div class="rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-sm">
+						<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+							<div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3">
+								<div class="flex items-baseline gap-2">
+									<h3 class="text-lg font-semibold">{budget.name}</h3>
+									<p class="text-sm text-gray-600">{budget.year}</p>
+								</div>
+								<div class="flex items-baseline gap-2">
+									<span class="text-base font-semibold">
+										{formatWholeDollarAmount(budget.amount)}
+									</span>
+									<span class="text-sm text-gray-600 dark:text-gray-400">
+										({formatWholeDollarAmount(budget.amount / 12)}/mo)
+									</span>
+								</div>
+							</div>
+							<div class="flex gap-2">
+								<Button
+									onclick={() => onClickEditBudget(budget)}
+									class="!p-2"
+									aria-label="Edit {budget.name}"
+								>
+									<IconEdit />
+								</Button>
+								<Button
+									onclick={() => onClickDeleteBudget(budget)}
+									class="!bg-red-100 !p-2 !text-red-700 hover:!bg-red-200"
+									aria-label="Delete {budget.name}"
+								>
+									<IconTrash />
+								</Button>
+							</div>
 						</div>
-					</div>
 
-					{#if budget.categories.length > 0}
-						<div>
-							<h4 class="mb-2 text-sm font-medium text-gray-700">Categories</h4>
-							<div class="flex flex-wrap gap-1">
+						{#if budget.categories.length > 0}
+							<div class="mt-2 flex flex-wrap gap-1">
 								{#each budget.categories as category (category.id)}
 									<CategoryPill {category} style="full" />
 								{/each}
 							</div>
-						</div>
-					{:else}
-						<div class="text-sm text-gray-500">No categories selected</div>
-					{/if}
-				</div>
-			{/each}
-		</div>
+						{:else}
+							<div class="mt-2 text-sm text-gray-500">No categories selected</div>
+						{/if}
+					</div>
+				{/each}
+			</div>
+		{/if}
 	{/if}
-{/if}
+</div>

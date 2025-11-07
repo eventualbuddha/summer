@@ -3,6 +3,7 @@ import { RecordId, Surreal, Table } from 'surrealdb';
 import {
 	createBudget,
 	deleteBudget,
+	getBudgetReportData,
 	getBudgets,
 	getDefaultCategoryId,
 	getFilterOptions,
@@ -13,6 +14,7 @@ import {
 	use,
 	type Account,
 	type Budget,
+	type BudgetReportData,
 	type Category,
 	type GetTransactionsOptions,
 	type Tag,
@@ -92,6 +94,7 @@ export class State {
 	defaultCategoryId = $state<Category['id']>();
 	tags = $state<Tag[]>([]);
 	budgets = $state<Budget[]>();
+	budgetReportData = $state<BudgetReportData>();
 
 	sort = $state(
 		new Sorting(
@@ -452,5 +455,12 @@ export class State {
 		}
 		await deleteBudget(this.#surreal, budgetId);
 		this.budgets = await getBudgets(this.#surreal);
+	}
+
+	async loadBudgetReportData(): Promise<void> {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		this.budgetReportData = await getBudgetReportData(this.#surreal);
 	}
 }
