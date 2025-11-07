@@ -1,9 +1,11 @@
-<script>
+<script lang="ts">
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import type { Pathname, RouteId } from '$app/types';
 	import Dropdown from './Dropdown.svelte';
 	import MenuButton from './MenuButton.svelte';
 
-	let routes = [
+	let routes: Array<{ label: string; pathname: RouteId | Pathname }> = [
 		{ label: 'Transactions', pathname: '/' },
 		{ label: 'Accounts', pathname: '/accounts' },
 		{ label: 'Categories', pathname: '/categories' },
@@ -37,7 +39,7 @@
 			{#each routes as route (route.pathname)}
 				<a
 					class="p-1 hover:font-bold {page.url.pathname === route.pathname && 'font-bold'}"
-					href={route.pathname}
+					href={resolve(route.pathname)}
 				>
 					{route.label}
 				</a>

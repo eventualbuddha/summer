@@ -1,3 +1,4 @@
+import { SvelteMap as Map } from 'svelte/reactivity';
 import { Result } from '@badrap/result';
 import { RecordId, Surreal, Table } from 'surrealdb';
 import {

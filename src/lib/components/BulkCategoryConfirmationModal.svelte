@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SvelteMap as Map } from 'svelte/reactivity';
 	import type { Category, Transaction } from '$lib/db';
 	import { NONE_CATEGORY } from '$lib/utils/categories';
 	import { formatWholeDollarAmount, pluralize } from '$lib/utils/formatting';

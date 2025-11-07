@@ -6,6 +6,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import type { BudgetReportData, Category } from '$lib/db';
+	import { resolve } from '$app/paths';
 
 	let s: State = getContext('state');
 
@@ -34,7 +35,7 @@
 			});
 		}
 
-		goto('/');
+		goto(resolve('/'));
 	}
 
 	const currentYear = new Date().getFullYear();

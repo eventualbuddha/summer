@@ -1,3 +1,4 @@
+import { SvelteSet as Set } from 'svelte/reactivity';
 import type { Account, Category, FilterOptions } from '$lib/db';
 import type { Selection } from '$lib/types';
 
