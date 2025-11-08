@@ -535,9 +535,25 @@ export function createMonthlySpendingLookupMap(
 	return lookup;
 }
 
-export async function getBudgetReportData(surreal: Surreal): Promise<BudgetReportData> {
+export async function getBudgetYears(surreal: Surreal): Promise<number[]> {
+	const results = await surreal.query(`
+		SELECT year FROM budget
+	`);
+
+	const budgets = results[0];
+	const parsedBudgets = z.array(z.object({ year: z.number() })).parse(budgets);
+	const years = Array.from(new Set(parsedBudgets.map((b) => b.year))).sort((a, b) => b - a);
+
+	return years;
+}
+
+export async function getBudgetReportData(
+	surreal: Surreal,
+	year?: number
+): Promise<BudgetReportData> {
 	const [, , , , budgets, actualSpending, monthlySpending, previousYearSpending] =
-		await surreal.query(`
+		await surreal.query(
+			`
 		let $budgets = (
 			SELECT
 				id.id() AS id,
@@ -547,6 +563,7 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 				categories[*].{id: id.id(), name, emoji, color, ordinal} AS categories,
 				categories[*].id.id() AS categoryIds
 			FROM budget
+			${year ? 'WHERE year == $year' : ''}
 			ORDER BY name ASC, year ASC
 		);
 
@@ -563,6 +580,7 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 					AND category.id() IN $parent.categories[*].id.id()
 				)) AS actualAmount
 			FROM budget
+			${year ? 'WHERE year == $year' : ''}
 		);
 
 		let $monthlySpending = (
@@ -587,6 +605,7 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 					ORDER BY month
 				) AS monthlyData
 			FROM budget
+			${year ? 'WHERE year == $year' : ''}
 		);
 
 		let $previousYearSpending = (
@@ -612,13 +631,16 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 					ORDER BY month
 				) AS monthlyData
 			FROM budget
+			${year ? 'WHERE year == $year' : ''}
 		);
 
 		$budgets;
 		$actualSpending;
 		$monthlySpending;
 		$previousYearSpending;
-	`);
+	`,
+			{ year }
+		);
 
 	const parsedBudgets = BudgetSchema.array().parse(budgets);
 

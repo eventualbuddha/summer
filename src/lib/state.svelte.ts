@@ -5,6 +5,7 @@ import {
 	createBudget,
 	deleteBudget,
 	getBudgetReportData,
+	getBudgetYears,
 	getBudgets,
 	getDefaultCategoryId,
 	getFilterOptions,
@@ -100,6 +101,7 @@ export class State {
 	tags = $state<Tag[]>([]);
 	budgets = $state<Budget[]>();
 	budgetReportData = $state<BudgetReportData>();
+	budgetYears = $state<number[]>();
 
 	sort = $state(
 		new Sorting(
@@ -520,10 +522,17 @@ export class State {
 		this.budgets = await getBudgets(this.#surreal);
 	}
 
-	async loadBudgetReportData(): Promise<void> {
+	async loadBudgetYears(): Promise<void> {
 		if (!this.#surreal) {
 			throw new Error('Not connected to SurrealDB');
 		}
-		this.budgetReportData = await getBudgetReportData(this.#surreal);
+		this.budgetYears = await getBudgetYears(this.#surreal);
+	}
+
+	async loadBudgetReportData(year?: number): Promise<void> {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		this.budgetReportData = await getBudgetReportData(this.#surreal, year);
 	}
 }
