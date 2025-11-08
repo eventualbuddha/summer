@@ -45,8 +45,8 @@
 	<BulkTransactionActions />
 {/if}
 
-<div class="flex min-h-0 flex-row gap-6">
-	<div class="flex w-9/12 grow-1 flex-col gap-2">
+<div class="flex min-h-0 flex-1 flex-row gap-6">
+	<div class="flex min-h-0 w-9/12 grow-1 flex-col gap-2">
 		{#if !s.transactions}
 			<div class="flex flex-col items-center justify-center">
 				<div class="text-2xl font-bold">Loading…</div>
@@ -64,7 +64,7 @@
 		{/if}
 	</div>
 
-	<div class="h-dvh w-3/12 grow-2">
+	<div class="min-h-0 w-3/12 grow-2 overflow-y-auto">
 		{#snippet summaryRow(label: Snippet, value: string, valueTestId?: string)}
 			<div class="flex flex-row items-baseline gap-0">
 				<span class="overflow-hidden overflow-ellipsis whitespace-nowrap">{@render label()}</span>
