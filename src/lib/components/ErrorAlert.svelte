@@ -6,7 +6,7 @@
 </script>
 
 <div
-	class="absolute top-2 right-2 z-100 border-l-4 border-orange-500 bg-orange-100 p-4 text-orange-700"
+	class="border-l-4 border-orange-500 bg-orange-100 p-4 text-orange-700 dark:border-orange-600 dark:bg-orange-900 dark:text-orange-200"
 	transition:fly={{ x: '100%', duration: 300, easing: cubicOut }}
 	role="alert"
 >

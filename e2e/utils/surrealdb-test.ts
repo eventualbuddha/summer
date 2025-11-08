@@ -242,10 +242,12 @@ export const test = base.extend<{
 	pageHelpers: async ({ hostname, port, namespace, database, surreal }, use) =>
 		await use({
 			async connect(page) {
-				await page.getByRole('textbox', { name: 'URL' }).fill(`ws://${hostname}:${port}`);
+				await page
+					.getByRole('textbox', { name: 'Connection URL' })
+					.fill(`ws://${hostname}:${port}`);
 				await page.getByRole('textbox', { name: 'Namespace' }).fill(namespace);
 				await page.getByRole('textbox', { name: 'Database' }).fill(database);
-				await page.getByRole('button').click();
+				await page.getByRole('button', { name: 'Connect' }).click();
 			},
 
 			async waitForTaggedTransaction(transactionId, tags) {
