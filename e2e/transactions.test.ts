@@ -145,10 +145,7 @@ test('clear category', async ({
 
 	await page.reload();
 
-	// Connect to the database
-	await page.getByRole('button', { name: 'Last Connection' }).click();
-
-	// The transaction should no longer appear
+	// Wait for auto-connect to complete
 	await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible();
 	await expect(page.getByText('Jan 01 2025')).not.toBeVisible();
 	await expect(page.getByText('$').first()).toHaveText('$0');

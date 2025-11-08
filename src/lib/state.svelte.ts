@@ -32,6 +32,8 @@ import { Filters } from './utils/Filters.svelte';
 import { NEVER_PROMISE } from './utils/promises';
 
 const LOCAL_STORAGE_KEY = 'lastDb';
+const RECENT_CONNECTIONS_KEY = 'recentConnections';
+const MAX_RECENT_CONNECTIONS = 4;
 
 export interface DatabaseConnectionInfo {
 	url: string;
@@ -87,8 +89,10 @@ export class Sorting {
 
 export class State {
 	lastDb = $state<DatabaseConnectionInfo>();
+	recentConnections = $state<DatabaseConnectionInfo[]>([]);
 	lastError = $state<Error>();
 	#surreal = $state<Surreal>();
+	isConnecting = $state(false);
 
 	filters = $state(new Filters());
 	transactions = $state<Transactions>();
@@ -111,7 +115,19 @@ export class State {
 	constructor() {
 		const lastDb = localStorage.getItem(LOCAL_STORAGE_KEY);
 		if (lastDb) {
-			this.lastDb = JSON.parse(lastDb);
+			const parsedDb = JSON.parse(lastDb) as DatabaseConnectionInfo;
+			this.lastDb = parsedDb;
+			// Auto-connect to last database
+			this.connect(parsedDb).catch((error) => {
+				console.error('Auto-connect failed:', error);
+				this.lastError = error as Error;
+			});
+		}
+
+		// Load recent connections
+		const recentConnectionsJson = localStorage.getItem(RECENT_CONNECTIONS_KEY);
+		if (recentConnectionsJson) {
+			this.recentConnections = JSON.parse(recentConnectionsJson) as DatabaseConnectionInfo[];
 		}
 
 		$effect(() => {
@@ -220,20 +236,66 @@ export class State {
 		namespace: string;
 		database: string;
 	}) {
-		const surreal = new Surreal();
-		await surreal.connect(url);
-		await use(surreal, { namespace, database, init: true });
+		this.isConnecting = true;
+		this.lastError = undefined;
 
-		localStorage.setItem(
-			LOCAL_STORAGE_KEY,
-			JSON.stringify({
+		// Clear old data when switching connections
+		this.transactions = undefined;
+		this.defaultCategoryId = undefined;
+		this.tags = [];
+		this.budgets = undefined;
+		this.budgetReportData = undefined;
+
+		try {
+			const surreal = new Surreal();
+			await surreal.connect(url);
+			await use(surreal, { namespace, database, init: true });
+
+			const connectionInfo = {
 				url,
 				namespace,
 				database
-			})
+			};
+
+			localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(connectionInfo));
+
+			this.lastDb = connectionInfo;
+			this.#surreal = surreal;
+
+			// Update recent connections list
+			this.#addToRecentConnections(connectionInfo);
+		} catch (error) {
+			console.error('Connection failed:', error);
+			this.lastError = error as Error;
+			throw error; // Re-throw so callers can handle it
+		} finally {
+			this.isConnecting = false;
+		}
+	}
+
+	#addToRecentConnections(connection: DatabaseConnectionInfo) {
+		// Remove duplicate if it exists
+		const filtered = this.recentConnections.filter(
+			(c) =>
+				!(
+					c.url === connection.url &&
+					c.namespace === connection.namespace &&
+					c.database === connection.database
+				)
 		);
 
-		this.#surreal = surreal;
+		// Add to front of list
+		const updated = [connection, ...filtered].slice(0, MAX_RECENT_CONNECTIONS);
+
+		this.recentConnections = updated;
+		localStorage.setItem(RECENT_CONNECTIONS_KEY, JSON.stringify(updated));
+	}
+
+	disconnect() {
+		if (this.#surreal) {
+			this.#surreal.close();
+			this.#surreal = undefined;
+		}
 	}
 
 	async setCategory(transaction: Transaction, category: Category | undefined) {
