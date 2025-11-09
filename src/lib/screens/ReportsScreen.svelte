@@ -758,7 +758,7 @@
 						<!-- Timeframe View - Loading placeholder -->
 						{#if viewMode === 'yearly'}
 							<div class="space-y-4">
-								<h4 class="h-5 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></h4>
+								<div class="h-5 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
 								<div class="grid grid-cols-3 gap-4">
 									{#each { length: 3 } as _, index (index)}
 										<div class="flex flex-col gap-1">
@@ -797,9 +797,11 @@
 							<div class="space-y-8">
 								{#each { length: 2 } as _, budgetIndex (budgetIndex)}
 									<div class="space-y-4">
-										<h3 class="h-5 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></h3>
+										<div class="h-5 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
 										<div class="space-y-2">
-											<h4 class="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></h4>
+											<div
+												class="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+											></div>
 											<!-- Monthly histogram placeholder -->
 											<div class="grid grid-cols-12 gap-1">
 												{#each { length: 12 } as _, monthIndex (monthIndex)}
