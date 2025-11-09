@@ -574,8 +574,8 @@ export async function getBudgetReportData(
 				math::sum((
 					SELECT VALUE amount
 					FROM transaction
-					WHERE date IS NOT NONE
-					AND date.year() == $parent.year
+					WHERE statement.date IS NOT NONE
+					AND statement.date.year() == $parent.year
 					AND category IS NOT NONE
 					AND category.id() IN $parent.categories[*].id.id()
 				)) AS actualAmount
@@ -593,11 +593,11 @@ export async function getBudgetReportData(
 						math::sum(amount) AS monthlyAmount
 					FROM (
 						SELECT
-							date.month() AS month,
+							statement.date.month() AS month,
 							amount
 						FROM transaction
-						WHERE date IS NOT NONE
-						AND date.year() == $parent.year
+						WHERE statement.date IS NOT NONE
+						AND statement.date.year() == $parent.year
 						AND category IS NOT NONE
 						AND category.id() IN $parent.categories[*].id.id()
 					)
@@ -619,11 +619,11 @@ export async function getBudgetReportData(
 						math::sum(amount) AS monthlyAmount
 					FROM (
 						SELECT
-							date.month() AS month,
+							statement.date.month() AS month,
 							amount
 						FROM transaction
-						WHERE date IS NOT NONE
-						AND date.year() == $parent.year - 1
+						WHERE statement.date IS NOT NONE
+						AND statement.date.year() == $parent.year - 1
 						AND category IS NOT NONE
 						AND category.id() IN $parent.categories[*].id.id()
 					)
@@ -752,8 +752,8 @@ export async function getSingleBudgetReportData(
 				math::sum((
 					SELECT VALUE amount
 					FROM transaction
-					WHERE date IS NOT NONE
-					AND date.year() == $parent.year
+					WHERE statement.date IS NOT NONE
+					AND statement.date.year() == $parent.year
 					AND category IS NOT NONE
 					AND category.id() IN $parent.categories[*].id.id()
 				)) AS actualAmount
@@ -771,11 +771,11 @@ export async function getSingleBudgetReportData(
 						math::sum(amount) AS monthlyAmount
 					FROM (
 						SELECT
-							date.month() AS month,
+							statement.date.month() AS month,
 							amount
 						FROM transaction
-						WHERE date IS NOT NONE
-						AND date.year() == $parent.year
+						WHERE statement.date IS NOT NONE
+						AND statement.date.year() == $parent.year
 						AND category IS NOT NONE
 						AND category.id() IN $parent.categories[*].id.id()
 					)
@@ -797,11 +797,11 @@ export async function getSingleBudgetReportData(
 						math::sum(amount) AS monthlyAmount
 					FROM (
 						SELECT
-							date.month() AS month,
+							statement.date.month() AS month,
 							amount
 						FROM transaction
-						WHERE date IS NOT NONE
-						AND date.year() == $parent.year - 1
+						WHERE statement.date IS NOT NONE
+						AND statement.date.year() == $parent.year - 1
 						AND category IS NOT NONE
 						AND category.id() IN $parent.categories[*].id.id()
 					)
