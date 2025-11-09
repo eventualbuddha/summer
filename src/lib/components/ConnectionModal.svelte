@@ -24,7 +24,7 @@
 		event.preventDefault();
 		if (url && namespace && database) {
 			// Test the connection first with a throwaway instance
-			const testSurreal = new (await import('surrealdb')).Surreal();
+			const testSurreal = new Surreal();
 			try {
 				await testSurreal.connect(url);
 				await use(testSurreal, { namespace, database, init: true });
