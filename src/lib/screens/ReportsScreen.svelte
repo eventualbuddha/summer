@@ -70,30 +70,78 @@
 	const currentYear = new Date().getFullYear();
 	let selectedYear = $state<number>(currentYear);
 	let viewMode = $state<'monthly' | 'yearly'>('yearly');
+	let displayMode = $state<'timeframe' | 'budget'>('timeframe');
 	let isLoadingBudgetData = $state(false);
+	let isLoadingSingleBudget = $state(false);
 
-	// Budget selections for multi-select
+	// Budget selections for multi-select (timeframe view)
 	let budgetSelections = $state<Selection<string>[]>([]);
+
+	// Single budget selection for budget view
+	const ALL_BUDGETS_KEY = '__ALL_BUDGETS__';
+	let selectedBudget = $state<string>(ALL_BUDGETS_KEY);
+
+	// Store all available budget names for the dropdown (independent of loaded data)
+	let allBudgetNames = $state<string[]>([]);
 
 	// Year options for dropdown
 	const yearOptions = $derived(s.budgetYears ?? []);
 
 	// Calculate the latest month with transaction activity for the selected year
 	const latestActiveMonth = $derived.by(() => {
-		if (!s.budgetReportData || selectedYear !== currentYear) {
-			return 12; // For past years or no data, use full year
+		if (!s.budgetReportData) {
+			return 12; // No data, use full year
 		}
 
-		// Find the latest month with any spending across all budgets
+		// For Budget view, always calculate for current year using selected budget
+		// For Timeframe view, calculate for selected year using all budgets
+		const yearToCheck = displayMode === 'budget' ? currentYear : selectedYear;
+
+		if (yearToCheck !== currentYear) {
+			return 12; // For past years, use full year
+		}
+
+		// Find the latest month with any spending
 		let maxMonth = 0;
 		const monthlyData = s.budgetReportData.monthlySpendingByNameYearMonth;
-		for (const budgetName in monthlyData) {
-			const yearData = monthlyData[budgetName]?.[selectedYear];
-			if (yearData) {
-				for (const month in yearData) {
-					const monthNum = parseInt(month);
-					if (yearData[monthNum] !== 0 && monthNum > maxMonth) {
-						maxMonth = monthNum;
+
+		if (displayMode === 'budget' && selectedBudget) {
+			// In Budget view, look at selected budget or all budgets if "All Budgets" is selected
+			if (selectedBudget === ALL_BUDGETS_KEY) {
+				// Look across all budgets for All Budgets option
+				for (const budgetName in monthlyData) {
+					const yearData = monthlyData[budgetName]?.[currentYear];
+					if (yearData) {
+						for (const month in yearData) {
+							const monthNum = parseInt(month);
+							if (yearData[monthNum] !== 0 && monthNum > maxMonth) {
+								maxMonth = monthNum;
+							}
+						}
+					}
+				}
+			} else {
+				// Only look at the selected budget
+				const yearData = monthlyData[selectedBudget]?.[currentYear];
+				if (yearData) {
+					for (const month in yearData) {
+						const monthNum = parseInt(month);
+						if (yearData[monthNum] !== 0 && monthNum > maxMonth) {
+							maxMonth = monthNum;
+						}
+					}
+				}
+			}
+		} else {
+			// In Timeframe view, look across all budgets
+			for (const budgetName in monthlyData) {
+				const yearData = monthlyData[budgetName]?.[yearToCheck];
+				if (yearData) {
+					for (const month in yearData) {
+						const monthNum = parseInt(month);
+						if (yearData[monthNum] !== 0 && monthNum > maxMonth) {
+							maxMonth = monthNum;
+						}
 					}
 				}
 			}
@@ -120,6 +168,17 @@
 		}>;
 	}
 
+	// Budget view data (year-over-year for a single budget)
+	interface BudgetViewData {
+		budgetName: string;
+		yearlyData: Array<{
+			year: number;
+			budgetAmount: number;
+			actualAmount: number;
+			categories: Category[];
+		}>;
+	}
+
 	let stableFilteredData = $state<{
 		budgetNames: string[];
 		years: number[];
@@ -130,6 +189,8 @@
 		data: []
 	});
 	let stableLatestActiveMonth = $state(12);
+
+	let stableBudgetViewData = $state<BudgetViewData | null>(null);
 
 	// Filtered data based on selections
 	const filteredData = $derived.by(() => {
@@ -189,6 +250,72 @@
 		return { budgetNames: filteredBudgetNames, years: sortedYears, data };
 	});
 
+	// Budget view data - consolidate by budget name across all years
+	const budgetViewData = $derived.by((): BudgetViewData | null => {
+		const sourceData = s.budgetReportData;
+
+		if (!sourceData || !selectedBudget) {
+			return null;
+		}
+
+		const { years, budgetNames, budgetsByNameAndYear, actualSpendingByNameAndYear } = sourceData;
+
+		// Sort years in ascending order and limit to last 5 years if needed
+		// Get the 5 most recent years, but display them oldest to newest (left to right)
+		const sortedYears = [...years]
+			.sort((a, b) => b - a) // Sort descending to get most recent
+			.slice(0, 5) // Take the 5 most recent
+			.reverse(); // Reverse to ascending order for display (oldest to newest)
+
+		// Check if "All Budgets" is selected
+		const isAllBudgets = selectedBudget === ALL_BUDGETS_KEY;
+
+		// Build year-over-year data
+		const yearlyData = sortedYears.map((year) => {
+			let baseBudgetAmount = 0;
+			let actualAmount = 0;
+			let allCategories: Category[] = [];
+
+			if (isAllBudgets) {
+				// Aggregate all budgets for this year
+				budgetNames.forEach((budgetName) => {
+					const budget = budgetsByNameAndYear[budgetName]?.[year];
+					if (budget) {
+						baseBudgetAmount += budget.amount || 0;
+						allCategories.push(...(budget.categories || []));
+					}
+					actualAmount += actualSpendingByNameAndYear[budgetName]?.[year] || 0;
+				});
+				// Remove duplicate categories
+				allCategories = Array.from(new Map(allCategories.map((cat) => [cat.id, cat])).values());
+			} else {
+				// Single budget
+				baseBudgetAmount = budgetsByNameAndYear[selectedBudget]?.[year]?.amount || 0;
+				actualAmount = actualSpendingByNameAndYear[selectedBudget]?.[year] || 0;
+				allCategories = budgetsByNameAndYear[selectedBudget]?.[year]?.categories || [];
+			}
+
+			// Calculate prorated budget amount for current year
+			let displayBudgetAmount = baseBudgetAmount;
+			if (year === currentYear) {
+				// Prorate based on how much of the year has passed (based on latest transaction)
+				displayBudgetAmount = (baseBudgetAmount / 12) * latestActiveMonth;
+			}
+
+			return {
+				year,
+				budgetAmount: displayBudgetAmount,
+				actualAmount,
+				categories: allCategories
+			};
+		});
+
+		return {
+			budgetName: isAllBudgets ? 'All Budgets' : selectedBudget,
+			yearlyData
+		};
+	});
+
 	// Load budget years once when connected
 	$effect(() => {
 		if (!s.isConnected) return;
@@ -203,23 +330,43 @@
 		// select the most recent year that has budgets
 		if (!s.budgetYears.includes(selectedYear)) {
 			const sortedYears = [...s.budgetYears].sort((a, b) => b - a);
-			selectedYear = sortedYears[0];
+			selectedYear = sortedYears[0]!;
 		}
 	});
 
-	// Load budget data when selected year changes
+	// Load budget data for timeframe view when selected year changes
 	$effect(() => {
-		if (!s.isConnected) return;
+		if (!s.isConnected || displayMode !== 'timeframe') return;
 		isLoadingBudgetData = true;
 		s.loadBudgetReportData(selectedYear).finally(() => {
 			isLoadingBudgetData = false;
 		});
 	});
 
+	// Load single budget data for budget view when selected budget changes
+	$effect(() => {
+		if (!s.isConnected || displayMode !== 'budget' || !selectedBudget) return;
+		isLoadingSingleBudget = true;
+		// If "All Budgets" is selected, load all budget data without year filter
+		// Otherwise, load only the selected budget's data
+		if (selectedBudget === ALL_BUDGETS_KEY) {
+			s.loadBudgetReportData(undefined).finally(() => {
+				isLoadingSingleBudget = false;
+			});
+		} else {
+			s.loadSingleBudgetReportData(selectedBudget).finally(() => {
+				isLoadingSingleBudget = false;
+			});
+		}
+	});
+
 	// Update stable data only when not loading
 	$effect(() => {
-		if (!isLoadingBudgetData && filteredData.data.length > 0) {
+		if (displayMode === 'timeframe' && !isLoadingBudgetData && filteredData.data.length > 0) {
 			stableFilteredData = filteredData;
+			stableLatestActiveMonth = latestActiveMonth;
+		} else if (displayMode === 'budget' && !isLoadingSingleBudget && budgetViewData) {
+			stableBudgetViewData = budgetViewData;
 			stableLatestActiveMonth = latestActiveMonth;
 		}
 	});
@@ -227,6 +374,12 @@
 	// Initialize budget selections when data is loaded
 	$effect(() => {
 		if (s.budgetReportData && s.budgetReportData.budgetNames) {
+			// Store all budget names for the dropdown (only update if we have more than one name)
+			// This preserves the full list even when loading single budget data
+			if (s.budgetReportData.budgetNames.length > 1 || allBudgetNames.length === 0) {
+				allBudgetNames = s.budgetReportData.budgetNames;
+			}
+
 			// Only update if the budget names have changed
 			const currentNames = new Set(budgetSelections.map((s) => s.value));
 			const newNames = new Set(s.budgetReportData.budgetNames);
@@ -241,6 +394,9 @@
 					selected: true
 				}));
 			}
+
+			// Initialize single budget selection if not set (already defaults to ALL_BUDGETS_KEY)
+			// No need to override the default
 		}
 	});
 </script>
@@ -253,11 +409,7 @@
 </div>
 
 <div class="flex min-h-0 flex-col overflow-y-auto">
-	{#if !s.budgetReportData}
-		<div class="flex flex-col items-center justify-center p-8">
-			<div class="text-lg">Loading budget data...</div>
-		</div>
-	{:else if s.budgetReportData.budgetNames.length === 0}
+	{#if s.budgetReportData?.budgetNames.length === 0}
 		<div class="flex flex-col items-center justify-center p-8">
 			<div class="text-lg text-gray-600">No budget data available</div>
 			<div class="mt-2 text-sm text-gray-500">Create some budgets to see reports</div>
@@ -265,79 +417,405 @@
 	{:else}
 		<div class="space-y-6 pb-8">
 			<!-- Chart -->
-			{#if stableFilteredData?.data && stableFilteredData.data.length > 0}
+			{#if (displayMode === 'budget' && stableBudgetViewData) || (displayMode === 'timeframe' && stableFilteredData?.data && stableFilteredData.data.length > 0) || isLoadingBudgetData || isLoadingSingleBudget}
 				<div
-					class="rounded-lg border border-gray-200 bg-white p-6 transition-opacity dark:border-gray-600 dark:bg-gray-800 {isLoadingBudgetData
+					class="rounded-lg border border-gray-200 bg-white p-6 transition-opacity dark:border-gray-600 dark:bg-gray-800 {isLoadingBudgetData || isLoadingSingleBudget
 						? 'pointer-events-none opacity-50'
 						: ''}"
 				>
 					<div class="mb-4 flex flex-wrap items-center justify-between gap-4">
 						<h2 class="text-lg font-semibold">
-							{viewMode === 'monthly' ? 'Monthly' : 'Yearly'} Spending
+							{displayMode === 'budget'
+								? 'Budget View'
+								: viewMode === 'monthly'
+									? 'Monthly Spending'
+									: 'Yearly Spending'}
 						</h2>
 
 						<div class="flex flex-wrap items-center gap-3">
+							<!-- Display Mode Toggle -->
 							<div class="flex items-center gap-2">
 								<label
-									for="view-mode-toggle"
+									for="display-mode-toggle"
 									class="text-sm font-medium text-gray-700 dark:text-gray-300"
 								>
-									View:
+									Display:
 								</label>
 								<div class="flex rounded-md border border-gray-300 dark:border-gray-600">
 									<button
 										type="button"
-										id="view-mode-toggle"
-										onclick={() => (viewMode = 'yearly')}
-										class="px-3 py-1.5 text-sm transition-colors {viewMode === 'yearly'
+										id="display-mode-toggle"
+										onclick={() => (displayMode = 'timeframe')}
+										class="px-3 py-1.5 text-sm transition-colors {displayMode === 'timeframe'
 											? 'bg-blue-500 text-white'
 											: 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'} rounded-l-md"
 									>
-										Yearly
+										Timeframe
 									</button>
 									<button
 										type="button"
-										onclick={() => (viewMode = 'monthly')}
-										class="px-3 py-1.5 text-sm transition-colors {viewMode === 'monthly'
+										onclick={() => (displayMode = 'budget')}
+										class="px-3 py-1.5 text-sm transition-colors {displayMode === 'budget'
 											? 'bg-blue-500 text-white'
 											: 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'} rounded-r-md"
 									>
-										Monthly
+										Budget
 									</button>
 								</div>
 							</div>
 
-							<div class="flex items-center gap-2">
-								<label
-									for="year-filter"
-									class="text-sm font-medium text-gray-700 dark:text-gray-300"
-								>
-									Year:
-								</label>
-								<select
-									id="year-filter"
-									bind:value={selectedYear}
-									class="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
-								>
-									{#each [...yearOptions].sort((a, b) => b - a) as year (year)}
-										<option value={year}>{year}</option>
-									{/each}
-								</select>
-							</div>
+							{#if displayMode === 'timeframe'}
+								<!-- Timeframe View Controls -->
+								<div class="flex items-center gap-2">
+									<label
+										for="view-mode-toggle"
+										class="text-sm font-medium text-gray-700 dark:text-gray-300"
+									>
+										View:
+									</label>
+									<div class="flex rounded-md border border-gray-300 dark:border-gray-600">
+										<button
+											type="button"
+											id="view-mode-toggle"
+											onclick={() => (viewMode = 'yearly')}
+											class="px-3 py-1.5 text-sm transition-colors {viewMode === 'yearly'
+												? 'bg-blue-500 text-white'
+												: 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'} rounded-l-md"
+										>
+											Yearly
+										</button>
+										<button
+											type="button"
+											onclick={() => (viewMode = 'monthly')}
+											class="px-3 py-1.5 text-sm transition-colors {viewMode === 'monthly'
+												? 'bg-blue-500 text-white'
+												: 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'} rounded-r-md"
+										>
+											Monthly
+										</button>
+									</div>
+								</div>
 
-							<div class="flex items-center gap-2">
-								<label
-									for="budget-filter"
-									class="text-sm font-medium text-gray-700 dark:text-gray-300"
-								>
-									Budget:
-								</label>
-								<BudgetMultiSelect bind:selections={budgetSelections} aria-label="Budget filter" />
-							</div>
+								<div class="flex items-center gap-2">
+									<label
+										for="year-filter"
+										class="text-sm font-medium text-gray-700 dark:text-gray-300"
+									>
+										Year:
+									</label>
+									<select
+										id="year-filter"
+										bind:value={selectedYear}
+										class="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+									>
+										{#each [...yearOptions].sort((a, b) => b - a) as year (year)}
+											<option value={year}>{year}</option>
+										{/each}
+									</select>
+								</div>
+
+								<div class="flex items-center gap-2">
+									<label
+										for="budget-filter"
+										class="text-sm font-medium text-gray-700 dark:text-gray-300"
+									>
+										Budget:
+									</label>
+									<BudgetMultiSelect
+										bind:selections={budgetSelections}
+										aria-label="Budget filter"
+									/>
+								</div>
+							{:else}
+								<!-- Budget View Controls -->
+								<div class="flex items-center gap-2">
+									<label
+										for="budget-select"
+										class="text-sm font-medium text-gray-700 dark:text-gray-300"
+									>
+										Budget:
+									</label>
+									<select
+										id="budget-select"
+										bind:value={selectedBudget}
+										class="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+									>
+										<option value={ALL_BUDGETS_KEY}>All Budgets</option>
+										{#each allBudgetNames as budgetName (budgetName)}
+											<option value={budgetName}>{budgetName}</option>
+										{/each}
+									</select>
+								</div>
+							{/if}
 						</div>
 					</div>
 
-					{#if stableFilteredData.data.length > 0}
+					{#if displayMode === 'budget' && stableBudgetViewData}
+						<!-- Budget View - Year over Year for a single budget -->
+						{@const allValues = stableBudgetViewData.yearlyData.flatMap((y) => [
+							y.actualAmount,
+							y.budgetAmount
+						])}
+						{@const maxPositive = Math.max(0, ...allValues)}
+						{@const maxNegative = Math.abs(Math.min(0, ...allValues))}
+						{@const maxScale = Math.max(maxPositive, maxNegative)}
+						{@const zeroLinePercent =
+							maxScale > 0 ? (maxNegative / (maxPositive + maxNegative)) * 100 : 50}
+						{@const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4']}
+
+						<div
+							class="space-y-4 transition-opacity {isLoadingSingleBudget
+								? 'pointer-events-none opacity-50'
+								: ''}"
+						>
+							<h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+								{stableBudgetViewData.budgetName} - Year over Year
+							</h4>
+
+							<div
+								class="grid gap-4"
+								style="grid-template-columns: repeat({stableBudgetViewData.yearlyData
+									.length}, 1fr);"
+							>
+								{#each stableBudgetViewData.yearlyData as yearData, yearIndex (yearData.year)}
+									{@const color = colors[0]}
+									{@const budgetHeightPercent =
+										maxScale > 0
+											? (Math.abs(yearData.budgetAmount) / (maxPositive + maxNegative)) * 100
+											: 0}
+									{@const actualHeightPercent =
+										maxScale > 0
+											? (Math.abs(yearData.actualAmount) / (maxPositive + maxNegative)) * 100
+											: 0}
+									{@const percentOfBudget =
+										yearData.budgetAmount !== 0
+											? (Math.abs(yearData.actualAmount) / Math.abs(yearData.budgetAmount)) * 100
+											: 0}
+									{@const isOverBudget = percentOfBudget > 100}
+									{@const yearProgressPercent =
+										yearData.year === currentYear ? (stableLatestActiveMonth / 12) * 100 : 100}
+
+									<div class="flex flex-col gap-1">
+										<!-- Year label -->
+										<div class="text-center text-xs font-medium text-gray-600 dark:text-gray-400">
+											{yearData.year}
+										</div>
+
+										<!-- Bar container with zero line baseline -->
+										<div class="relative h-48">
+											<!-- Zero baseline -->
+											<div
+												class="absolute inset-x-0 border-t-2 border-gray-400 dark:border-gray-500"
+												style="top: {zeroLinePercent}%;"
+												title="Zero line"
+											></div>
+
+											<!-- Budget bar (left side) -->
+											{#if budgetHeightPercent > 0}
+												{#if yearData.year === currentYear}
+													<!-- Current year: Outer bar (light gray) with inner fill (darker gray, year progress) -->
+													<div
+														class="absolute left-0 w-1/2 overflow-hidden rounded-t-sm bg-gray-300 dark:bg-gray-600"
+														style="bottom: {100 -
+															zeroLinePercent}%; height: {budgetHeightPercent}%;"
+														title="Budget: {formatWholeDollarAmount(
+															Math.abs(yearData.budgetAmount),
+															{
+																hideSign: true
+															}
+														)}"
+													>
+														<div
+															class="absolute right-0 bottom-0 left-0 bg-gray-500 dark:bg-gray-400"
+															style="height: {yearProgressPercent}%;"
+															title={`${stableLatestActiveMonth} of 12 months (${yearProgressPercent.toFixed(0)}%) - based on latest transaction`}
+														></div>
+													</div>
+												{:else}
+													<!-- Previous years: Fully filled bar (lighter fill color) -->
+													<div
+														class="absolute left-0 w-1/2 rounded-t-sm bg-gray-500 dark:bg-gray-400"
+														style="bottom: {100 -
+															zeroLinePercent}%; height: {budgetHeightPercent}%;"
+														title="Budget: {formatWholeDollarAmount(
+															Math.abs(yearData.budgetAmount),
+															{
+																hideSign: true
+															}
+														)}"
+													></div>
+												{/if}
+											{/if}
+
+											<!-- Actual bar (right side) -->
+											{#if actualHeightPercent > 0}
+												<button
+													type="button"
+													aria-label="Year {yearData.year}: {formatWholeDollarAmount(
+														Math.abs(yearData.actualAmount),
+														{ hideSign: true }
+													)}"
+													class="absolute right-0 w-1/2 cursor-pointer transition-opacity hover:opacity-80 {yearData.actualAmount <
+													0
+														? 'rounded-t-sm'
+														: 'rounded-b-sm'}"
+													style="background-color: {yearData.actualAmount > 0
+														? '#22c55e'
+														: color}; {yearData.actualAmount < 0
+														? `bottom: ${100 - zeroLinePercent}%; height: ${actualHeightPercent}%;`
+														: `top: ${zeroLinePercent}%; height: ${actualHeightPercent}%;`}"
+													title="Actual: {formatWholeDollarAmount(Math.abs(yearData.actualAmount), {
+														hideSign: true
+													})} {yearData.actualAmount > 0
+														? '(income)'
+														: '(expense)'} - Click to view transactions"
+													onclick={() =>
+														navigateToTransactionsForYear(yearData.year, yearData.categories)}
+												></button>
+											{/if}
+										</div>
+
+										<!-- Amount labels -->
+										<div class="text-center">
+											<div class="text-xs font-medium text-gray-600 dark:text-gray-400">
+												{formatWholeDollarAmount(Math.abs(yearData.budgetAmount), {
+													hideSign: true
+												})}
+											</div>
+											<div class="text-xs font-medium" style="color: {color};">
+												{formatWholeDollarAmount(Math.abs(yearData.actualAmount), {
+													hideSign: true
+												})}
+											</div>
+											<div class="text-xs {isOverBudget ? 'text-red-600' : 'text-green-600'}">
+												{percentOfBudget.toFixed(0)}%
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+
+							<!-- Legend -->
+							<div class="mt-6 space-y-2">
+								<div class="flex gap-6 text-xs text-gray-600 dark:text-gray-400">
+									<div class="flex items-center gap-2">
+										<div
+											class="relative h-4 w-4 overflow-hidden rounded bg-gray-300 dark:bg-gray-600"
+										>
+											<div
+												class="absolute right-0 bottom-0 left-0 h-1/2 bg-gray-500 dark:bg-gray-400"
+											></div>
+										</div>
+										<span>Budget (filled = year progress)</span>
+									</div>
+									<div class="flex items-center gap-2">
+										<div class="h-4 w-4 rounded" style="background-color: {colors[0]}"></div>
+										<span>Actual Spending</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					{:else if displayMode === 'budget' && !stableBudgetViewData}
+						<!-- Budget View - Loading placeholder -->
+						<div class="space-y-4">
+							<h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+								{selectedBudget === ALL_BUDGETS_KEY
+									? 'All Budgets'
+									: selectedBudget || 'Select a budget'} - Year over Year
+							</h4>
+
+							<div class="grid grid-cols-5 gap-4">
+								{#each Array(5) as _, index}
+									<div class="flex flex-col gap-1">
+										<!-- Year label placeholder -->
+										<div class="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+
+										<!-- Bar container -->
+										<div class="relative h-48">
+											<!-- Zero baseline -->
+											<div
+												class="absolute inset-x-0 border-t-2 border-gray-400 dark:border-gray-500"
+												style="top: 50%;"
+											></div>
+										</div>
+
+										<!-- Amount labels placeholder -->
+										<div class="flex flex-col items-center gap-1">
+											<div
+												class="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+											></div>
+											<div
+												class="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+											></div>
+											<div class="h-3 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{:else if displayMode === 'timeframe' && isLoadingBudgetData}
+						<!-- Timeframe View - Loading placeholder -->
+						{#if viewMode === 'yearly'}
+							<div class="space-y-4">
+								<h4 class="h-5 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></h4>
+								<div class="grid grid-cols-3 gap-4">
+									{#each Array(3) as _, index}
+										<div class="flex flex-col gap-1">
+											<!-- Budget name placeholder -->
+											<div class="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+
+											<!-- Bar container -->
+											<div class="relative h-48">
+												<!-- Zero baseline -->
+												<div
+													class="absolute inset-x-0 border-t-2 border-gray-400 dark:border-gray-500"
+													style="top: 50%;"
+												></div>
+											</div>
+
+											<!-- Amount labels placeholder -->
+											<div class="flex flex-col items-center gap-1">
+												<div class="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+												<div class="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+												<div class="h-3 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+											</div>
+										</div>
+									{/each}
+								</div>
+							</div>
+						{:else}
+							<!-- Monthly view loading placeholder -->
+							<div class="space-y-8">
+								{#each Array(2) as _, budgetIndex}
+									<div class="space-y-4">
+										<h3 class="h-5 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></h3>
+										<div class="space-y-2">
+											<h4 class="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></h4>
+											<!-- Monthly histogram placeholder -->
+											<div class="grid grid-cols-12 gap-1">
+												{#each Array(12) as _, monthIndex}
+													<div class="flex flex-col gap-1">
+														<!-- Month label placeholder -->
+														<div class="h-3 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+
+														<!-- Bar container -->
+														<div class="relative h-32">
+															<!-- Zero baseline -->
+															<div
+																class="absolute inset-x-0 border-t-2 border-gray-400 dark:border-gray-500"
+																style="top: 50%;"
+															></div>
+														</div>
+													</div>
+												{/each}
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					{:else if displayMode === 'timeframe' && stableFilteredData.data.length > 0}
+						<!-- Timeframe View -->
 						{@const allValues =
 							viewMode === 'monthly'
 								? stableFilteredData.data.flatMap((d) =>
@@ -348,7 +826,7 @@
 								: stableFilteredData.data.flatMap((d) =>
 										d.values.flatMap((v) => {
 											const fullBudget =
-												s.budgetReportData.budgetsByNameAndYear[d.name]?.[v.year]?.amount || 0;
+												s.budgetReportData?.budgetsByNameAndYear[d.name]?.[v.year]?.amount || 0;
 											return [v.actualAmount, fullBudget];
 										})
 									)}
@@ -386,7 +864,7 @@
 								>
 									{#each stableFilteredData.data as budgetData, budgetIndex (budgetData.name)}
 										{@const color = colors[budgetIndex % colors.length]}
-										{@const yearData = budgetData.values[0]}
+										{@const yearData = budgetData.values[0]!}
 										{@const fullBudgetAmount =
 											s.budgetReportData.budgetsByNameAndYear[budgetData.name]?.[yearData.year]
 												?.amount || 0}
@@ -466,7 +944,9 @@
 															{
 																hideSign: true
 															}
-														)} {yearData.actualAmount > 0 ? '(income)' : '(expense)'} - Click to view transactions"
+														)} {yearData.actualAmount > 0
+															? '(income)'
+															: '(expense)'} - Click to view transactions"
 														onclick={() =>
 															navigateToTransactionsForYear(yearData.year, yearData.categories)}
 													></button>
@@ -685,14 +1165,6 @@
 							{/if}
 						</div>
 					{/if}
-				</div>
-			{:else}
-				<div
-					class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-600 dark:bg-gray-800"
-				>
-					<div class="text-center text-gray-600 dark:text-gray-400">
-						No data available for the selected filters
-					</div>
 				</div>
 			{/if}
 

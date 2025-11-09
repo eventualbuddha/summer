@@ -9,6 +9,7 @@ import {
 	getBudgets,
 	getDefaultCategoryId,
 	getFilterOptions,
+	getSingleBudgetReportData,
 	getTags,
 	getTransactions,
 	updateBudget,
@@ -534,5 +535,12 @@ export class State {
 			throw new Error('Not connected to SurrealDB');
 		}
 		this.budgetReportData = await getBudgetReportData(this.#surreal, year);
+	}
+
+	async loadSingleBudgetReportData(budgetName: string): Promise<void> {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		this.budgetReportData = await getSingleBudgetReportData(this.#surreal, budgetName);
 	}
 }

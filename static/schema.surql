@@ -42,6 +42,9 @@ DEFINE FIELD statementDescription ON TABLE transaction TYPE string;
 DEFINE FIELD description ON TABLE transaction TYPE option<string>;
 DEFINE FIELD category ON TABLE transaction TYPE option<record<category>>;
 DEFINE FIELD type ON TABLE transaction TYPE string;
+DEFINE INDEX transactionDateIndex ON TABLE transaction COLUMNS date;
+DEFINE INDEX transactionCategoryIndex ON TABLE transaction COLUMNS category;
+DEFINE INDEX transactionDateCategoryIndex ON TABLE transaction COLUMNS date, category;
 
 REMOVE TABLE IF EXISTS budget;
 DEFINE TABLE budget SCHEMAFULL;
@@ -49,6 +52,8 @@ DEFINE FIELD name ON TABLE budget TYPE string;
 DEFINE FIELD year ON TABLE budget TYPE number;
 DEFINE FIELD amount ON TABLE budget TYPE number;
 DEFINE FIELD categories ON TABLE budget TYPE array<record<category>>;
+DEFINE INDEX budgetNameIndex ON TABLE budget COLUMNS name;
+DEFINE INDEX budgetNameYearIndex ON TABLE budget COLUMNS name, year;
 
 REMOVE TABLE IF EXISTS settings;
 DEFINE TABLE settings SCHEMAFULL;
