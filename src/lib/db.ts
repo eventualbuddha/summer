@@ -535,9 +535,25 @@ export function createMonthlySpendingLookupMap(
 	return lookup;
 }
 
-export async function getBudgetReportData(surreal: Surreal): Promise<BudgetReportData> {
+export async function getBudgetYears(surreal: Surreal): Promise<number[]> {
+	const results = await surreal.query(`
+		SELECT year FROM budget
+	`);
+
+	const budgets = results[0];
+	const parsedBudgets = z.array(z.object({ year: z.number() })).parse(budgets);
+	const years = Array.from(new Set(parsedBudgets.map((b) => b.year))).sort((a, b) => b - a);
+
+	return years;
+}
+
+export async function getBudgetReportData(
+	surreal: Surreal,
+	year?: number
+): Promise<BudgetReportData> {
 	const [, , , , budgets, actualSpending, monthlySpending, previousYearSpending] =
-		await surreal.query(`
+		await surreal.query(
+			`
 		let $budgets = (
 			SELECT
 				id.id() AS id,
@@ -547,6 +563,7 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 				categories[*].{id: id.id(), name, emoji, color, ordinal} AS categories,
 				categories[*].id.id() AS categoryIds
 			FROM budget
+			${year ? 'WHERE year == $year' : ''}
 			ORDER BY name ASC, year ASC
 		);
 
@@ -563,6 +580,7 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 					AND category.id() IN $parent.categories[*].id.id()
 				)) AS actualAmount
 			FROM budget
+			${year ? 'WHERE year == $year' : ''}
 		);
 
 		let $monthlySpending = (
@@ -587,6 +605,7 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 					ORDER BY month
 				) AS monthlyData
 			FROM budget
+			${year ? 'WHERE year == $year' : ''}
 		);
 
 		let $previousYearSpending = (
@@ -612,13 +631,194 @@ export async function getBudgetReportData(surreal: Surreal): Promise<BudgetRepor
 					ORDER BY month
 				) AS monthlyData
 			FROM budget
+			${year ? 'WHERE year == $year' : ''}
 		);
 
 		$budgets;
 		$actualSpending;
 		$monthlySpending;
 		$previousYearSpending;
-	`);
+	`,
+			{ year }
+		);
+
+	const parsedBudgets = BudgetSchema.array().parse(budgets);
+
+	// Parse actual spending data
+	const actualSpendingData = z
+		.array(
+			z.object({
+				budgetName: z.string(),
+				budgetYear: z.number(),
+				actualAmount: z.number()
+			})
+		)
+		.parse(actualSpending);
+
+	// Parse and flatten monthly spending data
+	const monthlySpendingRaw = z
+		.array(
+			z.object({
+				budgetName: z.string(),
+				budgetYear: z.number(),
+				monthlyData: z.array(
+					z.object({
+						month: z.number(),
+						monthlyAmount: z.number()
+					})
+				)
+			})
+		)
+		.parse(monthlySpending);
+	const monthlySpendingData = flattenMonthlySpending(monthlySpendingRaw);
+
+	// Parse and flatten previous year spending data
+	const previousYearSpendingRaw = z
+		.array(
+			z.object({
+				budgetName: z.string(),
+				budgetYear: z.number(),
+				monthlyData: z.array(
+					z.object({
+						month: z.number(),
+						monthlyAmount: z.number()
+					})
+				)
+			})
+		)
+		.parse(previousYearSpending);
+	const previousYearSpendingData = flattenMonthlySpending(previousYearSpendingRaw);
+
+	// Get unique budget names and years
+	const budgetNames = Array.from(new Set(parsedBudgets.map((b) => b.name))).sort();
+	const years = Array.from(new Set(parsedBudgets.map((b) => b.year))).sort();
+
+	// Create lookup maps using extracted functions
+	const budgetsByNameAndYear = createBudgetLookupMap(parsedBudgets, budgetNames, years);
+	const actualSpendingByNameAndYear = createActualSpendingLookupMap(
+		actualSpendingData,
+		budgetNames,
+		years
+	);
+	const monthlySpendingByNameYearMonth = createMonthlySpendingLookupMap(
+		monthlySpendingData,
+		budgetNames,
+		years
+	);
+	const previousYearSpendingByNameYearMonth = createMonthlySpendingLookupMap(
+		previousYearSpendingData,
+		budgetNames,
+		years
+	);
+
+	return {
+		budgetNames,
+		years,
+		budgetsByNameAndYear,
+		actualSpendingByNameAndYear,
+		monthlySpendingByNameYearMonth,
+		previousYearSpendingByNameYearMonth
+	};
+}
+
+/**
+ * Get budget report data for a single budget name across all years
+ * This is optimized for the Budget view which only needs data for one budget at a time
+ */
+export async function getSingleBudgetReportData(
+	surreal: Surreal,
+	budgetName: string
+): Promise<BudgetReportData> {
+	const [, , , , budgets, actualSpending, monthlySpending, previousYearSpending] =
+		await surreal.query(
+			`
+		let $budgets = (
+			SELECT
+				id.id() AS id,
+				name,
+				year,
+				amount,
+				categories[*].{id: id.id(), name, emoji, color, ordinal} AS categories,
+				categories[*].id.id() AS categoryIds
+			FROM budget
+			WHERE name == $budgetName
+			ORDER BY name ASC, year ASC
+		);
+
+		let $actualSpending = (
+			SELECT
+				name AS budgetName,
+				year AS budgetYear,
+				math::sum((
+					SELECT VALUE amount
+					FROM transaction
+					WHERE date IS NOT NONE
+					AND date.year() == $parent.year
+					AND category IS NOT NONE
+					AND category.id() IN $parent.categories[*].id.id()
+				)) AS actualAmount
+			FROM budget
+			WHERE name == $budgetName
+		);
+
+		let $monthlySpending = (
+			SELECT
+				name AS budgetName,
+				year AS budgetYear,
+				(
+					SELECT
+						month,
+						math::sum(amount) AS monthlyAmount
+					FROM (
+						SELECT
+							date.month() AS month,
+							amount
+						FROM transaction
+						WHERE date IS NOT NONE
+						AND date.year() == $parent.year
+						AND category IS NOT NONE
+						AND category.id() IN $parent.categories[*].id.id()
+					)
+					GROUP BY month
+					ORDER BY month
+				) AS monthlyData
+			FROM budget
+			WHERE name == $budgetName
+		);
+
+		let $previousYearSpending = (
+			SELECT
+				name AS budgetName,
+				year AS budgetYear,
+				categories[*].id.id() AS categoryIds,
+				(
+					SELECT
+						month,
+						math::sum(amount) AS monthlyAmount
+					FROM (
+						SELECT
+							date.month() AS month,
+							amount
+						FROM transaction
+						WHERE date IS NOT NONE
+						AND date.year() == $parent.year - 1
+						AND category IS NOT NONE
+						AND category.id() IN $parent.categories[*].id.id()
+					)
+					GROUP BY month
+					ORDER BY month
+				) AS monthlyData
+			FROM budget
+			WHERE name == $budgetName
+		);
+
+		$budgets;
+		$actualSpending;
+		$monthlySpending;
+		$previousYearSpending;
+	`,
+			{ budgetName }
+		);
 
 	const parsedBudgets = BudgetSchema.array().parse(budgets);
 

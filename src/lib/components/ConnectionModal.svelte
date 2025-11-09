@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { Surreal } from 'surrealdb';
 	import { getContext } from 'svelte';
+	import { use } from '$lib/db';
 	import type { State } from '$lib/state.svelte';
 	import type { DatabaseConnectionInfo } from '$lib/state.svelte';
 	import ConnectionForm from './ConnectionForm.svelte';
@@ -22,10 +24,10 @@
 		event.preventDefault();
 		if (url && namespace && database) {
 			// Test the connection first with a throwaway instance
-			const testSurreal = new (await import('surrealdb')).Surreal();
+			const testSurreal = new Surreal();
 			try {
 				await testSurreal.connect(url);
-				await (await import('$lib/db')).use(testSurreal, { namespace, database, init: true });
+				await use(testSurreal, { namespace, database, init: true });
 				await testSurreal.close();
 
 				// Connection works! Now actually connect
@@ -45,12 +47,10 @@
 
 	async function onConnectToRecent(connection: DatabaseConnectionInfo) {
 		// Test the connection first with a throwaway instance
-		const testSurreal = new (await import('surrealdb')).Surreal();
+		const testSurreal = new Surreal();
 		try {
 			await testSurreal.connect(connection.url);
-			await (
-				await import('$lib/db')
-			).use(testSurreal, {
+			await use(testSurreal, {
 				namespace: connection.namespace,
 				database: connection.database,
 				init: true
