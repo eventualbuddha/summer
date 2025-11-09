@@ -419,7 +419,8 @@
 			<!-- Chart -->
 			{#if (displayMode === 'budget' && stableBudgetViewData) || (displayMode === 'timeframe' && stableFilteredData?.data && stableFilteredData.data.length > 0) || isLoadingBudgetData || isLoadingSingleBudget}
 				<div
-					class="rounded-lg border border-gray-200 bg-white p-6 transition-opacity dark:border-gray-600 dark:bg-gray-800 {isLoadingBudgetData || isLoadingSingleBudget
+					class="rounded-lg border border-gray-200 bg-white p-6 transition-opacity dark:border-gray-600 dark:bg-gray-800 {isLoadingBudgetData ||
+					isLoadingSingleBudget
 						? 'pointer-events-none opacity-50'
 						: ''}"
 				>
@@ -762,7 +763,9 @@
 									{#each Array(3) as _, index}
 										<div class="flex flex-col gap-1">
 											<!-- Budget name placeholder -->
-											<div class="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+											<div
+												class="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+											></div>
 
 											<!-- Bar container -->
 											<div class="relative h-48">
@@ -775,9 +778,15 @@
 
 											<!-- Amount labels placeholder -->
 											<div class="flex flex-col items-center gap-1">
-												<div class="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-												<div class="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-												<div class="h-3 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+												<div
+													class="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+												></div>
+												<div
+													class="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+												></div>
+												<div
+													class="h-3 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+												></div>
 											</div>
 										</div>
 									{/each}
@@ -796,7 +805,9 @@
 												{#each Array(12) as _, monthIndex}
 													<div class="flex flex-col gap-1">
 														<!-- Month label placeholder -->
-														<div class="h-3 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+														<div
+															class="h-3 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+														></div>
 
 														<!-- Bar container -->
 														<div class="relative h-32">
