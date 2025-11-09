@@ -799,7 +799,9 @@
 									<div class="space-y-4">
 										<div class="h-5 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
 										<div class="space-y-2">
-											<div class="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+											<div
+												class="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+											></div>
 											<!-- Monthly histogram placeholder -->
 											<div class="grid grid-cols-12 gap-1">
 												{#each { length: 12 } as _, monthIndex (monthIndex)}
