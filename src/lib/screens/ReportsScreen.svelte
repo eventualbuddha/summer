@@ -578,7 +578,7 @@
 								style="grid-template-columns: repeat({stableBudgetViewData.yearlyData
 									.length}, 1fr);"
 							>
-								{#each stableBudgetViewData.yearlyData as yearData, yearIndex (yearData.year)}
+								{#each stableBudgetViewData.yearlyData as yearData (yearData.year)}
 									{@const color = colors[0]}
 									{@const budgetHeightPercent =
 										maxScale > 0
@@ -726,7 +726,7 @@
 							</h4>
 
 							<div class="grid grid-cols-5 gap-4">
-								{#each Array(5) as _, index}
+								{#each { length: 5 } as _, index (index)}
 									<div class="flex flex-col gap-1">
 										<!-- Year label placeholder -->
 										<div class="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
@@ -760,7 +760,7 @@
 							<div class="space-y-4">
 								<h4 class="h-5 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></h4>
 								<div class="grid grid-cols-3 gap-4">
-									{#each Array(3) as _, index}
+									{#each { length: 3 } as _, index (index)}
 										<div class="flex flex-col gap-1">
 											<!-- Budget name placeholder -->
 											<div
@@ -795,14 +795,14 @@
 						{:else}
 							<!-- Monthly view loading placeholder -->
 							<div class="space-y-8">
-								{#each Array(2) as _, budgetIndex}
+								{#each { length: 2 } as _, budgetIndex (budgetIndex)}
 									<div class="space-y-4">
 										<h3 class="h-5 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></h3>
 										<div class="space-y-2">
 											<h4 class="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></h4>
 											<!-- Monthly histogram placeholder -->
 											<div class="grid grid-cols-12 gap-1">
-												{#each Array(12) as _, monthIndex}
+												{#each { length: 12 } as _, monthIndex (monthIndex)}
 													<div class="flex flex-col gap-1">
 														<!-- Month label placeholder -->
 														<div

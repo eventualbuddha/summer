@@ -36,6 +36,17 @@ export default ts.config(
 				extraFileExtensions: ['.svelte'],
 				svelteConfig
 			}
+		},
+
+		rules: {
+			'@typescript-eslint/no-unused-vars': [
+				'error',
+				{
+					argsIgnorePattern: '^_',
+					varsIgnorePattern: '^_',
+					caughtErrorsIgnorePattern: '^_'
+				}
+			]
 		}
 	}
 );
