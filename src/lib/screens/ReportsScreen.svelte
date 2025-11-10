@@ -8,6 +8,8 @@
 	import type { Category } from '$lib/db';
 	import type { Selection } from '$lib/types';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/stores';
+	import { untrack } from 'svelte';
 
 	let s: State = getContext('state');
 
@@ -83,6 +85,117 @@
 
 	// Store all available budget names for the dropdown (independent of loaded data)
 	let allBudgetNames = $state<string[]>([]);
+
+	// Flag to prevent circular updates between URL and state
+	let hasInitializedFromUrl = $state(false);
+
+	// Initialize filters from URL once data is loaded
+	$effect(() => {
+		if (hasInitializedFromUrl) return;
+
+		const params = $page.url.searchParams;
+
+		// Read year from URL
+		const yearParam = params.get('year');
+		if (yearParam) {
+			const year = parseInt(yearParam, 10);
+			if (!isNaN(year)) {
+				selectedYear = year;
+			}
+		}
+
+		// Read view mode from URL
+		const viewModeParam = params.get('viewMode');
+		if (viewModeParam === 'monthly' || viewModeParam === 'yearly') {
+			viewMode = viewModeParam;
+		}
+
+		// Read display mode from URL
+		const displayModeParam = params.get('displayMode');
+		if (displayModeParam === 'timeframe' || displayModeParam === 'budget') {
+			displayMode = displayModeParam;
+		}
+
+		// Read selected budget from URL (for budget view)
+		const budgetParam = params.get('budget');
+		if (budgetParam) {
+			selectedBudget = budgetParam;
+		}
+
+		// Read budget selections from URL (for timeframe view)
+		const budgetsParam = params.get('budgets');
+		if (budgetsParam && budgetSelections.length > 0) {
+			const selectedBudgetNames = new Set(budgetsParam.split(','));
+			budgetSelections.forEach((b) => {
+				b.selected = selectedBudgetNames.has(b.key);
+			});
+		}
+
+		hasInitializedFromUrl = true;
+	});
+
+	// Sync filter changes to URL
+	$effect(() => {
+		if (!hasInitializedFromUrl) return;
+
+		// Track dependencies
+		const year = selectedYear;
+		const view = viewMode;
+		const display = displayMode;
+		const budget = selectedBudget;
+		const budgets = budgetSelections.map((b) => ({ key: b.key, selected: b.selected }));
+
+		// Use untrack to read current URL without creating a dependency
+		untrack(() => {
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity
+			const params = new URLSearchParams($page.url.searchParams);
+
+			// Update year parameter (only if not current year)
+			if (year !== currentYear) {
+				params.set('year', year.toString());
+			} else {
+				params.delete('year');
+			}
+
+			// Update view mode parameter (only if not default)
+			if (view !== 'yearly') {
+				params.set('viewMode', view);
+			} else {
+				params.delete('viewMode');
+			}
+
+			// Update display mode parameter (only if not default)
+			if (display !== 'timeframe') {
+				params.set('displayMode', display);
+			} else {
+				params.delete('displayMode');
+			}
+
+			// Update budget parameter (for budget view, only if not default)
+			if (display === 'budget' && budget !== ALL_BUDGETS_KEY) {
+				params.set('budget', budget);
+			} else {
+				params.delete('budget');
+			}
+
+			// Update budgets parameter (for timeframe view)
+			if (display === 'timeframe') {
+				const selectedBudgetNames = budgets.filter((b) => b.selected).map((b) => b.key);
+				const allBudgetKeys = budgets.map((b) => b.key);
+				if (selectedBudgetNames.length > 0 && selectedBudgetNames.length < allBudgetKeys.length) {
+					params.set('budgets', selectedBudgetNames.join(','));
+				} else {
+					params.delete('budgets');
+				}
+			} else {
+				params.delete('budgets');
+			}
+
+			// Update URL without triggering navigation
+			const newUrl = `${$page.url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+			goto(resolve(newUrl), { replaceState: true, noScroll: true, keepFocus: true });
+		});
+	});
 
 	// Year options for dropdown
 	const yearOptions = $derived(s.budgetYears ?? []);

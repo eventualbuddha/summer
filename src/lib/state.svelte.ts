@@ -1,6 +1,6 @@
 import { SvelteMap as Map } from 'svelte/reactivity';
 import { Result } from '@badrap/result';
-import { RecordId, Surreal, Table } from 'surrealdb';
+import { ConnectionStatus, RecordId, Surreal, Table } from 'surrealdb';
 import {
 	createBudget,
 	deleteBudget,
@@ -97,6 +97,9 @@ export class State {
 	lastError = $state<Error>();
 	#surreal = $state<Surreal>();
 	isConnecting = $state(false);
+	#reconnectAttempts = 0;
+	#maxReconnectAttempts = 5;
+	#reconnectTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
 	filters = $state(new Filters());
 	transactions = $state<Transactions>();
@@ -134,6 +137,23 @@ export class State {
 		const recentConnectionsJson = localStorage.getItem(RECENT_CONNECTIONS_KEY);
 		if (recentConnectionsJson) {
 			this.recentConnections = JSON.parse(recentConnectionsJson) as DatabaseConnectionInfo[];
+		}
+
+		// Listen for browser visibility changes (computer wake/sleep)
+		if (typeof document !== 'undefined') {
+			document.addEventListener('visibilitychange', () => {
+				if (document.visibilityState === 'visible') {
+					this.#handleBrowserResume();
+				}
+			});
+
+			// Listen for page show event (back button, etc)
+			window.addEventListener('pageshow', (event) => {
+				// If page was restored from bfcache (back-forward cache)
+				if (event.persisted) {
+					this.#handleBrowserResume();
+				}
+			});
 		}
 
 		$effect(() => {
@@ -268,6 +288,10 @@ export class State {
 
 			this.lastDb = connectionInfo;
 			this.#surreal = surreal;
+			this.#reconnectAttempts = 0; // Reset reconnect attempts on successful connection
+
+			// Set up connection event listeners
+			this.#setupConnectionListeners(surreal);
 
 			// Update recent connections list
 			this.#addToRecentConnections(connectionInfo);
@@ -298,7 +322,90 @@ export class State {
 		localStorage.setItem(RECENT_CONNECTIONS_KEY, JSON.stringify(updated));
 	}
 
+	#setupConnectionListeners(surreal: Surreal) {
+		// Listen for disconnection events
+		surreal.emitter.subscribe('disconnected', () => {
+			console.warn('SurrealDB connection disconnected, attempting to reconnect...');
+			this.#attemptReconnect();
+		});
+
+		// Listen for error events
+		surreal.emitter.subscribe('error', (error) => {
+			console.error('SurrealDB connection error:', error);
+			this.lastError = error;
+		});
+
+		// Listen for successful reconnection
+		surreal.emitter.subscribe('connected', () => {
+			console.log('SurrealDB connection established');
+			this.#reconnectAttempts = 0; // Reset on successful connection
+		});
+	}
+
+	#handleBrowserResume() {
+		const surreal = this.#surreal;
+		if (!surreal || !this.lastDb) return;
+
+		// Check connection status
+		if (
+			surreal.status === ConnectionStatus.Disconnected ||
+			surreal.status === ConnectionStatus.Error
+		) {
+			console.log('Browser resumed, connection lost. Attempting to reconnect...');
+			this.#attemptReconnect();
+		} else {
+			// Ping to verify connection is still alive
+			surreal.ping().catch((error) => {
+				console.warn('Ping failed after browser resume:', error);
+				this.#attemptReconnect();
+			});
+		}
+	}
+
+	#attemptReconnect() {
+		// Clear any existing reconnect timeout
+		if (this.#reconnectTimeoutId) {
+			clearTimeout(this.#reconnectTimeoutId);
+		}
+
+		const lastDb = this.lastDb;
+		if (!lastDb) {
+			console.warn('No previous connection info available for reconnection');
+			return;
+		}
+
+		if (this.#reconnectAttempts >= this.#maxReconnectAttempts) {
+			console.error('Max reconnection attempts reached');
+			this.lastError = new Error('Failed to reconnect to SurrealDB after multiple attempts');
+			return;
+		}
+
+		// Exponential backoff: 1s, 2s, 4s, 8s, 16s
+		const delay = Math.min(1000 * Math.pow(2, this.#reconnectAttempts), 16000);
+		this.#reconnectAttempts++;
+
+		console.log(
+			`Reconnect attempt ${this.#reconnectAttempts}/${this.#maxReconnectAttempts} in ${delay}ms...`
+		);
+
+		this.#reconnectTimeoutId = setTimeout(() => {
+			this.connect(lastDb).catch((error) => {
+				console.error('Reconnection attempt failed:', error);
+				// The connect method will have set lastError
+				// Try again
+				this.#attemptReconnect();
+			});
+		}, delay);
+	}
+
 	disconnect() {
+		// Clear any pending reconnection attempts
+		if (this.#reconnectTimeoutId) {
+			clearTimeout(this.#reconnectTimeoutId);
+			this.#reconnectTimeoutId = undefined;
+		}
+		this.#reconnectAttempts = 0;
+
 		if (this.#surreal) {
 			this.#surreal.close();
 			this.#surreal = undefined;
