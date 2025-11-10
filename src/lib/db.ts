@@ -940,7 +940,7 @@ export async function getTagReportData(surreal: Surreal): Promise<TagReportData>
 		)
 		.parse(tagSpending);
 
-	console.log('Parsed spending:', rawData);
+
 
 	// Flatten and aggregate the data
 	interface TagYearAmount {

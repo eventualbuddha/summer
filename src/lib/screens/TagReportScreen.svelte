@@ -67,7 +67,7 @@
 	});
 </script>
 
-<title>Tags – Summer</title>
+
 
 <div class="flex flex-row items-center gap-4">
 	<NavigationButton />
