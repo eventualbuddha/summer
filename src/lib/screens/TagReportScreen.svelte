@@ -67,8 +67,6 @@
 	});
 </script>
 
-
-
 <div class="flex flex-row items-center gap-4">
 	<NavigationButton />
 	<h1 class="text-2xl font-bold">Tag Report</h1>

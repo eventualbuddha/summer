@@ -928,7 +928,6 @@ export async function getTagReportData(surreal: Surreal): Promise<TagReportData>
 		AND count(->tagged) > 0
 	`);
 
-
 	// Parse and flatten the data
 	const rawData = z
 		.array(
@@ -939,8 +938,6 @@ export async function getTagReportData(surreal: Surreal): Promise<TagReportData>
 			})
 		)
 		.parse(tagSpending);
-
-
 
 	// Flatten and aggregate the data
 	interface TagYearAmount {
@@ -975,7 +972,6 @@ export async function getTagReportData(surreal: Surreal): Promise<TagReportData>
 		const [tagName, yearStr] = key.split('|');
 		return { tagName: tagName!, year: parseInt(yearStr!), total };
 	});
-
 
 	// Get unique tag names and years
 	const tagNames = Array.from(new Set(parsedSpending.map((s) => s.tagName))).sort();
