@@ -10,7 +10,8 @@
 		{ label: 'Accounts', pathname: '/accounts' },
 		{ label: 'Categories', pathname: '/categories' },
 		{ label: 'Budgets', pathname: '/budgets' },
-		{ label: 'Reports', pathname: '/reports' }
+		{ label: 'Reports', pathname: '/reports' },
+		{ label: 'Tags', pathname: '/tags' }
 	];
 </script>
 

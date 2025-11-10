@@ -10,6 +10,7 @@ import {
 	getDefaultCategoryId,
 	getFilterOptions,
 	getSingleBudgetReportData,
+	getTagReportData,
 	getTags,
 	getTransactions,
 	updateBudget,
@@ -21,6 +22,7 @@ import {
 	type Category,
 	type GetTransactionsOptions,
 	type Tag,
+	type TagReportData,
 	type Transaction,
 	type Transactions
 } from './db';
@@ -103,6 +105,7 @@ export class State {
 	budgets = $state<Budget[]>();
 	budgetReportData = $state<BudgetReportData>();
 	budgetYears = $state<number[]>();
+	tagReportData = $state<TagReportData>();
 
 	sort = $state(
 		new Sorting(
@@ -248,6 +251,7 @@ export class State {
 		this.tags = [];
 		this.budgets = undefined;
 		this.budgetReportData = undefined;
+		this.tagReportData = undefined;
 
 		try {
 			const surreal = new Surreal();
@@ -542,5 +546,12 @@ export class State {
 			throw new Error('Not connected to SurrealDB');
 		}
 		this.budgetReportData = await getSingleBudgetReportData(this.#surreal, budgetName);
+	}
+
+	async loadTagReportData(): Promise<void> {
+		if (!this.#surreal) {
+			throw new Error('Not connected to SurrealDB');
+		}
+		this.tagReportData = await getTagReportData(this.#surreal);
 	}
 }
