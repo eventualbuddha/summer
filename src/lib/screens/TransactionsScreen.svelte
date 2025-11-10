@@ -14,6 +14,7 @@
 	import IconTallyMark5 from '~icons/mdi/tally-mark-5';
 	import IconDollarCoinSolid from '~icons/streamline/dollar-coin-solid';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
 	import { untrack } from 'svelte';
 
@@ -89,6 +90,7 @@
 
 		// Use untrack to read current URL without creating a dependency
 		untrack(() => {
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity
 			const params = new URLSearchParams($page.url.searchParams);
 
 			// Update years parameter
@@ -136,7 +138,7 @@
 
 			// Update URL without triggering navigation
 			const newUrl = `${$page.url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
-			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
+			goto(resolve(newUrl), { replaceState: true, noScroll: true, keepFocus: true });
 		});
 	});
 </script>

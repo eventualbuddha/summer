@@ -147,6 +147,7 @@
 
 		// Use untrack to read current URL without creating a dependency
 		untrack(() => {
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity
 			const params = new URLSearchParams($page.url.searchParams);
 
 			// Update year parameter (only if not current year)
@@ -192,7 +193,7 @@
 
 			// Update URL without triggering navigation
 			const newUrl = `${$page.url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
-			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
+			goto(resolve(newUrl), { replaceState: true, noScroll: true, keepFocus: true });
 		});
 	});
 
