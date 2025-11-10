@@ -928,7 +928,6 @@ export async function getTagReportData(surreal: Surreal): Promise<TagReportData>
 		AND count(->tagged) > 0
 	`);
 
-	console.log('Raw tag spending data from database:', JSON.stringify(tagSpending, null, 2));
 
 	// Parse and flatten the data
 	const rawData = z
