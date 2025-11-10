@@ -898,3 +898,98 @@ export async function getSingleBudgetReportData(
 		previousYearSpendingByNameYearMonth
 	};
 }
+
+export interface TagSpendingByYear {
+	tagName: string;
+	year: number;
+	total: number;
+}
+
+export interface TagReportData {
+	tagNames: string[];
+	years: number[];
+	spendingByTagAndYear: Record<string, Record<number, number>>;
+}
+
+/**
+ * Get spending data broken down by tag and year
+ * Tags with years (e.g., #santa-barbara-2025) are tracked separately by year
+ */
+export async function getTagReportData(surreal: Surreal): Promise<TagReportData> {
+	// Query from transaction side and aggregate by tag name and year
+	const [tagSpending] = await surreal.query(`
+		SELECT
+			->tagged[WHERE year IS NOT NONE].out.name AS tagNames,
+			->tagged[WHERE year IS NOT NONE].year AS tagYears,
+			amount
+		FROM transaction
+		WHERE statement.date IS NOT NONE
+		AND category IS NOT NONE
+		AND count(->tagged) > 0
+	`);
+
+	// Parse and flatten the data
+	const rawData = z
+		.array(
+			z.object({
+				tagNames: z.union([z.string(), z.array(z.string())]),
+				tagYears: z.union([z.number(), z.array(z.number())]),
+				amount: z.number()
+			})
+		)
+		.parse(tagSpending);
+
+	// Flatten and aggregate the data
+	interface TagYearAmount {
+		tagName: string;
+		year: number;
+		amount: number;
+	}
+
+	const flatData: TagYearAmount[] = [];
+	rawData.forEach((item) => {
+		const tagNames = Array.isArray(item.tagNames) ? item.tagNames : [item.tagNames];
+		const tagYears = Array.isArray(item.tagYears) ? item.tagYears : [item.tagYears];
+
+		// Match each tagName with its corresponding year
+		tagNames.forEach((tagName, index) => {
+			const year = tagYears[index];
+			if (tagName && year !== undefined) {
+				flatData.push({ tagName, year, amount: item.amount });
+			}
+		});
+	});
+
+	// Group by tagName and year, summing amounts
+	const aggregated = new Map<string, number>();
+	flatData.forEach((item) => {
+		const key = `${item.tagName}|${item.year}`;
+		aggregated.set(key, (aggregated.get(key) || 0) + item.amount);
+	});
+
+	// Convert back to array
+	const parsedSpending = Array.from(aggregated.entries()).map(([key, total]) => {
+		const [tagName, yearStr] = key.split('|');
+		return { tagName: tagName!, year: parseInt(yearStr!), total };
+	});
+
+	// Get unique tag names and years
+	const tagNames = Array.from(new Set(parsedSpending.map((s) => s.tagName))).sort();
+	const years = Array.from(new Set(parsedSpending.map((s) => s.year))).sort((a, b) => b - a);
+
+	// Create lookup map: tagName -> year -> total
+	const spendingByTagAndYear: Record<string, Record<number, number>> = {};
+	tagNames.forEach((tagName) => {
+		spendingByTagAndYear[tagName] = {};
+		years.forEach((year) => {
+			const spending = parsedSpending.find((s) => s.tagName === tagName && s.year === year);
+			spendingByTagAndYear[tagName]![year] = spending?.total || 0;
+		});
+	});
+
+	return {
+		tagNames,
+		years,
+		spendingByTagAndYear
+	};
+}
