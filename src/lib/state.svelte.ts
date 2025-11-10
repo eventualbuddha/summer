@@ -343,7 +343,10 @@ export class State {
 		if (!surreal || !this.lastDb) return;
 
 		// Check connection status
-		if (surreal.status === ConnectionStatus.Disconnected || surreal.status === ConnectionStatus.Error) {
+		if (
+			surreal.status === ConnectionStatus.Disconnected ||
+			surreal.status === ConnectionStatus.Error
+		) {
 			console.log('Browser resumed, connection lost. Attempting to reconnect...');
 			this.#attemptReconnect();
 		} else {
@@ -377,7 +380,9 @@ export class State {
 		const delay = Math.min(1000 * Math.pow(2, this.#reconnectAttempts), 16000);
 		this.#reconnectAttempts++;
 
-		console.log(`Reconnect attempt ${this.#reconnectAttempts}/${this.#maxReconnectAttempts} in ${delay}ms...`);
+		console.log(
+			`Reconnect attempt ${this.#reconnectAttempts}/${this.#maxReconnectAttempts} in ${delay}ms...`
+		);
 
 		this.#reconnectTimeoutId = setTimeout(() => {
 			this.connect(lastDb).catch((error) => {
