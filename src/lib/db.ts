@@ -976,7 +976,6 @@ export async function getTagReportData(surreal: Surreal): Promise<TagReportData>
 		return { tagName: tagName!, year: parseInt(yearStr!), total };
 	});
 
-	console.log('Final aggregated spending:', parsedSpending);
 
 	// Get unique tag names and years
 	const tagNames = Array.from(new Set(parsedSpending.map((s) => s.tagName))).sort();
