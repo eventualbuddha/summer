@@ -25,9 +25,9 @@ class AsyncIteratorWrapper<T> {
 	constructor(private iterable: Iterable<T> | AsyncIterable<T>) {}
 
 	map<U>(fn: (value: T) => Promise<U>): AsyncIteratorWrapper<U> {
-		const self = this;
+		const iterable = this.iterable;
 		async function* mappedIterator() {
-			for await (const value of self.iterable as AsyncIterable<T>) {
+			for await (const value of iterable as AsyncIterable<T>) {
 				yield await fn(value);
 			}
 		}
