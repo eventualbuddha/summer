@@ -8,10 +8,10 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "svelte-kit sync && husky || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"format": "prettier --write .",
+		"format": "prettier --experimental-cli --write .",
 		"lint": "prettier --check . && eslint .",
 		"test:unit": "TZ=UTC bun test src",
 		"test": "bun test:unit -- --run && bun test:e2e",
@@ -22,6 +22,7 @@
 		"@eslint/js": "^9.39.1",
 		"@iconify/json": "^2.2.404",
 		"@playwright/test": "^1.56.1",
+		"@prettier/plugin-oxc": "^0.0.4",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.48.4",
 		"@sveltejs/vite-plugin-svelte": "6.2.1",
@@ -35,7 +36,9 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.13.0",
 		"globals": "^16.5.0",
+		"husky": "^9.1.7",
 		"jsdom": "^26.1.0",
+		"lint-staged": "^15.2.11",
 		"prettier": "^3.6.2",
 		"prettier-plugin-svelte": "^3.4.0",
 		"prettier-plugin-tailwindcss": "^0.6.14",
@@ -49,7 +52,6 @@
 	},
 	"dependencies": {
 		"@badrap/result": "^0.2.13",
-		"@nfnitloop/better-iterators": "npm:@jsr/nfnitloop__better-iterators",
 		"luxon": "^3.7.2",
 		"pdfjs-dist": "2.3.200",
 		"pdfkit": "^0.16.0",
@@ -57,5 +59,8 @@
 		"svelte-eslint-parser": "^1.4.0",
 		"virtua": "^0.40.4",
 		"zod": "^3.25.76"
+	},
+	"lint-staged": {
+		"*": "bun prettier --experimental-cli --write --ignore-unknown"
 	}
 }
