@@ -1,2 +1,2 @@
 export PATH="$HOME/.bun/bin:$PATH"
-npx lint-staged
+bun lint-staged
