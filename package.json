@@ -52,7 +52,6 @@
 	},
 	"dependencies": {
 		"@badrap/result": "^0.2.13",
-		"@nfnitloop/better-iterators": "npm:@jsr/nfnitloop__better-iterators",
 		"luxon": "^3.7.2",
 		"pdfjs-dist": "2.3.200",
 		"pdfkit": "^0.16.0",

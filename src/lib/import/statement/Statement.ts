@@ -1,4 +1,4 @@
-import { lazy, range } from '@nfnitloop/better-iterators';
+import { lazy, range } from '$lib/utils/iterators';
 import { z } from 'zod';
 import { StatementNavigator } from './navigation';
 import { Page, PageSchema, PageText } from './page';
