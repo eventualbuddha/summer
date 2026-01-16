@@ -761,6 +761,7 @@ test('clear all filters', async ({ page, pageHelpers, createCategory, createTran
 	// Apply year filter
 	await page.getByRole('button', { name: 'Year Filter' }).click();
 	await page.getByRole('checkbox', { name: '2025' }).click();
+	await page.getByRole('checkbox', { name: '2024' }).click();
 
 	// No transactions should be visible (filtered by both category and year)
 	await expect(page.getByText('Transaction #1')).not.toBeVisible();
