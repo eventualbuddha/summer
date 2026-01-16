@@ -12,13 +12,15 @@
 		monthSelections = $bindable(),
 		categorySelections = $bindable(),
 		accountSelections = $bindable(),
-		searchTerm = $bindable()
+		searchTerm = $bindable(),
+		onclear
 	}: {
 		yearSelections: Selection<number>[];
 		monthSelections: Selection<number>[];
 		categorySelections: Selection<Category>[];
 		accountSelections: Selection<Account>[];
 		searchTerm: string;
+		onclear?: () => void;
 	} = $props();
 
 	let editableSearchTerm = $state(searchTerm);
@@ -76,5 +78,15 @@
 			onkeydown={handleSearchKeydown}
 			class="rounded-md border border-gray-300 bg-white px-2 dark:border-gray-600 dark:bg-gray-800"
 		/>
+		{#if onclear}
+			<button
+				type="button"
+				onclick={onclear}
+				class="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+				aria-label="Clear all filters"
+			>
+				Clear
+			</button>
+		{/if}
 	</div>
 </div>
