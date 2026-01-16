@@ -715,3 +715,75 @@ test('bulk category editing modal keyboard accessibility', async ({
 		expect(refreshedTransaction.category).toEqual(utilitiesCategory.id);
 	});
 });
+
+test('clear all filters', async ({ page, pageHelpers, createCategory, createTransaction }) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	const unknownCategory = await createCategory({
+		name: 'Unknown',
+		emoji: '❓'
+	});
+	const generalCategory = await createCategory({
+		name: 'General',
+		emoji: '🛍️'
+	});
+
+	await createTransaction({
+		category: generalCategory.id,
+		statementDescription: 'Transaction #1',
+		date: new Date(2025, 0, 1),
+		amount: -123
+	});
+	await createTransaction({
+		category: unknownCategory.id,
+		statementDescription: 'Transaction #2',
+		date: new Date(2024, 0, 2),
+		amount: -321
+	});
+
+	// Connect to the database
+	await pageHelpers.connect(page);
+
+	// Initially, both transactions should be visible
+	await expect(page.getByText('Transaction #1')).toBeVisible();
+	await expect(page.getByText('Transaction #2')).toBeVisible();
+
+	// Apply category filter
+	await page.getByRole('button', { name: 'Category Filter' }).click();
+	await page.getByRole('checkbox', { name: generalCategory.name }).click();
+
+	// Only transaction #2 should be visible
+	await expect(page.getByText('Transaction #1')).not.toBeVisible();
+	await expect(page.getByText('Transaction #2')).toBeVisible();
+
+	// Apply year filter
+	await page.getByRole('button', { name: 'Year Filter' }).click();
+	await page.getByRole('checkbox', { name: '2025' }).click();
+	await page.getByRole('checkbox', { name: '2024' }).click();
+
+	// No transactions should be visible (filtered by both category and year)
+	await expect(page.getByText('Transaction #1')).not.toBeVisible();
+	await expect(page.getByText('Transaction #2')).not.toBeVisible();
+
+	// Apply search filter
+	await page.getByPlaceholder('Search (/)').fill('Transaction');
+
+	// Still no transactions should be visible
+	await expect(page.getByText('Transaction #1')).not.toBeVisible();
+	await expect(page.getByText('Transaction #2')).not.toBeVisible();
+
+	// Click the Clear button
+	await page.getByRole('button', { name: 'Clear all filters' }).click();
+
+	// Both transactions should be visible again
+	await expect(page.getByText('Transaction #1')).toBeVisible();
+	await expect(page.getByText('Transaction #2')).toBeVisible();
+
+	// Verify search is cleared
+	await expect(page.getByPlaceholder('Search (/)')).toHaveValue('');
+
+	// Verify URL parameters are cleared
+	await expect(page).toHaveURL('/');
+});

@@ -5,31 +5,45 @@
 	import CategoryMultiSelect from './CategoryMultiSelect.svelte';
 	import MonthMultiSelect from './MonthMultiSelect.svelte';
 	import YearMultiSelect from './YearMultiSelect.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
 	let {
 		yearSelections = $bindable(),
 		monthSelections = $bindable(),
 		categorySelections = $bindable(),
 		accountSelections = $bindable(),
-		searchTerm = $bindable()
+		searchTerm = $bindable(),
+		onclear
 	}: {
 		yearSelections: Selection<number>[];
 		monthSelections: Selection<number>[];
 		categorySelections: Selection<Category>[];
 		accountSelections: Selection<Account>[];
 		searchTerm: string;
+		onclear?: () => void;
 	} = $props();
 
 	let editableSearchTerm = $state(searchTerm);
 	let searchInput: HTMLInputElement;
 
+	// Sync editableSearchTerm → searchTerm (with debounce)
 	$effect(() => {
 		let newSearchTerm = editableSearchTerm;
 		let timeout = setTimeout(() => {
 			searchTerm = newSearchTerm;
 		}, 300);
 		return () => clearTimeout(timeout);
+	});
+
+	// Sync searchTerm → editableSearchTerm (when changed externally, e.g., by clearFilters)
+	$effect(() => {
+		const current = searchTerm;
+		untrack(() => {
+			// Only update if they're different to avoid infinite loops
+			if (current !== editableSearchTerm) {
+				editableSearchTerm = current;
+			}
+		});
 	});
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -51,6 +65,13 @@
 		if (event.key === 'Escape') {
 			searchInput?.blur();
 		}
+	}
+
+	function handleClear() {
+		// Clear local state immediately to cancel any pending debounced updates
+		editableSearchTerm = '';
+		// Then call the parent's clear handler
+		onclear?.();
 	}
 
 	onMount(() => {
@@ -76,5 +97,15 @@
 			onkeydown={handleSearchKeydown}
 			class="rounded-md border border-gray-300 bg-white px-2 dark:border-gray-600 dark:bg-gray-800"
 		/>
+		{#if onclear}
+			<button
+				type="button"
+				onclick={handleClear}
+				class="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+				aria-label="Clear all filters"
+			>
+				Clear
+			</button>
+		{/if}
 	</div>
 </div>

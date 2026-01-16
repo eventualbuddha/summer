@@ -243,6 +243,24 @@ export class State {
 		});
 	}
 
+	clearFilters(): void {
+		this.#updateFiltersWith((filters) => {
+			for (const yearFilter of filters.years) {
+				yearFilter.selected = true;
+			}
+			for (const monthFilter of filters.months) {
+				monthFilter.selected = true;
+			}
+			for (const categoryFilter of filters.categories) {
+				categoryFilter.selected = true;
+			}
+			for (const accountFilter of filters.accounts) {
+				accountFilter.selected = true;
+			}
+			filters.searchTerm = '';
+		});
+	}
+
 	#updateFiltersWith(callback: (filters: FilterState) => void): void {
 		if (!this.filters) return;
 		this.filters.stickyTransactionIds.clear();
