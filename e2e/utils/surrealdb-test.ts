@@ -198,21 +198,21 @@ export const test = base.extend<{
 	},
 
 	createTransaction: async ({ surreal, createStatement, createCategory }, use) => {
-		await use(
-			async (data = {}) =>
-				(
-					await surreal.create('transaction', {
-						id: data.id,
-						amount: data.amount ?? -100,
-						statement: data.statement ?? (await createStatement()).id,
-						category: data.category ?? (await createCategory()).id,
-						date: data.date ?? new Date(),
-						description: data.description,
-						statementDescription: data.statementDescription ?? 'STATEMENT DESCRIPTION',
-						type: data.type ?? 'unknown'
-					})
-				)[0] as unknown as Transaction
-		);
+		await use(async (data = {}) => {
+			const date = data.date ?? new Date();
+			return (
+				await surreal.create('transaction', {
+					id: data.id,
+					amount: data.amount ?? -100,
+					statement: data.statement ?? (await createStatement({ date })).id,
+					category: data.category ?? (await createCategory()).id,
+					date,
+					description: data.description,
+					statementDescription: data.statementDescription ?? 'STATEMENT DESCRIPTION',
+					type: data.type ?? 'unknown'
+				})
+			)[0] as unknown as Transaction;
+		});
 	},
 
 	createBudget: async ({ surreal, createCategory }, use) => {
