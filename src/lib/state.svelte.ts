@@ -279,8 +279,9 @@ export class State {
 
 	clearFilters(): void {
 		this.#updateFiltersWith((filters) => {
+			const maxYear = Math.max(...filters.years.map((y) => y.value));
 			for (const yearFilter of filters.years) {
-				yearFilter.selected = true;
+				yearFilter.selected = yearFilter.value === maxYear;
 			}
 			for (const monthFilter of filters.months) {
 				monthFilter.selected = true;
