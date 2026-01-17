@@ -746,7 +746,13 @@ test('clear all filters', async ({ page, pageHelpers, createCategory, createTran
 	// Connect to the database
 	await pageHelpers.connect(page);
 
-	// Initially, both transactions should be visible
+	// Initially, only the most recent year (2025) is visible by default
+	await expect(page.getByText('Transaction #1')).toBeVisible();
+	await expect(page.getByText('Transaction #2')).not.toBeVisible();
+
+	// Show all years to see both transactions
+	await page.getByRole('button', { name: 'Year Filter' }).click();
+	await page.getByRole('checkbox', { name: '2024' }).click();
 	await expect(page.getByText('Transaction #1')).toBeVisible();
 	await expect(page.getByText('Transaction #2')).toBeVisible();
 
