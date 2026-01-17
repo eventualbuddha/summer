@@ -44,12 +44,25 @@
 	function showPriority(info: FieldSortInfo | undefined): boolean {
 		return info !== undefined && sort.columns.length > 1;
 	}
+
+	function getAriaLabel(field: SortingField, info: FieldSortInfo | undefined): string {
+		const label = fieldLabels[field];
+		if (!info) {
+			return `Sort by ${label}`;
+		}
+		const direction = info.direction === 'asc' ? 'ascending' : 'descending';
+		if (sort.columns.length > 1) {
+			return `Sort by ${label}, currently sorted ${direction}, priority ${info.priority}`;
+		}
+		return `Sort by ${label}, currently sorted ${direction}`;
+	}
 </script>
 
 <div class="flex w-full flex-row text-sm font-bold" title={sortTooltip}>
 	<button
 		class="text-align-left flex w-24 cursor-pointer items-center pl-1"
 		onclick={(e) => handleClick('date', e)}
+		aria-label={getAriaLabel('date', dateSort)}
 	>
 		Date
 		{#if dateSort}
@@ -64,6 +77,7 @@
 	<button
 		class="text-align-left flex grow-1 cursor-pointer items-center"
 		onclick={(e) => handleClick('statementDescription', e)}
+		aria-label={getAriaLabel('statementDescription', descriptionSort)}
 	>
 		Description
 		{#if descriptionSort}
@@ -77,7 +91,11 @@
 			{/if}
 		{/if}
 	</button>
-	<button class="flex cursor-pointer items-center" onclick={(e) => handleClick('amount', e)}>
+	<button
+		class="flex cursor-pointer items-center"
+		onclick={(e) => handleClick('amount', e)}
+		aria-label={getAriaLabel('amount', amountSort)}
+	>
 		{#if amountSort}
 			{#if showPriority(amountSort)}<span class="text-xs opacity-60">{amountSort.priority}</span
 				>{/if}
