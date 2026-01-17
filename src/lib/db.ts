@@ -1,6 +1,6 @@
 import { Gap, PreparedQuery, RecordId, Surreal } from 'surrealdb';
 import { z } from 'zod';
-import type { Sorting, SortingDirection } from './state.svelte';
+import type { Sorting, SortColumn } from './state.svelte';
 import { NEVER_PROMISE } from './utils/promises';
 import {
 	parseTransactionDescriptionAndTags,
@@ -67,12 +67,39 @@ const getTransactionsQueryBindings = {
 	descriptionFilter: new Gap<string>(),
 	taggedFilter: new Gap<NewTagged[]>(),
 	amounts: new Gap<number[]>(),
-	stickyTransactionIds: new Gap<Transaction['id'][]>(),
-	orderByField: new Gap<string>()
+	stickyTransactionIds: new Gap<Transaction['id'][]>()
 } as const;
 
-function buildGetTransactionQuery(sortDirection: SortingDirection) {
-	return new PreparedQuery(
+function buildOrderByClause(columns: readonly SortColumn[]): string {
+	return columns
+		.map((col, index) => {
+			const fieldAlias = `orderField${index}`;
+			return `${fieldAlias} COLLATE ${col.direction === 'asc' ? 'ASC' : 'DESC'}`;
+		})
+		.join(', ');
+}
+
+function buildOrderByFields(columns: readonly SortColumn[]): string {
+	return columns
+		.map((col, index) => `type::field("${col.field}") as orderField${index}`)
+		.join(',\n\t\t\t\t\t\t\t ');
+}
+
+function columnsToKey(columns: readonly SortColumn[]): string {
+	return columns.map((c) => `${c.field}:${c.direction}`).join('|');
+}
+
+const queryCache = new Map<string, PreparedQuery>();
+
+function buildGetTransactionQuery(columns: readonly SortColumn[]): PreparedQuery {
+	const cacheKey = columnsToKey(columns);
+	const cached = queryCache.get(cacheKey);
+	if (cached) return cached;
+
+	const orderByFields = buildOrderByFields(columns);
+	const orderByClause = buildOrderByClause(columns);
+
+	const query = new PreparedQuery(
 		`
 		let $transactions = (
           SELECT id.id(),
@@ -86,7 +113,7 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
 							 statement.id() as statementId,
 							 statement.date.year() as year,
 							 ->(SELECT id.id() as id, ->(SELECT id.id() as id, name FROM tag LIMIT 1)[0] as tag, year FROM tagged) as tagged,
-							 type::field($orderByField) as orderField
+							 ${orderByFields}
             FROM transaction
            WHERE id.id() IN $stickyTransactionIds
               OR (
@@ -102,7 +129,7 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
 									OR count(->(tagged WHERE $taggedFilter.any(|$tag| out.name.lowercase().contains($tag.name.lowercase()) AND (!$tag.year OR year == $tag.year)))) > 0
       			    )
               )
-     		ORDER BY orderField COLLATE ${sortDirection === 'asc' ? 'ASC' : 'DESC'}
+     		ORDER BY ${orderByClause}
 		);
 
 		let $countable = $transactions.filter(|$transaction| $transaction.categoryId != none);
@@ -116,10 +143,10 @@ function buildGetTransactionQuery(sortDirection: SortingDirection) {
     `,
 		getTransactionsQueryBindings
 	);
-}
 
-const getTransactionsAscendingQuery = buildGetTransactionQuery('asc');
-const getTransactionsDescendingQuery = buildGetTransactionQuery('desc');
+	queryCache.set(cacheKey, query);
+	return query;
+}
 
 export async function getTransactions(
 	options: GetTransactionsOptions,
@@ -136,23 +163,18 @@ export async function getTransactions(
 	abortSignal.addEventListener('abort', onAbort);
 
 	const searchTermAsDescriptionAndTagged = parseTransactionDescriptionAndTags(options.searchTerm);
+	const query = buildGetTransactionQuery(options.sort.columns);
 
-	const data = await surreal.query(
-		options.sort.direction === 'asc'
-			? getTransactionsAscendingQuery
-			: getTransactionsDescendingQuery,
-		[
-			b.stickyTransactionIds.fill([...options.stickyTransactionIds]),
-			b.years.fill(options.years),
-			b.months.fill(options.months),
-			b.categories.fill(options.categories.map((c) => c.id)),
-			b.accounts.fill(options.accounts.map((c) => c.id)),
-			b.descriptionFilter.fill(searchTermAsDescriptionAndTagged.description),
-			b.taggedFilter.fill(searchTermAsDescriptionAndTagged.tagged),
-			b.amounts.fill(amountsToMatchForSearchTerm(options.searchTerm)),
-			b.orderByField.fill(options.sort.field)
-		]
-	);
+	const data = await surreal.query(query, [
+		b.stickyTransactionIds.fill([...options.stickyTransactionIds]),
+		b.years.fill(options.years),
+		b.months.fill(options.months),
+		b.categories.fill(options.categories.map((c) => c.id)),
+		b.accounts.fill(options.accounts.map((c) => c.id)),
+		b.descriptionFilter.fill(searchTermAsDescriptionAndTagged.description),
+		b.taggedFilter.fill(searchTermAsDescriptionAndTagged.tagged),
+		b.amounts.fill(amountsToMatchForSearchTerm(options.searchTerm))
+	]);
 	abortSignal.removeEventListener('abort', onAbort);
 	if (abortSignal.aborted) return NEVER_PROMISE;
 

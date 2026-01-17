@@ -56,38 +56,72 @@ export interface FilterState {
 export type SortingField = 'date' | 'amount' | 'statementDescription';
 export type SortingDirection = 'asc' | 'desc';
 
+export interface SortColumn {
+	field: SortingField;
+	direction: SortingDirection;
+}
+
+export interface FieldSortInfo {
+	direction: SortingDirection;
+	priority: number;
+}
+
 export class Sorting {
 	#defaultField: SortingField;
-	#field = $state<SortingField>();
-	#direction = $state<SortingDirection>();
-	#fields: Record<SortingField, SortingDirection>;
+	#columns = $state<SortColumn[]>([]);
+	#defaultDirections: Record<SortingField, SortingDirection>;
 
-	constructor(fields: Record<SortingField, SortingDirection>, defaultField: SortingField) {
+	constructor(
+		defaultDirections: Record<SortingField, SortingDirection>,
+		defaultField: SortingField
+	) {
 		this.#defaultField = defaultField;
-		this.#field = defaultField;
-		this.#direction = fields[defaultField];
-		this.#fields = fields;
+		this.#defaultDirections = defaultDirections;
+		this.#columns = [{ field: defaultField, direction: defaultDirections[defaultField] }];
 	}
 
 	sortBy(field: SortingField): void {
-		if (field === this.#field) {
-			this.#direction = this.#direction === 'asc' ? 'desc' : 'asc';
+		const existing = this.#columns.find((c) => c.field === field);
+		if (this.#columns.length === 1 && existing) {
+			// Toggle direction if already the sole sort column
+			existing.direction = existing.direction === 'asc' ? 'desc' : 'asc';
 		} else {
-			this.#field = field;
-			this.#direction = this.#fields[field];
+			// Replace all sorts with single column using default direction
+			this.#columns = [{ field, direction: this.#defaultDirections[field] }];
 		}
 	}
 
-	fieldSort(field: SortingField): 'asc' | 'desc' | undefined {
-		return this.#field === field ? this.#direction : undefined;
+	addOrToggle(field: SortingField): void {
+		const existing = this.#columns.find((c) => c.field === field);
+		if (existing) {
+			// Toggle direction in place
+			existing.direction = existing.direction === 'asc' ? 'desc' : 'asc';
+		} else {
+			// Add new column to end with default direction
+			this.#columns.push({ field, direction: this.#defaultDirections[field] });
+		}
 	}
 
+	fieldSort(field: SortingField): FieldSortInfo | undefined {
+		const index = this.#columns.findIndex((c) => c.field === field);
+		if (index === -1) return undefined;
+		return {
+			direction: this.#columns[index]!.direction,
+			priority: index + 1
+		};
+	}
+
+	get columns(): readonly SortColumn[] {
+		return this.#columns;
+	}
+
+	// Backward-compatible getters for primary sort
 	get field(): SortingField {
-		return this.#field ?? this.#defaultField;
+		return this.#columns[0]?.field ?? this.#defaultField;
 	}
 
 	get direction(): SortingDirection {
-		return this.#direction ?? this.#fields[this.#defaultField];
+		return this.#columns[0]?.direction ?? this.#defaultDirections[this.#defaultField];
 	}
 }
 
