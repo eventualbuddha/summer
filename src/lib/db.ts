@@ -71,6 +71,9 @@ const getTransactionsQueryBindings = {
 } as const;
 
 function buildOrderByClause(columns: readonly SortColumn[]): string {
+	if (columns.length === 0) {
+		throw new Error('buildOrderByClause requires at least one sort column');
+	}
 	return columns
 		.map((col, index) => {
 			const fieldAlias = `orderField${index}`;
@@ -80,6 +83,9 @@ function buildOrderByClause(columns: readonly SortColumn[]): string {
 }
 
 function buildOrderByFields(columns: readonly SortColumn[]): string {
+	if (columns.length === 0) {
+		throw new Error('buildOrderByFields requires at least one sort column');
+	}
 	return columns
 		.map((col, index) => `type::field("${col.field}") as orderField${index}`)
 		.join(',\n\t\t\t\t\t\t\t ');
