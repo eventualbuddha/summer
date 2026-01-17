@@ -6,6 +6,7 @@ import {
 	parseTransactionDescriptionAndTags,
 	type NewTagged
 } from './db/updateTransactionDescription';
+import { LruCache } from './utils/lru-cache';
 
 export interface Transactions {
 	count: number;
@@ -95,7 +96,9 @@ function columnsToKey(columns: readonly SortColumn[]): string {
 	return columns.map((c) => `${c.field}:${c.direction}`).join('|');
 }
 
-const queryCache = new Map<string, PreparedQuery>();
+const QUERY_CACHE_MAX_SIZE = 64;
+
+const queryCache = new LruCache<string, PreparedQuery>(QUERY_CACHE_MAX_SIZE);
 
 function buildGetTransactionQuery(columns: readonly SortColumn[]): PreparedQuery {
 	const cacheKey = columnsToKey(columns);
