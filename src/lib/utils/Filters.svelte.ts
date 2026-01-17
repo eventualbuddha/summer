@@ -36,10 +36,11 @@ export class Filters {
 	}
 
 	resetOptions(filterOptions: FilterOptions): void {
+		const maxYear = filterOptions.years.length > 0 ? Math.max(...filterOptions.years) : null;
 		this.years = filterOptions.years.map((year) => ({
 			key: year.toString(),
 			value: year,
-			selected: true
+			selected: year === maxYear
 		}));
 		this.months = filterOptions.months.map((month) => ({
 			key: month.toString(),

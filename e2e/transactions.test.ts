@@ -746,7 +746,13 @@ test('clear all filters', async ({ page, pageHelpers, createCategory, createTran
 	// Connect to the database
 	await pageHelpers.connect(page);
 
-	// Initially, both transactions should be visible
+	// Initially, only the most recent year (2025) is visible by default
+	await expect(page.getByText('Transaction #1')).toBeVisible();
+	await expect(page.getByText('Transaction #2')).not.toBeVisible();
+
+	// Show all years to see both transactions
+	await page.getByRole('button', { name: 'Year Filter' }).click();
+	await page.getByRole('checkbox', { name: '2024' }).click();
 	await expect(page.getByText('Transaction #1')).toBeVisible();
 	await expect(page.getByText('Transaction #2')).toBeVisible();
 
@@ -777,15 +783,16 @@ test('clear all filters', async ({ page, pageHelpers, createCategory, createTran
 	// Click the Clear button
 	await page.getByRole('button', { name: 'Clear all filters' }).click();
 
-	// Both transactions should be visible again
+	// After clearing, only the most recent year (2025) should be selected
+	// So only Transaction #1 should be visible
 	await expect(page.getByText('Transaction #1')).toBeVisible();
-	await expect(page.getByText('Transaction #2')).toBeVisible();
+	await expect(page.getByText('Transaction #2')).not.toBeVisible();
 
 	// Verify search is cleared
 	await expect(page.getByPlaceholder('Search (/)')).toHaveValue('');
 
-	// Verify URL parameters are cleared
-	await expect(page).toHaveURL('/');
+	// Verify URL reflects the default filter state (only most recent year)
+	await expect(page).toHaveURL('/?years=2025');
 });
 
 test('single column sorting', async ({ page, pageHelpers, createTransaction, createCategory }) => {
