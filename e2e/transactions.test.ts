@@ -787,3 +787,273 @@ test('clear all filters', async ({ page, pageHelpers, createCategory, createTran
 	// Verify URL parameters are cleared
 	await expect(page).toHaveURL('/');
 });
+
+test('single column sorting', async ({ page, pageHelpers, createTransaction, createCategory }) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+
+	// Create transactions with different dates and descriptions
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Alpha Transaction',
+		date: new Date(2025, 0, 15),
+		amount: -100
+	});
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Beta Transaction',
+		date: new Date(2025, 0, 10),
+		amount: -200
+	});
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Gamma Transaction',
+		date: new Date(2025, 0, 20),
+		amount: -300
+	});
+
+	await pageHelpers.connect(page);
+
+	// Default sort is by date descending - Gamma (20th) should be first
+	const transactionRows = page.locator('[data-transaction]');
+	await expect(transactionRows.first()).toContainText('Gamma Transaction');
+
+	// Click Date header to toggle to ascending
+	await page.getByRole('button', { name: 'Date' }).click();
+
+	// Now Beta (10th) should be first
+	await expect(transactionRows.first()).toContainText('Beta Transaction');
+
+	// Click Description header to sort by description ascending
+	await page.getByRole('button', { name: 'Description' }).click();
+
+	// Alpha should be first (alphabetically)
+	await expect(transactionRows.first()).toContainText('Alpha Transaction');
+
+	// Click Description again to toggle to descending
+	await page.getByRole('button', { name: 'Description' }).click();
+
+	// Gamma should be first now
+	await expect(transactionRows.first()).toContainText('Gamma Transaction');
+});
+
+test('multi-column sorting with shift+click', async ({
+	page,
+	pageHelpers,
+	createTransaction,
+	createCategory
+}) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+
+	// Create transactions where grouping matters
+	// Two "Coffee" transactions on different dates
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Coffee Shop',
+		date: new Date(2025, 0, 15),
+		amount: -500
+	});
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Coffee Shop',
+		date: new Date(2025, 0, 10),
+		amount: -600
+	});
+	// Two "Grocery" transactions on different dates
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Grocery Store',
+		date: new Date(2025, 0, 20),
+		amount: -2000
+	});
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Grocery Store',
+		date: new Date(2025, 0, 5),
+		amount: -1500
+	});
+
+	await pageHelpers.connect(page);
+
+	// Sort by description first
+	await page.getByRole('button', { name: 'Description' }).click();
+
+	// Now shift+click date to add secondary sort
+	await page.getByRole('button', { name: 'Date' }).click({ modifiers: ['Shift'] });
+
+	// Verify both columns show sort indicators
+	const descriptionButton = page.getByRole('button', { name: 'Description' });
+	const dateButton = page.getByRole('button', { name: 'Date' });
+
+	// Both should have sort icons visible
+	await expect(descriptionButton.locator('svg')).toBeVisible();
+	await expect(dateButton.locator('svg')).toBeVisible();
+
+	// Priority numbers should be shown (1 for description, 2 for date)
+	await expect(descriptionButton.getByText('1')).toBeVisible();
+	await expect(dateButton.getByText('2')).toBeVisible();
+
+	// Transactions should be grouped by description, then sorted by date within groups
+	// Coffee Shop entries should be together, Grocery Store entries together
+	const transactionRows = page.locator('[data-transaction]');
+	const firstRow = transactionRows.nth(0);
+	const secondRow = transactionRows.nth(1);
+	const thirdRow = transactionRows.nth(2);
+	const fourthRow = transactionRows.nth(3);
+
+	// First two should be Coffee Shop (sorted by date desc within group)
+	await expect(firstRow).toContainText('Coffee Shop');
+	await expect(secondRow).toContainText('Coffee Shop');
+	// Last two should be Grocery Store
+	await expect(thirdRow).toContainText('Grocery Store');
+	await expect(fourthRow).toContainText('Grocery Store');
+});
+
+test('shift+click existing sorted column toggles direction', async ({
+	page,
+	pageHelpers,
+	createTransaction,
+	createCategory
+}) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Alpha',
+		date: new Date(2025, 0, 10),
+		amount: -100
+	});
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Beta',
+		date: new Date(2025, 0, 20),
+		amount: -200
+	});
+
+	await pageHelpers.connect(page);
+
+	const transactionRows = page.locator('[data-transaction]');
+
+	// Sort by description ascending
+	await page.getByRole('button', { name: 'Description' }).click();
+	await expect(transactionRows.first()).toContainText('Alpha');
+
+	// Add date as secondary sort
+	await page.getByRole('button', { name: 'Date' }).click({ modifiers: ['Shift'] });
+
+	// Shift+click description to toggle its direction (should go to descending)
+	await page.getByRole('button', { name: 'Description' }).click({ modifiers: ['Shift'] });
+
+	// Now Beta should be first (description descending)
+	await expect(transactionRows.first()).toContainText('Beta');
+
+	// Both columns should still show sort indicators
+	const descriptionButton = page.getByRole('button', { name: 'Description' });
+	const dateButton = page.getByRole('button', { name: 'Date' });
+	await expect(descriptionButton.locator('svg')).toBeVisible();
+	await expect(dateButton.locator('svg')).toBeVisible();
+});
+
+test('regular click resets to single column sort', async ({
+	page,
+	pageHelpers,
+	createTransaction,
+	createCategory
+}) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Test',
+		date: new Date(2025, 0, 10),
+		amount: -100
+	});
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Test',
+		date: new Date(2025, 0, 20),
+		amount: -200
+	});
+
+	await pageHelpers.connect(page);
+
+	// Set up multi-column sort
+	await page.getByRole('button', { name: 'Description' }).click();
+	await page.getByRole('button', { name: 'Date' }).click({ modifiers: ['Shift'] });
+
+	// Verify both have indicators
+	const descriptionButton = page.getByRole('button', { name: 'Description' });
+	const dateButton = page.getByRole('button', { name: 'Date' });
+	await expect(descriptionButton.getByText('1')).toBeVisible();
+	await expect(dateButton.getByText('2')).toBeVisible();
+
+	// Regular click on Amount - should reset to single column
+	await page.getByRole('button', { name: 'Amount' }).click();
+
+	// Now only Amount should have sort indicator, no priority numbers
+	const amountButton = page.getByRole('button', { name: 'Amount' });
+	await expect(amountButton.locator('svg')).toBeVisible();
+	await expect(descriptionButton.locator('svg')).not.toBeVisible();
+	await expect(dateButton.locator('svg')).not.toBeVisible();
+
+	// Priority numbers should not be visible (single column sort)
+	await expect(amountButton.getByText('1')).not.toBeVisible();
+});
+
+test('sort tooltip shows full sort order', async ({
+	page,
+	pageHelpers,
+	createTransaction,
+	createCategory
+}) => {
+	await page.goto('/');
+	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
+	await newConnectionButton.click();
+
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Test',
+		date: new Date(2025, 0, 10),
+		amount: -100
+	});
+
+	await pageHelpers.connect(page);
+
+	const sortHeader = page.locator('.flex.w-full.flex-row.text-sm.font-bold');
+
+	// Single column sort - tooltip should show single sort
+	await page.getByRole('button', { name: 'Description' }).click();
+	await expect(sortHeader).toHaveAttribute('title', 'Sorted by: Description ↑');
+
+	// Toggle direction
+	await page.getByRole('button', { name: 'Description' }).click();
+	await expect(sortHeader).toHaveAttribute('title', 'Sorted by: Description ↓');
+
+	// Add secondary sort
+	await page.getByRole('button', { name: 'Date' }).click({ modifiers: ['Shift'] });
+	await expect(sortHeader).toHaveAttribute('title', 'Sorted by: 1. Description ↓, 2. Date ↓');
+
+	// Add third sort
+	await page.getByRole('button', { name: 'Amount' }).click({ modifiers: ['Shift'] });
+	await expect(sortHeader).toHaveAttribute(
+		'title',
+		'Sorted by: 1. Description ↓, 2. Date ↓, 3. Amount ↑'
+	);
+});
