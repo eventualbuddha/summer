@@ -1,0 +1,37 @@
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    container_name: summer-surrealdb
+    restart: unless-stopped
+    ports:
+      - '8001:8000'
+    volumes:
+      - surrealdb-data:/data
+    command: start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all memory
+    networks:
+      - summer-network
+
+  summer:
+    build: .
+    container_name: summer-app
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    depends_on:
+      - surrealdb
+    networks:
+      - summer-network
+    environment:
+      - NODE_ENV=production
+      - BACKEND_SURREALDB_WS_URL=ws://surrealdb:8000/rpc
+      - BACKEND_SURREALDB_HTTP_URL=http://surrealdb:8000
+      - DEFAULT_NAMESPACE=summer
+      - DEFAULT_DATABASE=summer
+
+volumes:
+  surrealdb-data:
+    name: summer-surrealdb-data
+
+networks:
+  summer-network:
+    name: summer-network

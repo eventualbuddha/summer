@@ -69,6 +69,8 @@
 
 	function onDisconnect() {
 		s.disconnect();
+		// Remember that user has explicitly disconnected
+		localStorage.setItem('hasExplicitlyDisconnected', 'true');
 		onclose();
 	}
 

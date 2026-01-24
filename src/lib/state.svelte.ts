@@ -134,6 +134,7 @@ export class State {
 	#reconnectAttempts = 0;
 	#maxReconnectAttempts = 5;
 	#reconnectTimeoutId: ReturnType<typeof setTimeout> | undefined;
+	#isIntentionalDisconnect = false;
 
 	filters = $state(new Filters());
 	transactions = $state<Transactions>();
@@ -378,6 +379,11 @@ export class State {
 	#setupConnectionListeners(surreal: Surreal) {
 		// Listen for disconnection events
 		surreal.emitter.subscribe('disconnected', () => {
+			// Don't reconnect if this was an intentional disconnect
+			if (this.#isIntentionalDisconnect) {
+				this.#isIntentionalDisconnect = false;
+				return;
+			}
 			console.warn('SurrealDB connection disconnected, attempting to reconnect...');
 			this.#attemptReconnect();
 		});
@@ -452,6 +458,9 @@ export class State {
 	}
 
 	disconnect() {
+		// Mark this as an intentional disconnect to prevent auto-reconnect
+		this.#isIntentionalDisconnect = true;
+
 		// Clear any pending reconnection attempts
 		if (this.#reconnectTimeoutId) {
 			clearTimeout(this.#reconnectTimeoutId);

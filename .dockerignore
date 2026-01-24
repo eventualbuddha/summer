@@ -1,0 +1,14 @@
+node_modules
+.git
+.github
+.husky
+*.log
+.env*
+.svelte-kit
+build
+.vscode
+.idea
+tests
+e2e
+playwright-report
+test-results

@@ -1,0 +1,33 @@
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    container_name: summer-test-surrealdb
+    volumes:
+      - summer-test-data:/data
+    command: start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all memory
+    networks:
+      - summer-test-network
+    ports:
+      - '8001:8000'
+
+  summer:
+    image: summer:test
+    container_name: summer-test-app
+    ports:
+      - '3002:3000'
+    depends_on:
+      - surrealdb
+    networks:
+      - summer-test-network
+    environment:
+      - NODE_ENV=production
+      - BACKEND_SURREALDB_URL=ws://surrealdb:8000
+      - BACKEND_SURREALDB_PORT=8001
+      - DEFAULT_NAMESPACE=summer
+      - DEFAULT_DATABASE=summer
+
+volumes:
+  summer-test-data:
+
+networks:
+  summer-test-network:

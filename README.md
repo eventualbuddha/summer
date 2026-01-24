@@ -6,14 +6,67 @@ Summer is a terrible pun, and also the app I use to track my spending. You proba
 
 ## Setup
 
+### Docker Compose (Recommended)
+
+The easiest way to run Summer is with Docker Compose, which includes a built-in SurrealDB instance:
+
+1. Clone the repository: `git clone https://github.com/eventualbuddha/summer.git`
+2. Run with Docker Compose: `docker compose up`
+3. Open http://localhost:3000 in your browser
+4. Click "Use Built-in Database" to get started immediately
+
+The built-in database uses the `summer` namespace and `summer` database by default. Your data is persisted in a Docker volume.
+
 ### Self-Hosted
 
 1. Clone the repository: `git clone https://github.com/eventualbuddha/summer.git`
 2. Install [Bun](https://bun.sh/)
-3. Install [SurrealDB](https://surrealdb.com/)
-4. Install dependencies: `bun install`
-5. Run the app: `bun run dev --open`
-6. Enter the URL and namespace/database for the your SurrealDB instance. This can just be `ws://localhost:8000/rpc` if you're running SurrealDB locally, and the namespace and database can be whatever you want.
+3. Install dependencies: `bun install`
+4. Build the app: `bun run build`
+5. Start the server: `bun run start`
+
+**Option A: Use built-in SurrealDB**
+
+1. Install and start [SurrealDB](https://surrealdb.com/) locally
+2. Set environment variables:
+   ```bash
+   export BACKEND_SURREALDB_URL=ws://localhost:8000
+   export DEFAULT_NAMESPACE=summer
+   export DEFAULT_DATABASE=summer
+   ```
+3. Start the server: `bun run start`
+4. Open http://localhost:3000 and click "Use Built-in Database"
+
+**Option B: Connect to external SurrealDB**
+
+1. Start the server without environment variables: `bun run start`
+2. Open http://localhost:3000
+3. Click "Connect to External Database"
+4. Enter your SurrealDB instance URL, namespace, and database
+
+### Development
+
+For development with hot reload:
+
+```bash
+bun run dev
+```
+
+This runs the app without the built-in backend. You'll need to connect to an external SurrealDB instance.
+
+Alternatively, start a local SurrealDB and the production server:
+
+```bash
+# Terminal 1: Start SurrealDB
+surreal start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all memory
+
+# Terminal 2: Set env vars and start server
+export BACKEND_SURREALDB_URL=ws://localhost:8000
+export DEFAULT_NAMESPACE=summer
+export DEFAULT_DATABASE=summer
+bun run build
+bun run start
+```
 
 ### Cloud
 

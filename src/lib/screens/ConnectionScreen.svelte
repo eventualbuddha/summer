@@ -3,24 +3,66 @@
 	import { use } from '$lib/db';
 	import type { State, DatabaseConnectionInfo } from '$lib/state.svelte';
 	import { Surreal } from 'surrealdb';
-	import { getContext } from 'svelte';
+	import { getContext, onMount } from 'svelte';
 
 	let s: State = getContext('state');
 
 	let isSettingUpNewConnection = $state(false);
+	let hasBackend = $state(false);
+	let backendInfo = $state<{
+		port?: string;
+		defaultNamespace?: string;
+		defaultDatabase?: string;
+	}>({});
 	let url = $state('');
 	let namespace = $state('');
 	let database = $state('');
+	let useBackend = $state(false);
+
+	onMount(async () => {
+		// Check if backend is available
+		try {
+			const response = await fetch('/api/backend-info');
+			if (response.ok) {
+				const info = await response.json();
+				hasBackend = info.hasBackend;
+				if (info.hasBackend) {
+					backendInfo = {
+						url: info.url,
+						defaultNamespace: info.defaultNamespace,
+						defaultDatabase: info.defaultDatabase
+					};
+					// Auto-connect to backend only on first visit (no recent connections and no stored preference)
+					const hasExplicitlyDisconnected =
+						localStorage.getItem('hasExplicitlyDisconnected') === 'true';
+					if (s.recentConnections.length === 0 && !hasExplicitlyDisconnected) {
+						useBackend = true;
+						url = info.url;
+						namespace = info.defaultNamespace;
+						database = info.defaultDatabase;
+						// Trigger the connection
+						await onConnectDatabase(new Event('submit'));
+					}
+				}
+			}
+		} catch (error) {
+			console.error('Failed to check backend availability:', error);
+		}
+	});
 
 	async function onConnectDatabase(event: Event) {
 		event.preventDefault();
+		console.log('onConnectDatabase called', { url, namespace, database });
 		if (url && namespace && database) {
 			// Test the connection first with a throwaway instance
 			const testSurreal = new Surreal();
 			try {
+				console.log('Testing connection to:', url);
 				await testSurreal.connect(url);
+				console.log('Connected, using namespace/database:', namespace, database);
 				await use(testSurreal, { namespace, database, init: true });
 				await testSurreal.close();
+				console.log('Test connection successful, now connecting for real');
 
 				// Connection works! Now actually connect
 				await s.connect({
@@ -28,11 +70,14 @@
 					namespace,
 					database
 				});
+				console.log('Real connection established');
 			} catch (error) {
 				// Store error for display
-				s.lastError = error as Error;
 				console.error('Connection failed:', error);
+				s.lastError = error as Error;
 			}
+		} else {
+			console.error('Missing connection details:', { url, namespace, database });
 		}
 	}
 
@@ -78,6 +123,13 @@
 	class="flex h-screen w-screen flex-col items-center justify-center bg-gray-50 p-8 dark:bg-gray-900"
 >
 	<div class="w-full max-w-2xl">
+		{#if s.lastError}
+			<div class="mb-4 rounded-lg bg-red-50 p-4 text-red-800 dark:bg-red-900 dark:text-red-200">
+				<p class="font-semibold">Connection Error</p>
+				<p class="text-sm">{s.lastError.message}</p>
+			</div>
+		{/if}
+
 		{#if !isSettingUpNewConnection}
 			<div class="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
 				<h1 class="mb-6 text-center text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -142,18 +194,43 @@
 					</div>
 				{/if}
 
+				{#if hasBackend}
+					<button
+						class="mb-3 w-full cursor-pointer rounded-md bg-green-500 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-600 disabled:opacity-50 dark:bg-green-600 dark:hover:bg-green-700"
+						onclick={async () => {
+							useBackend = true;
+							url = backendInfo.url;
+							namespace = backendInfo.defaultNamespace || 'summer';
+							database = backendInfo.defaultDatabase || 'summer';
+							await onConnectDatabase(new Event('submit'));
+						}}
+						disabled={s.isConnecting}
+					>
+						{s.isConnecting ? 'Connecting...' : 'Use Built-in Database'}
+					</button>
+				{/if}
+
 				<button
 					class="w-full cursor-pointer rounded-md bg-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-					onclick={() => (isSettingUpNewConnection = true)}
+					onclick={() => {
+						isSettingUpNewConnection = true;
+						useBackend = false;
+					}}
 				>
-					New Connection
+					{hasBackend ? 'Connect to External Database' : 'New Connection'}
 				</button>
 			</div>
 		{:else}
 			<div class="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
 				<h1 class="mb-6 text-center text-3xl font-bold text-gray-900 dark:text-gray-100">
-					New Connection
+					{hasBackend ? 'External Connection' : 'New Connection'}
 				</h1>
+
+				{#if hasBackend && !useBackend}
+					<p class="mb-4 text-center text-sm text-gray-600 dark:text-gray-400">
+						Connect to an external SurrealDB instance instead of the built-in database.
+					</p>
+				{/if}
 
 				<ConnectionForm
 					{s}
@@ -161,7 +238,10 @@
 					bind:namespace
 					bind:database
 					onSubmit={onConnectDatabase}
-					onCancel={() => (isSettingUpNewConnection = false)}
+					onCancel={() => {
+						isSettingUpNewConnection = false;
+						useBackend = false;
+					}}
 				/>
 			</div>
 		{/if}
