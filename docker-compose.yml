@@ -3,11 +3,12 @@ services:
     image: surrealdb/surrealdb:latest
     container_name: summer-surrealdb
     restart: unless-stopped
+    user: '1000:1000'
     ports:
       - '8001:8000'
     volumes:
-      - surrealdb-data:/data
-    command: start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all memory
+      - /home/brian/summer-data:/data
+    command: start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all file:/data
     networks:
       - summer-network
 
