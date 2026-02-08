@@ -1,6 +1,4 @@
 <script lang="ts">
-	import ConnectionScreen from '$lib/screens/ConnectionScreen.svelte';
-	import ConnectionWidget from '$lib/components/ConnectionWidget.svelte';
 	import ErrorAlert from '$lib/components/ErrorAlert.svelte';
 	import { State } from '$lib/state.svelte';
 	import { setContext, type Snippet } from 'svelte';
@@ -30,21 +28,23 @@
 
 {#if s.lastError && isDisplayingError}
 	<div class="fixed top-4 right-4 z-[100] max-w-md">
-		<ErrorAlert title="Connection Error" body={s.lastError.message} />
+		<ErrorAlert title="Error" body={s.lastError.message} />
 	</div>
 {/if}
 
-{#if !s.isConnected && !s.isConnecting}
-	<ConnectionScreen />
-{:else if s.isConnecting}
+{#if s.isConnecting}
 	<div class="flex h-screen w-screen items-center justify-center">
-		<div class="text-lg text-gray-600 dark:text-gray-300">Connecting...</div>
+		<div class="text-lg text-gray-600 dark:text-gray-300">Connecting to database...</div>
+	</div>
+{:else if s.isConnected}
+	<div class="relative flex h-screen w-screen flex-col gap-4 overflow-hidden p-4">
+		{@render children()}
 	</div>
 {:else}
-	<div class="relative flex h-screen w-screen flex-col gap-4 overflow-hidden p-4">
-		<div class="absolute top-4 right-4 z-10">
-			<ConnectionWidget />
+	<div class="flex h-screen w-screen items-center justify-center">
+		<div class="text-center text-gray-600 dark:text-gray-300">
+			<p class="text-lg">Unable to connect to database</p>
+			<p class="mt-2 text-sm">Please check that the backend is running properly</p>
 		</div>
-		{@render children()}
 	</div>
 {/if}

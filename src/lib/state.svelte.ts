@@ -36,8 +36,6 @@ import { Filters } from './utils/Filters.svelte';
 import { NEVER_PROMISE } from './utils/promises';
 
 const LOCAL_STORAGE_KEY = 'lastDb';
-const RECENT_CONNECTIONS_KEY = 'recentConnections';
-const MAX_RECENT_CONNECTIONS = 4;
 
 export interface DatabaseConnectionInfo {
 	url: string;
@@ -127,7 +125,6 @@ export class Sorting {
 
 export class State {
 	lastDb = $state<DatabaseConnectionInfo>();
-	recentConnections = $state<DatabaseConnectionInfo[]>([]);
 	lastError = $state<Error>();
 	#surreal = $state<Surreal>();
 	isConnecting = $state(false);
@@ -157,22 +154,8 @@ export class State {
 	);
 
 	constructor() {
-		const lastDb = localStorage.getItem(LOCAL_STORAGE_KEY);
-		if (lastDb) {
-			const parsedDb = JSON.parse(lastDb) as DatabaseConnectionInfo;
-			this.lastDb = parsedDb;
-			// Auto-connect to last database
-			this.connect(parsedDb).catch((error) => {
-				console.error('Auto-connect failed:', error);
-				this.lastError = error as Error;
-			});
-		}
-
-		// Load recent connections
-		const recentConnectionsJson = localStorage.getItem(RECENT_CONNECTIONS_KEY);
-		if (recentConnectionsJson) {
-			this.recentConnections = JSON.parse(recentConnectionsJson) as DatabaseConnectionInfo[];
-		}
+		// Auto-connect to the backend on startup
+		this.#autoConnectToBackend();
 
 		// Listen for browser visibility changes (computer wake/sleep)
 		if (typeof document !== 'undefined') {
@@ -303,6 +286,28 @@ export class State {
 		callback(this.filters);
 	}
 
+	async #autoConnectToBackend() {
+		try {
+			const response = await fetch('/api/backend-info');
+			if (!response.ok) {
+				throw new Error('Backend info not available');
+			}
+			const info = await response.json();
+			if (!info.hasBackend) {
+				throw new Error('No backend database configured');
+			}
+
+			await this.connect({
+				url: info.url,
+				namespace: info.defaultNamespace,
+				database: info.defaultDatabase
+			});
+		} catch (error) {
+			console.error('Auto-connect to backend failed:', error);
+			this.lastError = error as Error;
+		}
+	}
+
 	get isConnected() {
 		return !!this.#surreal;
 	}
@@ -346,9 +351,6 @@ export class State {
 
 			// Set up connection event listeners
 			this.#setupConnectionListeners(surreal);
-
-			// Update recent connections list
-			this.#addToRecentConnections(connectionInfo);
 		} catch (error) {
 			console.error('Connection failed:', error);
 			this.lastError = error as Error;
@@ -356,24 +358,6 @@ export class State {
 		} finally {
 			this.isConnecting = false;
 		}
-	}
-
-	#addToRecentConnections(connection: DatabaseConnectionInfo) {
-		// Remove duplicate if it exists
-		const filtered = this.recentConnections.filter(
-			(c) =>
-				!(
-					c.url === connection.url &&
-					c.namespace === connection.namespace &&
-					c.database === connection.database
-				)
-		);
-
-		// Add to front of list
-		const updated = [connection, ...filtered].slice(0, MAX_RECENT_CONNECTIONS);
-
-		this.recentConnections = updated;
-		localStorage.setItem(RECENT_CONNECTIONS_KEY, JSON.stringify(updated));
 	}
 
 	#setupConnectionListeners(surreal: Surreal) {

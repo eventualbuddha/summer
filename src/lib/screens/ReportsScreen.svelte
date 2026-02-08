@@ -193,7 +193,7 @@
 
 			// Update URL without triggering navigation
 			const newUrl = `${$page.url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
-			goto(resolve(newUrl), { replaceState: true, noScroll: true, keepFocus: true });
+			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
 		});
 	});
 
@@ -992,7 +992,7 @@
 										{@const color = colors[budgetIndex % colors.length]}
 										{@const yearData = budgetData.values[0]!}
 										{@const fullBudgetAmount =
-											s.budgetReportData.budgetsByNameAndYear[budgetData.name]?.[yearData.year]
+											s.budgetReportData?.budgetsByNameAndYear[budgetData.name]?.[yearData.year]
 												?.amount || 0}
 										{@const budgetHeightPercent =
 											maxScale > 0

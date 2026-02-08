@@ -14,7 +14,6 @@
 	import IconTallyMark5 from '~icons/mdi/tally-mark-5';
 	import IconDollarCoinSolid from '~icons/streamline/dollar-coin-solid';
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
 	import { untrack } from 'svelte';
 
@@ -138,7 +137,7 @@
 
 			// Update URL without triggering navigation
 			const newUrl = `${$page.url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
-			goto(resolve(newUrl), { replaceState: true, noScroll: true, keepFocus: true });
+			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
 		});
 	});
 </script>
