@@ -137,6 +137,7 @@
 
 			// Update URL without triggering navigation
 			const newUrl = `${$page.url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
 			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
 		});
 	});
