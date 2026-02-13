@@ -1,4 +1,4 @@
-import { SvelteMap as Map } from 'svelte/reactivity';
+import { SvelteMap as Map, SvelteDate as Date } from 'svelte/reactivity';
 import { Result } from '@badrap/result';
 import * as api from './api';
 import {
