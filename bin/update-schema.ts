@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import { join } from 'node:path';
 import { argv, exit, stdin, stdout } from 'node:process';
@@ -53,9 +53,7 @@ export async function main(argv: readonly string[]): Promise<number> {
 
 	if (username) {
 		const readline = createInterface(stdin);
-		// work around a bug in Bun where readline.question() doesn't print the prompt
-		stdout.write('Password: ');
-		password = await readline.question('');
+		password = await readline.question('Password: ');
 	}
 
 	const backupPath = options.values.outputPath ?? join('backups', new Date().toISOString());

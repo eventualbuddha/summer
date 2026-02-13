@@ -20,10 +20,10 @@ The built-in database uses the `summer` namespace and `summer` database by defau
 ### Self-Hosted
 
 1. Clone the repository: `git clone https://github.com/eventualbuddha/summer.git`
-2. Install [Bun](https://bun.sh/)
-3. Install dependencies: `bun install`
-4. Build the app: `bun run build`
-5. Start the server: `bun run start`
+2. Install [Node.js](https://nodejs.org/) (v25 or later)
+3. Install dependencies: `npm install`
+4. Build the app: `npm run build`
+5. Start the server: `npm start`
 
 **Option A: Use built-in SurrealDB**
 
@@ -34,12 +34,12 @@ The built-in database uses the `summer` namespace and `summer` database by defau
    export DEFAULT_NAMESPACE=summer
    export DEFAULT_DATABASE=summer
    ```
-3. Start the server: `bun run start`
+3. Start the server: `npm start`
 4. Open http://localhost:3000 and click "Use Built-in Database"
 
 **Option B: Connect to external SurrealDB**
 
-1. Start the server without environment variables: `bun run start`
+1. Start the server without environment variables: `npm start`
 2. Open http://localhost:3000
 3. Click "Connect to External Database"
 4. Enter your SurrealDB instance URL, namespace, and database
@@ -49,7 +49,7 @@ The built-in database uses the `summer` namespace and `summer` database by defau
 For development with hot reload:
 
 ```bash
-bun run dev
+npm run dev
 ```
 
 This runs the app without the built-in backend. You'll need to connect to an external SurrealDB instance.
@@ -64,8 +64,8 @@ surreal start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all memor
 export BACKEND_SURREALDB_URL=ws://localhost:8000
 export DEFAULT_NAMESPACE=summer
 export DEFAULT_DATABASE=summer
-bun run build
-bun run start
+npm run build
+npm start
 ```
 
 ### Cloud

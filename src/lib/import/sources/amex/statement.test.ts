@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test';
+import { expect, test } from 'vitest';
 import * as fixtures from '../../../../../tests/fixtures';
 import { parseStatement } from './statement';
 import { parseStatementSummary } from './summary';

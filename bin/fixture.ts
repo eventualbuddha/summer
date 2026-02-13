@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import { lazy } from '@nfnitloop/better-iterators';
 import { createWriteStream } from 'node:fs';
