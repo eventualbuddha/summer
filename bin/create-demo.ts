@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import { faker } from '@faker-js/faker'; // Import faker.js for generating realistic data.
 import { DateTime, Interval } from 'luxon';
@@ -413,9 +413,7 @@ await db.connect(options.values.url);
 
 if (options.values.username) {
 	const readline = createInterface(stdin);
-	// work around a bug in Bun where readline.question() doesn't print the prompt
-	stdout.write('Password: ');
-	const password = await readline.question('');
+	const password = await readline.question('Password: ');
 	await db.signin({
 		username: options.values.username,
 		password: password

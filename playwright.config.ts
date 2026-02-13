@@ -1,11 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
+	globalSetup: './e2e/global-setup.ts',
+
 	webServer: {
 		command: './e2e/start-test-server.sh',
 		port: 3000,
 		reuseExistingServer: !process.env.CI,
-		timeout: 30000
+		timeout: 60000
 	},
 
 	testDir: 'e2e',

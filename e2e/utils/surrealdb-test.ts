@@ -76,6 +76,7 @@ export const test = base.extend<{
 			transactionId: Transaction['id'],
 			tags: Array<{ name: string; year?: number }>
 		): Promise<void>;
+		waitForConnection(): Promise<void>;
 	};
 }>({
 	surreal: async ({ baseURL }, use) => {
@@ -86,6 +87,9 @@ export const test = base.extend<{
 		// Load schema
 		const schema = await (await fetch(`${baseURL}/schema.surql`)).text();
 		await surreal.query(schema);
+
+		// Small delay to ensure database is fully ready for page connections
+		// await new Promise((resolve) => setTimeout(resolve, 100));
 
 		await use(surreal);
 
@@ -192,8 +196,17 @@ export const test = base.extend<{
 		});
 	},
 
-	pageHelpers: async ({ surreal }, use) =>
+	pageHelpers: async ({ surreal, page }, use) =>
 		await use({
+			async waitForConnection() {
+				await page.waitForFunction(
+					() => {
+						const connectingText = document.body.textContent?.includes('Connecting to database');
+						return !connectingText;
+					},
+					{ timeout: 30000 }
+				);
+			},
 			async waitForTaggedTransaction(transactionId, tags) {
 				await waitFor(async () => {
 					const [taggedRecords] = await surreal.query<

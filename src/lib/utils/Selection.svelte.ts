@@ -15,7 +15,7 @@ export function createSingleSelection<T>({
 	let selectedIndex = $state<number>();
 	let hoverIndex = $state<number>();
 	let prefix = $state<string>();
-	let prefixTimeout = $state<Timer>();
+	let prefixTimeout = $state<NodeJS.Timeout>();
 
 	function focusNext() {
 		if (hoverIndex === undefined) {

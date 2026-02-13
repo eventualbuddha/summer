@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test';
+import { expect, test } from 'vitest';
 import { BudgetSchema, type Budget, type Category } from '../db';
 
 test('BudgetSchema validation', () => {

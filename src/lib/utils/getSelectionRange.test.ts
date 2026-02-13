@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test';
+import { expect, test } from 'vitest';
 import { getSelectionRange } from './getSelectionRange';
 import type { Selection } from '$lib/types';
 

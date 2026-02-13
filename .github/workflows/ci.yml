@@ -14,13 +14,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Start SurrealDB
         uses: surrealdb/setup-surreal@v2
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bun run lint && bun tsc --build
-      - run: bun run build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '25'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint && npm exec tsc && npm run build
       - name: Install Playwright Browsers
-        run: bun playwright install --with-deps
-      - run: bun run test
+        run: npx playwright install --with-deps
+      - run: npm test
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

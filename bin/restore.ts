@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import assert from 'node:assert';
 import { createReadStream } from 'node:fs';
@@ -187,9 +187,7 @@ export async function main(argv: readonly string[]): Promise<number> {
 	let password: string | undefined;
 	if (username) {
 		const readline = createInterface(stdin);
-		// work around a bug in Bun where readline.question() doesn't print the prompt
-		stdout.write('Password: ');
-		password = await readline.question('');
+		password = await readline.question('Password: ');
 	}
 
 	let lastTable: string | undefined;
