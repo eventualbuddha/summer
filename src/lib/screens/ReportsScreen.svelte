@@ -687,6 +687,26 @@
 								{stableBudgetViewData.budgetName} - Year over Year
 							</h4>
 
+							<!-- Legend -->
+							<div class="space-y-2">
+								<div class="flex gap-6 text-xs text-gray-600 dark:text-gray-400">
+									<div class="flex items-center gap-2">
+										<div
+											class="relative h-4 w-4 overflow-hidden rounded bg-gray-300 dark:bg-gray-600"
+										>
+											<div
+												class="absolute right-0 bottom-0 left-0 h-1/2 bg-gray-500 dark:bg-gray-400"
+											></div>
+										</div>
+										<span>Budget (filled = year progress)</span>
+									</div>
+									<div class="flex items-center gap-2">
+										<div class="h-4 w-4 rounded" style="background-color: {colors[0]}"></div>
+										<span>Actual Spending</span>
+									</div>
+								</div>
+							</div>
+
 							<div
 								class="grid gap-4"
 								style="grid-template-columns: repeat({stableBudgetViewData.yearlyData
@@ -808,26 +828,6 @@
 										</div>
 									</div>
 								{/each}
-							</div>
-
-							<!-- Legend -->
-							<div class="mt-6 space-y-2">
-								<div class="flex gap-6 text-xs text-gray-600 dark:text-gray-400">
-									<div class="flex items-center gap-2">
-										<div
-											class="relative h-4 w-4 overflow-hidden rounded bg-gray-300 dark:bg-gray-600"
-										>
-											<div
-												class="absolute right-0 bottom-0 left-0 h-1/2 bg-gray-500 dark:bg-gray-400"
-											></div>
-										</div>
-										<span>Budget (filled = year progress)</span>
-									</div>
-									<div class="flex items-center gap-2">
-										<div class="h-4 w-4 rounded" style="background-color: {colors[0]}"></div>
-										<span>Actual Spending</span>
-									</div>
-								</div>
 							</div>
 						</div>
 					{:else if displayMode === 'budget' && !stableBudgetViewData}
@@ -977,6 +977,44 @@
 							'Dec'
 						]}
 						{@const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4']}
+
+						<!-- Legend -->
+						<div class="mb-4 space-y-2">
+							<div class="flex flex-wrap gap-4">
+								{#each stableFilteredData.data as budgetData, i (budgetData.name)}
+									{@const color = colors[i % colors.length]}
+									<div class="flex items-center gap-2">
+										<div class="h-4 w-4 rounded" style="background-color: {color}"></div>
+										<span class="text-sm text-gray-700 dark:text-gray-300">{budgetData.name}</span>
+									</div>
+								{/each}
+							</div>
+							{#if viewMode === 'monthly'}
+								<div class="flex gap-6 text-xs text-gray-600 dark:text-gray-400">
+									<div class="flex items-center gap-2">
+										<div class="h-4 w-4 rounded bg-gray-300 opacity-50"></div>
+										<span>Previous Year</span>
+									</div>
+									<div class="flex items-center gap-2">
+										<div class="h-0.5 w-6 border-t-2 border-dashed border-amber-500"></div>
+										<span>Monthly Budget</span>
+									</div>
+								</div>
+							{:else}
+								<div class="flex gap-6 text-xs text-gray-600 dark:text-gray-400">
+									<div class="flex items-center gap-2">
+										<div
+											class="relative h-4 w-4 overflow-hidden rounded bg-gray-300 dark:bg-gray-600"
+										>
+											<div
+												class="absolute right-0 bottom-0 left-0 h-1/2 bg-gray-500 dark:bg-gray-400"
+											></div>
+										</div>
+										<span>Budget (filled = year progress)</span>
+									</div>
+								</div>
+							{/if}
+						</div>
 
 						{#if viewMode === 'yearly'}
 							<!-- Yearly view - all budgets in a single histogram -->
@@ -1253,44 +1291,6 @@
 								{/each}
 							</div>
 						{/if}
-
-						<!-- Legend -->
-						<div class="mt-6 space-y-2">
-							<div class="flex flex-wrap gap-4">
-								{#each stableFilteredData.data as budgetData, i (budgetData.name)}
-									{@const color = colors[i % colors.length]}
-									<div class="flex items-center gap-2">
-										<div class="h-4 w-4 rounded" style="background-color: {color}"></div>
-										<span class="text-sm text-gray-700 dark:text-gray-300">{budgetData.name}</span>
-									</div>
-								{/each}
-							</div>
-							{#if viewMode === 'monthly'}
-								<div class="flex gap-6 text-xs text-gray-600 dark:text-gray-400">
-									<div class="flex items-center gap-2">
-										<div class="h-4 w-4 rounded bg-gray-300 opacity-50"></div>
-										<span>Previous Year</span>
-									</div>
-									<div class="flex items-center gap-2">
-										<div class="h-0.5 w-6 border-t-2 border-dashed border-amber-500"></div>
-										<span>Monthly Budget</span>
-									</div>
-								</div>
-							{:else}
-								<div class="flex gap-6 text-xs text-gray-600 dark:text-gray-400">
-									<div class="flex items-center gap-2">
-										<div
-											class="relative h-4 w-4 overflow-hidden rounded bg-gray-300 dark:bg-gray-600"
-										>
-											<div
-												class="absolute right-0 bottom-0 left-0 h-1/2 bg-gray-500 dark:bg-gray-400"
-											></div>
-										</div>
-										<span>Budget (filled = year progress)</span>
-									</div>
-								</div>
-							{/if}
-						</div>
 					{/if}
 				</div>
 			{/if}
