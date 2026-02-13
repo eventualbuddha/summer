@@ -18,8 +18,39 @@ export const GET: RequestHandler = async ({ url }) => {
 	const db = await getDb();
 	const yearFilter = year ? 'WHERE year == $year' : '';
 
-	const [, , , , budgets, actualSpending, monthlySpending, previousYearSpending] = await db.query(
+	const currentYearFilter = year
+		? `AND statement.date >= d'${year}-01-01' AND statement.date < d'${year + 1}-01-01'`
+		: '';
+	const prevYearFilter = year
+		? `AND statement.date >= d'${year - 1}-01-01' AND statement.date < d'${year}-01-01'`
+		: '';
+
+	const results = await db.query(
 		`
+		-- Load all transactions into memory once
+		let $currentYearTxns = (
+			SELECT
+				category.id() AS categoryId,
+				statement.date.month() AS month,
+				amount
+			FROM transaction
+			WHERE statement.date IS NOT NONE
+			${currentYearFilter}
+			AND category IS NOT NONE
+		);
+
+		let $prevYearTxns = (
+			SELECT
+				category.id() AS categoryId,
+				statement.date.month() AS month,
+				amount
+			FROM transaction
+			WHERE statement.date IS NOT NONE
+			${prevYearFilter}
+			AND category IS NOT NONE
+		);
+
+		-- Get budgets
 		let $budgets = (
 			SELECT
 				id.id() AS id,
@@ -33,107 +64,83 @@ export const GET: RequestHandler = async ({ url }) => {
 			ORDER BY name ASC, year ASC
 		);
 
-		let $actualSpending = (
+		-- Aggregate spending by filtering in-memory transactions
+		let $spendingData = (
 			SELECT
 				name AS budgetName,
 				year AS budgetYear,
+				
+				-- Current year actual amount
 				math::sum((
 					SELECT VALUE amount
-					FROM transaction
-					WHERE statement.date IS NOT NONE
-					AND statement.date.year() == $parent.year
-					AND category IS NOT NONE
-					AND category.id() IN $parent.categories[*].id.id()
-				)) AS actualAmount
-			FROM budget
-			${yearFilter}
-		);
-
-		let $monthlySpending = (
-			SELECT
-				name AS budgetName,
-				year AS budgetYear,
-				(
-					SELECT
-						month,
-						math::sum(amount) AS monthlyAmount
-					FROM (
-						SELECT
-							statement.date.month() AS month,
-							amount
-						FROM transaction
-						WHERE statement.date IS NOT NONE
-						AND statement.date.year() == $parent.year
-						AND category IS NOT NONE
-						AND category.id() IN $parent.categories[*].id.id()
-					)
-					GROUP BY month
-					ORDER BY month
-				) AS monthlyData
-			FROM budget
-			${yearFilter}
-		);
-
-		let $previousYearSpending = (
-			SELECT
-				name AS budgetName,
-				year AS budgetYear,
-				categories[*].id.id() AS categoryIds,
-				(
-					SELECT
-						month,
-						math::sum(amount) AS monthlyAmount
-					FROM (
-						SELECT
-							statement.date.month() AS month,
-							amount
-						FROM transaction
-						WHERE statement.date IS NOT NONE
-						AND statement.date.year() == $parent.year - 1
-						AND category IS NOT NONE
-						AND category.id() IN $parent.categories[*].id.id()
-					)
-					GROUP BY month
-					ORDER BY month
-				) AS monthlyData
-			FROM budget
-			${yearFilter}
+					FROM $currentYearTxns 
+					WHERE categoryId IN $parent.categoryIds
+				)) AS actualAmount,
+				
+				-- Current year monthly breakdown
+				(SELECT
+					month,
+					math::sum(amount) AS monthlyAmount
+				 FROM $currentYearTxns
+				 WHERE categoryId IN $parent.categoryIds
+				 GROUP BY month
+				 ORDER BY month
+				) AS monthlyData,
+				
+				-- Previous year monthly breakdown
+				(SELECT
+					month,
+					math::sum(amount) AS monthlyAmount
+				 FROM $prevYearTxns
+				 WHERE categoryId IN $parent.categoryIds
+				 GROUP BY month
+				 ORDER BY month
+				) AS previousYearMonthlyData
+				
+			FROM $budgets
 		);
 
 		$budgets;
-		$actualSpending;
-		$monthlySpending;
-		$previousYearSpending;
+		$spendingData;
 	`,
 		{ year }
 	);
 
+	const [, , , , budgets, spendingData] = results;
+
 	const parsedBudgets = BudgetSchema.array().parse(budgets);
 
-	const actualSpendingData = z
-		.array(z.object({ budgetName: z.string(), budgetYear: z.number(), actualAmount: z.number() }))
-		.parse(actualSpending);
-
-	const monthlySpendingRaw = z
+	const parsedSpendingData = z
 		.array(
 			z.object({
 				budgetName: z.string(),
 				budgetYear: z.number(),
-				monthlyData: z.array(z.object({ month: z.number(), monthlyAmount: z.number() }))
+				actualAmount: z.number(),
+				monthlyData: z.array(z.object({ month: z.number(), monthlyAmount: z.number() })),
+				previousYearMonthlyData: z.array(z.object({ month: z.number(), monthlyAmount: z.number() }))
 			})
 		)
-		.parse(monthlySpending);
+		.parse(spendingData);
+
+	// Extract data into expected formats
+	const actualSpendingData = parsedSpendingData.map((d) => ({
+		budgetName: d.budgetName,
+		budgetYear: d.budgetYear,
+		actualAmount: d.actualAmount
+	}));
+
+	const monthlySpendingRaw = parsedSpendingData.map((d) => ({
+		budgetName: d.budgetName,
+		budgetYear: d.budgetYear,
+		monthlyData: d.monthlyData
+	}));
 	const monthlySpendingData = flattenMonthlySpending(monthlySpendingRaw as MonthlySpendingRaw[]);
 
-	const previousYearSpendingRaw = z
-		.array(
-			z.object({
-				budgetName: z.string(),
-				budgetYear: z.number(),
-				monthlyData: z.array(z.object({ month: z.number(), monthlyAmount: z.number() }))
-			})
-		)
-		.parse(previousYearSpending);
+	const previousYearSpendingRaw = parsedSpendingData.map((d) => ({
+		budgetName: d.budgetName,
+		budgetYear: d.budgetYear,
+		monthlyData: d.previousYearMonthlyData
+	}));
 	const previousYearSpendingData = flattenMonthlySpending(
 		previousYearSpendingRaw as MonthlySpendingRaw[]
 	);
