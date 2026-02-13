@@ -2,19 +2,14 @@ import { RecordId } from 'surrealdb';
 import { expect, test } from './utils/surrealdb-test';
 import { waitFor } from './utils/helpers';
 
-test('view transactions', async ({ page, pageHelpers, createTransaction }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('view transactions', async ({ page, createTransaction }) => {
 	const transaction = await createTransaction({
 		statementDescription: 'Just a test transaction',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Check for the transaction
 	await expect(page.getByText('Jan 01 2025')).toBeVisible();
@@ -22,11 +17,7 @@ test('view transactions', async ({ page, pageHelpers, createTransaction }) => {
 	await expect(page.getByText('$1.23')).toBeVisible();
 });
 
-test('filter by category', async ({ page, pageHelpers, createTransaction, createCategory }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('filter by category', async ({ page, createTransaction, createCategory }) => {
 	const unknownCategory = await createCategory({
 		name: 'Unknown',
 		emoji: '❓'
@@ -48,8 +39,7 @@ test('filter by category', async ({ page, pageHelpers, createTransaction, create
 		amount: -321
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	await expect(page.getByText('Jan 01 2025')).toBeVisible();
 	await expect(page.getByText('Jan 02 2025')).toBeVisible();
@@ -67,19 +57,14 @@ test('filter by category', async ({ page, pageHelpers, createTransaction, create
 	await expect(page.getByText('$3.21')).toBeVisible();
 });
 
-test('adding a description', async ({ page, pageHelpers, createTransaction, surreal }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('adding a description', async ({ page, createTransaction, surreal }) => {
 	const transaction = await createTransaction({
 		statementDescription: 'Bank Description',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Update the description
 	await page.getByText(transaction.statementDescription).click();
@@ -98,17 +83,7 @@ test('adding a description', async ({ page, pageHelpers, createTransaction, surr
 	await expect(page.getByText('Custom Description Bank Description')).toBeVisible();
 });
 
-test('clear category', async ({
-	page,
-	pageHelpers,
-	createCategory,
-	createTransaction,
-	surreal
-}) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('clear category', async ({ page, createCategory, createTransaction, surreal }) => {
 	const category = await createCategory();
 	const transaction = await createTransaction({
 		category: category.id,
@@ -117,8 +92,7 @@ test('clear category', async ({
 		amount: -123
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Check for the transaction
 	await expect(page.getByText('Jan 01 2025')).toBeVisible();
@@ -154,17 +128,7 @@ test('clear category', async ({
 	}
 });
 
-test('update category', async ({
-	page,
-	pageHelpers,
-	createCategory,
-	createTransaction,
-	surreal
-}) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('update category', async ({ page, createCategory, createTransaction, surreal }) => {
 	const category1 = await createCategory({
 		name: 'General',
 		emoji: '🛍️'
@@ -180,8 +144,7 @@ test('update category', async ({
 		amount: -123
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	const category1SummaryValue = page.getByTestId(`${category1.id}-summary-value`);
 	const category2SummaryValue = page.getByTestId(`${category2.id}-summary-value`);
@@ -209,15 +172,10 @@ test('update category', async ({
 
 test('updating to hidden category', async ({
 	page,
-	pageHelpers,
 	createCategory,
 	createTransaction,
 	surreal
 }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const generalCategory = await createCategory({
 		name: 'General',
 		emoji: '🛍️'
@@ -239,8 +197,7 @@ test('updating to hidden category', async ({
 		amount: -100
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Hide "Utilities".
 	await page.getByLabel('Category Filter').click();
@@ -270,19 +227,14 @@ test('updating to hidden category', async ({
 	await expect(page.getByText(generalTransaction.statementDescription)).not.toBeVisible();
 });
 
-test('search keyboard shortcuts', async ({ page, pageHelpers, createTransaction }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('search keyboard shortcuts', async ({ page, createTransaction }) => {
 	await createTransaction({
 		statementDescription: 'Keyboard shortcut test transaction',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	const searchInput = page.getByPlaceholder('Search (/)');
 
@@ -343,17 +295,7 @@ test('search keyboard shortcuts', async ({ page, pageHelpers, createTransaction 
 	await expect(searchInput).toHaveValue('replaced');
 });
 
-test('bulk category editing', async ({
-	page,
-	pageHelpers,
-	createCategory,
-	createTransaction,
-	surreal
-}) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('bulk category editing', async ({ page, createCategory, createTransaction, surreal }) => {
 	const unknownCategory = await createCategory({
 		name: 'Unknown',
 		emoji: '❓'
@@ -387,8 +329,7 @@ test('bulk category editing', async ({
 		amount: -300
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Check initial state
 	await expect(page.getByText('Transaction 1')).toBeVisible();
@@ -450,15 +391,10 @@ test('bulk category editing', async ({
 
 test('bulk category editing with filtered transactions', async ({
 	page,
-	pageHelpers,
 	createCategory,
 	createTransaction,
 	surreal
 }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const unknownCategory = await createCategory({
 		name: 'Unknown',
 		emoji: '❓'
@@ -492,8 +428,7 @@ test('bulk category editing with filtered transactions', async ({
 		amount: -8000
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Filter transactions by category
 	await page.getByLabel('Category Filter').click();
@@ -552,13 +487,8 @@ test('bulk category editing with filtered transactions', async ({
 	await expect(page.getByText('Electric Bill')).toBeVisible();
 });
 
-test('bulk category editing disabled when no transactions', async ({ page, pageHelpers }) => {
+test('bulk category editing disabled when no transactions', async ({ page }) => {
 	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
-	// Connect to database with no transactions
-	await pageHelpers.connect(page);
 
 	// Bulk edit button should be disabled
 	const bulkEditButton = page.getByRole('button', { name: /Edit category for all/ });
@@ -568,15 +498,10 @@ test('bulk category editing disabled when no transactions', async ({ page, pageH
 
 test('bulk category editing modal cancel', async ({
 	page,
-	pageHelpers,
 	createCategory,
 	createTransaction,
 	surreal
 }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const generalCategory = await createCategory({
 		name: 'General',
 		emoji: '🛍️'
@@ -589,8 +514,7 @@ test('bulk category editing modal cancel', async ({
 		amount: -100
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Open bulk edit and select category
 	const bulkEditButton = page.getByRole('button', { name: /Edit category for all/ });
@@ -618,19 +542,14 @@ test('bulk category editing modal cancel', async ({
 	});
 });
 
-test('actions row visibility', async ({ page, pageHelpers, createTransaction }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('actions row visibility', async ({ page, createTransaction }) => {
 	await createTransaction({
 		statementDescription: 'Test Transaction',
 		date: new Date(2025, 0, 1),
 		amount: -100
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Should see both Filters and Actions rows
 	await expect(page.getByText('Filters:')).toBeVisible();
@@ -643,15 +562,10 @@ test('actions row visibility', async ({ page, pageHelpers, createTransaction }) 
 
 test('bulk category editing modal keyboard accessibility', async ({
 	page,
-	pageHelpers,
 	createCategory,
 	createTransaction,
 	surreal
 }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const generalCategory = await createCategory({
 		name: 'General',
 		emoji: '🛍️'
@@ -668,8 +582,7 @@ test('bulk category editing modal keyboard accessibility', async ({
 		amount: -100
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Open bulk edit modal
 	const bulkEditButton = page.getByRole('button', { name: /Edit category for all/ });
@@ -716,11 +629,7 @@ test('bulk category editing modal keyboard accessibility', async ({
 	});
 });
 
-test('clear all filters', async ({ page, pageHelpers, createCategory, createTransaction }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('clear all filters', async ({ page, createCategory, createTransaction }) => {
 	const unknownCategory = await createCategory({
 		name: 'Unknown',
 		emoji: '❓'
@@ -743,8 +652,7 @@ test('clear all filters', async ({ page, pageHelpers, createCategory, createTran
 		amount: -321
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Initially, only the most recent year (2025) is visible by default
 	await expect(page.getByText('Transaction #1')).toBeVisible();
@@ -795,11 +703,7 @@ test('clear all filters', async ({ page, pageHelpers, createCategory, createTran
 	await expect(page).toHaveURL('/?years=2025');
 });
 
-test('single column sorting', async ({ page, pageHelpers, createTransaction, createCategory }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('single column sorting', async ({ page, createTransaction, createCategory }) => {
 	const category = await createCategory({ name: 'General', emoji: '🛍️' });
 
 	// Create transactions with different dates and descriptions
@@ -822,7 +726,7 @@ test('single column sorting', async ({ page, pageHelpers, createTransaction, cre
 		amount: -300
 	});
 
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Default sort is by date descending - Gamma (20th) should be first
 	const transactionRows = page.locator('[data-transaction]');
@@ -849,14 +753,9 @@ test('single column sorting', async ({ page, pageHelpers, createTransaction, cre
 
 test('multi-column sorting with shift+click', async ({
 	page,
-	pageHelpers,
 	createTransaction,
 	createCategory
 }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const category = await createCategory({ name: 'General', emoji: '🛍️' });
 
 	// Create transactions where grouping matters
@@ -887,7 +786,7 @@ test('multi-column sorting with shift+click', async ({
 		amount: -1500
 	});
 
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Sort by description first
 	await page.getByRole('button', { name: 'Description' }).click();
@@ -925,14 +824,9 @@ test('multi-column sorting with shift+click', async ({
 
 test('shift+click existing sorted column toggles direction', async ({
 	page,
-	pageHelpers,
 	createTransaction,
 	createCategory
 }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const category = await createCategory({ name: 'General', emoji: '🛍️' });
 
 	await createTransaction({
@@ -948,7 +842,7 @@ test('shift+click existing sorted column toggles direction', async ({
 		amount: -200
 	});
 
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	const transactionRows = page.locator('[data-transaction]');
 
@@ -974,14 +868,9 @@ test('shift+click existing sorted column toggles direction', async ({
 
 test('regular click resets to single column sort', async ({
 	page,
-	pageHelpers,
 	createTransaction,
 	createCategory
 }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const category = await createCategory({ name: 'General', emoji: '🛍️' });
 
 	await createTransaction({
@@ -997,7 +886,7 @@ test('regular click resets to single column sort', async ({
 		amount: -200
 	});
 
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	// Set up multi-column sort
 	await page.getByRole('button', { name: 'Description' }).click();
@@ -1022,16 +911,7 @@ test('regular click resets to single column sort', async ({
 	await expect(amountButton.getByText('1')).not.toBeVisible();
 });
 
-test('sort tooltip shows full sort order', async ({
-	page,
-	pageHelpers,
-	createTransaction,
-	createCategory
-}) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('sort tooltip shows full sort order', async ({ page, createTransaction, createCategory }) => {
 	const category = await createCategory({ name: 'General', emoji: '🛍️' });
 
 	await createTransaction({
@@ -1041,7 +921,7 @@ test('sort tooltip shows full sort order', async ({
 		amount: -100
 	});
 
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	const sortHeader = page.locator('.flex.w-full.flex-row.text-sm.font-bold');
 

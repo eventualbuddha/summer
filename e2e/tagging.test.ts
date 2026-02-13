@@ -1,10 +1,6 @@
 import { expect, test } from './utils/surrealdb-test';
 
-test('existing tags', async ({ page, pageHelpers, createTransaction, tagTransaction }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('existing tags', async ({ page, createTransaction, tagTransaction }) => {
 	const transaction = await createTransaction({
 		statementDescription: 'ONO GELATO',
 		date: new Date(2025, 0, 1),
@@ -13,24 +9,21 @@ test('existing tags', async ({ page, pageHelpers, createTransaction, tagTransact
 
 	await tagTransaction(transaction.id, 'hawaii', 2025);
 	await tagTransaction(transaction.id, 'gelato');
-	await pageHelpers.connect(page);
+
+	await page.goto('/');
 
 	// Check for the tag
 	await expect(page.getByText('#gelato #hawaii-2025')).toBeVisible();
 });
 
 test('adding tag without a year', async ({ page, pageHelpers, createTransaction }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const transaction = await createTransaction({
 		statementDescription: 'ONO GELATO',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
 
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	await page.getByRole('button', { name: 'ONO GELATO' }).click();
 	const $description = page.getByRole('textbox', { name: 'Transaction description' });
@@ -41,17 +34,13 @@ test('adding tag without a year', async ({ page, pageHelpers, createTransaction 
 });
 
 test('adding tag with a year', async ({ page, pageHelpers, createTransaction }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const transaction = await createTransaction({
 		statementDescription: 'ONO GELATO',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
 
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	await page.getByRole('button', { name: 'ONO GELATO' }).click();
 	const $description = page.getByRole('textbox', { name: 'Transaction description' });
@@ -62,17 +51,13 @@ test('adding tag with a year', async ({ page, pageHelpers, createTransaction }) 
 });
 
 test('editing tags', async ({ page, pageHelpers, createTransaction }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	const transaction = await createTransaction({
 		statementDescription: 'ONO GELATO',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
 
-	await pageHelpers.connect(page);
+	await page.goto('/');
 	const $description = page.getByRole('textbox', { name: 'Transaction description' });
 
 	await page.getByRole('button', { name: 'ONO GELATO' }).click();
@@ -106,11 +91,7 @@ test('editing tags', async ({ page, pageHelpers, createTransaction }) => {
 	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'maui' }]);
 });
 
-test('searching by tag', async ({ page, pageHelpers, createTransaction, tagTransaction }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('searching by tag', async ({ page, createTransaction, tagTransaction }) => {
 	const taggedTransaction = await createTransaction({
 		statementDescription: 'ONO GELATO',
 		date: new Date(2025, 0, 1),
@@ -124,7 +105,8 @@ test('searching by tag', async ({ page, pageHelpers, createTransaction, tagTrans
 
 	await tagTransaction(taggedTransaction.id, 'hawaii', 2025);
 	await tagTransaction(taggedTransaction.id, 'gelato');
-	await pageHelpers.connect(page);
+
+	await page.goto('/');
 
 	// Check for both transactions
 	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();

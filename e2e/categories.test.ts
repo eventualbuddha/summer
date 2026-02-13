@@ -11,15 +11,10 @@ async function expectDefaultCategory(surreal: Surreal, categoryId?: RecordId) {
 	});
 }
 
-test('view & update categories', async ({ page, pageHelpers, createCategory, surreal }) => {
-	await page.goto('/categories');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('view & update categories', async ({ page, createCategory, surreal }) => {
 	const category = await createCategory({ name: 'General' });
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/categories');
 
 	// Check for the category
 	const $categoryName = page.getByRole('cell', { name: 'Category Name' }).getByRole('textbox');
@@ -60,13 +55,8 @@ test('view & update categories', async ({ page, pageHelpers, createCategory, sur
 	await expect(page.getByText('😱')).toBeVisible();
 });
 
-test('create new category', async ({ page, pageHelpers, surreal }) => {
+test('create new category', async ({ page, surreal }) => {
 	await page.goto('/categories');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
-	// Connect to the database
-	await pageHelpers.connect(page);
 
 	// On the "Categories" page
 	await expect(page.getByRole('heading')).toHaveText('Categories');
@@ -129,16 +119,11 @@ test('create new category', async ({ page, pageHelpers, surreal }) => {
 	await expect(page.getByText('🧄')).toBeVisible();
 });
 
-test('set default category', async ({ page, pageHelpers, createCategory, surreal }) => {
-	await page.goto('/categories');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('set default category', async ({ page, createCategory, surreal }) => {
 	const general = await createCategory({ name: 'General', emoji: '🛍️' });
 	const utilities = await createCategory({ name: 'Utilities', emoji: '⚡' });
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/categories');
 
 	// No default category yet
 	await expectDefaultCategory(surreal, undefined);

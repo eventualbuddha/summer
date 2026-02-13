@@ -1,33 +1,8 @@
-/* eslint-disable no-empty-pattern */
-import { test as base, expect, type Page } from '@playwright/test';
-import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
-import { type AddressInfo, createServer, Socket } from 'node:net';
+import { test as base, expect } from '@playwright/test';
 import Surreal, { RecordId } from 'surrealdb';
 import { waitFor } from './helpers';
 
 export { expect };
-
-async function getFreePort(): Promise<number> {
-	const server = createServer();
-	await new Promise<void>((resolve) => server.listen(0, resolve));
-	const port = (server.address() as AddressInfo).port;
-	server.close();
-	return port;
-}
-
-async function waitForPortListening(hostname: string, port: number): Promise<void> {
-	return new Promise<void>((resolve) => {
-		const interval = setInterval(() => {
-			const socket = new Socket();
-			socket.on('error', () => {});
-			socket.connect(port, hostname, () => {
-				clearInterval(interval);
-				socket.destroy();
-				resolve();
-			});
-		}, 100);
-	});
-}
 
 export interface Account {
 	id: RecordId<'account'>;
@@ -88,12 +63,7 @@ export interface Budget {
 }
 
 export const test = base.extend<{
-	port: number;
-	hostname: string;
-	namespace: string;
-	database: string;
 	surreal: Surreal;
-	surrealProcess: ChildProcessWithoutNullStreams;
 	createAccount: (data?: Partial<Account>) => Promise<Account>;
 	createStatement: (data?: Partial<Statement>) => Promise<Statement>;
 	createFile: (data?: Partial<File>) => Promise<File>;
@@ -102,42 +72,25 @@ export const test = base.extend<{
 	createBudget: (data?: Partial<Budget>) => Promise<Budget>;
 	tagTransaction: (transactionId: Transaction['id'], name: string, year?: number) => Promise<void>;
 	pageHelpers: {
-		connect(page: Page): Promise<void>;
 		waitForTaggedTransaction(
 			transactionId: Transaction['id'],
 			tags: Array<{ name: string; year?: number }>
 		): Promise<void>;
 	};
 }>({
-	hostname: '127.0.0.1',
-	namespace: 'ns',
-	database: 'db',
-
-	port: async ({}, use) => {
-		const port = await getFreePort();
-		await use(port);
-	},
-
-	surrealProcess: async ({ hostname, port }, use) => {
-		const surrealProcess = spawn(
-			'surreal',
-			['start', 'memory', '--bind', `${hostname}:${port}`, '--unauthenticated'],
-			{ stdio: 'pipe' }
-		);
-
-		await waitForPortListening(hostname, port);
-		await use(surrealProcess);
-		surrealProcess.kill();
-	},
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	surreal: async ({ surrealProcess, baseURL, hostname, port, namespace, database }, use) => {
+	surreal: async ({ baseURL }, use) => {
 		const surreal = new Surreal();
-		await surreal.connect(`ws://${hostname}:${port}`);
-		await surreal.use({ namespace, database });
+		await surreal.connect('ws://127.0.0.1:18000/rpc');
+		await surreal.use({ namespace: 'ns', database: 'db' });
+
+		// Load schema
 		const schema = await (await fetch(`${baseURL}/schema.surql`)).text();
 		await surreal.query(schema);
+
 		await use(surreal);
+
+		// Clean up: delete all data after each test
+		await surreal.query('REMOVE DATABASE db');
 		await surreal.close();
 	},
 
@@ -233,23 +186,14 @@ export const test = base.extend<{
 	tagTransaction: async ({ surreal }, use) => {
 		await use(async (transactionId, name, year) => {
 			const tag =
-				(await surreal.query<[Tag]>('SELECT * FROM tag WHERE name = $name', { name }))[0]?.[0] ??
+				(await surreal.query<[[Tag]]>('SELECT * FROM tag WHERE name = $name', { name }))[0]?.[0] ??
 				((await surreal.create('tag', { name }))?.[0] as unknown as Tag);
 			await surreal.relate(transactionId, 'tagged', tag.id, { year });
 		});
 	},
 
-	pageHelpers: async ({ hostname, port, namespace, database, surreal }, use) =>
+	pageHelpers: async ({ surreal }, use) =>
 		await use({
-			async connect(page) {
-				await page
-					.getByRole('textbox', { name: 'Connection URL' })
-					.fill(`ws://${hostname}:${port}`);
-				await page.getByRole('textbox', { name: 'Namespace' }).fill(namespace);
-				await page.getByRole('textbox', { name: 'Database' }).fill(database);
-				await page.getByRole('button', { name: 'Connect' }).click();
-			},
-
 			async waitForTaggedTransaction(transactionId, tags) {
 				await waitFor(async () => {
 					const [taggedRecords] = await surreal.query<

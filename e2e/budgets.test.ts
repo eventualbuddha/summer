@@ -3,15 +3,10 @@ import { expect, test } from './utils/surrealdb-test';
 
 test('view, create, edit, and delete budgets', async ({
 	page,
-	pageHelpers,
 	createBudget,
 	createCategory,
 	surreal
 }) => {
-	await page.goto('/budgets');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	// Create test categories
 	const category1 = await createCategory({ name: 'Food', emoji: '🍕' });
 	const category2 = await createCategory({ name: 'Transportation', emoji: '🚗' });
@@ -23,8 +18,7 @@ test('view, create, edit, and delete budgets', async ({
 		categories: [category1.id, category2.id]
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/budgets');
 
 	// Check that we're on the budgets page
 	await expect(page.getByRole('heading', { name: 'Budgets' })).toBeVisible();
@@ -84,16 +78,11 @@ test('view, create, edit, and delete budgets', async ({
 	await expect(page.getByText('Updated Test Budget')).not.toBeVisible();
 });
 
-test('budget form keyboard accessibility', async ({ page, pageHelpers, createCategory }) => {
-	await page.goto('/budgets');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('budget form keyboard accessibility', async ({ page, createCategory }) => {
 	// Create test category
 	await createCategory({ name: 'Test Category' });
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/budgets');
 
 	// Open new budget form
 	await page.getByRole('button', { name: 'New Budget' }).click();

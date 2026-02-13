@@ -1,18 +1,13 @@
 import { waitFor } from './utils/helpers';
 import { expect, test } from './utils/surrealdb-test';
 
-test('import Amex statement', async ({ page, pageHelpers, createCategory, surreal }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('import Amex statement', async ({ page, createCategory, surreal }) => {
 	const category = await createCategory({ name: 'Test Category' });
 	await surreal.query('UPSERT settings:global SET defaultCategory = $defaultCategory', {
 		defaultCategory: category.id
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible();
 	const fileChooserPromise = page.waitForEvent('filechooser');
@@ -32,18 +27,13 @@ test('import Amex statement', async ({ page, pageHelpers, createCategory, surrea
 	await expect(page.getByLabel('Transaction Sum')).toHaveText('+$10,060');
 });
 
-test('import Schwab statement', async ({ page, pageHelpers, createCategory, surreal }) => {
-	await page.goto('/');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('import Schwab statement', async ({ page, createCategory, surreal }) => {
 	const category = await createCategory({ name: 'Test Category' });
 	await surreal.query('UPSERT settings:global SET defaultCategory = $defaultCategory', {
 		defaultCategory: category.id
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/');
 
 	await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible();
 	const fileChooserPromise = page.waitForEvent('filechooser');

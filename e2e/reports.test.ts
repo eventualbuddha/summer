@@ -2,16 +2,11 @@ import { expect, test } from './utils/surrealdb-test';
 
 test('budget reports with actual spending data', async ({
 	page,
-	pageHelpers,
 	createBudget,
 	createCategory,
 	createTransaction,
 	createStatement
 }) => {
-	await page.goto('/reports');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
 	// Create test categories
 	const foodCategory = await createCategory({ name: 'Food', emoji: '🍕' });
 
@@ -35,8 +30,7 @@ test('budget reports with actual spending data', async ({
 		statementDescription: 'Groceries Jan'
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/reports');
 
 	// Check that we're on the reports page
 	await expect(page.getByRole('heading', { name: 'Budget Reports' })).toBeVisible();
@@ -52,16 +46,7 @@ test('budget reports with actual spending data', async ({
 	await expect(page.locator('#year-filter')).toHaveValue('2024');
 });
 
-test('view budget reports with filtering', async ({
-	page,
-	pageHelpers,
-	createBudget,
-	createCategory
-}) => {
-	await page.goto('/reports');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('view budget reports with filtering', async ({ page, createBudget, createCategory }) => {
 	// Create test categories
 	const category1 = await createCategory({ name: 'Food', emoji: '🍕' });
 	const category2 = await createCategory({ name: 'Transportation', emoji: '🚗' });
@@ -83,8 +68,7 @@ test('view budget reports with filtering', async ({
 		categories: [category2.id]
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/reports');
 
 	// Check that we're on the reports page
 	await expect(page.getByRole('heading', { name: 'Budget Reports' })).toBeVisible();
@@ -130,13 +114,8 @@ test('view budget reports with filtering', async ({
 	await expect(page.getByText('Transportation Budget').first()).toBeVisible();
 });
 
-test('reports page with no data', async ({ page, pageHelpers }) => {
+test('reports page with no data', async ({ page }) => {
 	await page.goto('/reports');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
-	// Connect to the database
-	await pageHelpers.connect(page);
 
 	// Check that we're on the reports page
 	await expect(page.getByRole('heading', { name: 'Budget Reports' })).toBeVisible();
@@ -146,16 +125,7 @@ test('reports page with no data', async ({ page, pageHelpers }) => {
 	await expect(page.getByText('Create some budgets to see reports')).toBeVisible();
 });
 
-test('budget report basic functionality', async ({
-	page,
-	pageHelpers,
-	createBudget,
-	createCategory
-}) => {
-	await page.goto('/reports');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('budget report basic functionality', async ({ page, createBudget, createCategory }) => {
 	// Create test data
 	const category = await createCategory({ name: 'Test Category' });
 	const currentYear = new Date().getFullYear();
@@ -167,8 +137,7 @@ test('budget report basic functionality', async ({
 		categories: [category.id]
 	});
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/reports');
 
 	// Wait for data to load
 	await expect(page.getByText('Loading budget data...')).not.toBeVisible();
