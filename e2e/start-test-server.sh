@@ -9,14 +9,21 @@ SURREAL_PID=$!
 
 # Wait for SurrealDB to be ready
 echo "Waiting for SurrealDB to start..."
+SURREAL_READY=false
 for i in {1..30}; do
   if curl -s http://127.0.0.1:${SURREALDB_PORT}/health >/dev/null 2>&1; then
     echo "SurrealDB is ready!"
+    SURREAL_READY=true
     break
   fi
   sleep 0.5
 done
 
+if [ "$SURREAL_READY" != true ]; then
+  echo "Error: SurrealDB did not become ready after 30 attempts. Exiting."
+  kill "$SURREAL_PID" 2>/dev/null || true
+  exit 1
+fi
 # Start the web server with test database configuration
 export BACKEND_SURREALDB_WS_URL=ws://127.0.0.1:${SURREALDB_PORT}/rpc
 export BACKEND_SURREALDB_HTTP_URL=http://127.0.0.1:${SURREALDB_PORT}
