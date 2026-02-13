@@ -26,6 +26,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 backups/
+.surrealdb/
 
 # Claude Code
 .claude/settings.local.json

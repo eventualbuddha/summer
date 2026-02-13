@@ -15,7 +15,7 @@ import {
 	FileSchema,
 	StatementSchema,
 	TransactionRecordSchema
-} from '../src/lib/db';
+} from '../src/lib/db.ts';
 
 // Define categories with associated emojis, weights, account-specific weights, and amount ranges.
 const categories = [
@@ -339,7 +339,7 @@ const options = parseArgs({
 			type: 'string',
 			short: 'u',
 			description: 'SurrealDB URL',
-			default: 'ws://localhost:8000/'
+			default: 'http://localhost:8000'
 		},
 		username: {
 			type: 'string',
@@ -369,7 +369,7 @@ function showHelp() {
 	stdout.write('Options:\n');
 	stdout.write('  -h, --help         Display help information\n');
 	stdout.write('  -i, --input        Input path for backup directory (required)\n');
-	stdout.write('  -u, --url          SurrealDB URL [ws://localhost:8000/]\n');
+	stdout.write('  -u, --url          SurrealDB URL [http://localhost:8000]\n');
 	stdout.write('  -U, --username     SurrealDB Username\n');
 	stdout.write('  -p, --password     SurrealDB Password\n');
 	stdout.write('  -n, --namespace    SurrealDB Namespace (required)\n');

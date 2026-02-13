@@ -81,7 +81,7 @@ export const test = base.extend<{
 }>({
 	surreal: async ({ baseURL }, use) => {
 		const surreal = new Surreal();
-		await surreal.connect('ws://127.0.0.1:18000/rpc');
+		await surreal.connect('http://127.0.0.1:18000');
 		await surreal.use({ namespace: 'ns', database: 'db' });
 
 		// Load schema

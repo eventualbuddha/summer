@@ -8,7 +8,6 @@
 	import TransactionRow from '$lib/components/TransactionRow.svelte';
 	import type { State } from '$lib/state.svelte';
 	import { formatWholeDollarAmount } from '$lib/utils/formatting';
-	import { RecordId } from 'surrealdb';
 	import { getContext, type Snippet } from 'svelte';
 	import { VList } from 'virtua/svelte';
 	import IconTallyMark5 from '~icons/mdi/tally-mark-5';
@@ -244,7 +243,7 @@
 				{@render summaryRow(
 					label,
 					formatWholeDollarAmount(total),
-					`${new RecordId('category', category.id)}-summary-value`
+					`category:${category.id}-summary-value`
 				)}
 			{/each}
 		{/if}

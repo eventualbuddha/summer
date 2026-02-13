@@ -40,7 +40,7 @@
 			{#each routes as route (route.pathname)}
 				<a
 					class="p-1 hover:font-bold {page.url.pathname === route.pathname && 'font-bold'}"
-					href={resolve(route.pathname)}
+					href={resolve(route.pathname as '/')}
 				>
 					{route.label}
 				</a>

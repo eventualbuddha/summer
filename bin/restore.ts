@@ -8,7 +8,7 @@ import { argv, exit, stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
 import { StringRecordId, Surreal } from 'surrealdb';
-import { parseRecord } from '../src/lib/serialization';
+import { parseRecord } from '../src/lib/serialization.ts';
 
 export const OPTIONS = {
 	help: {
@@ -25,7 +25,7 @@ export const OPTIONS = {
 		type: 'string',
 		short: 'u',
 		description: 'SurrealDB URL',
-		default: 'ws://localhost:8000/'
+		default: 'http://localhost:8000'
 	},
 	username: {
 		type: 'string',
@@ -219,7 +219,7 @@ function showHelp() {
 	stdout.write('Options:\n');
 	stdout.write('  -h, --help      Display help information\n');
 	stdout.write('  -i, --input     Input path for backup directory (required)\n');
-	stdout.write('  -u, --url       SurrealDB URL [ws://localhost:8000/]\n');
+	stdout.write('  -u, --url       SurrealDB URL [http://localhost:8000]\n');
 	stdout.write('  -U, --username  SurrealDB Username\n');
 	stdout.write('  -p, --password  SurrealDB Password\n');
 	stdout.write('  -n, --namespace SurrealDB Namespace (required)\n');

@@ -1,47 +1,23 @@
 import { SvelteMap as Map } from 'svelte/reactivity';
 import { Result } from '@badrap/result';
-import { ConnectionStatus, RecordId, Surreal, Table } from 'surrealdb';
+import * as api from './api';
 import {
-	createBudget,
-	deleteBudget,
-	getBudgetReportData,
-	getBudgetYears,
-	getBudgets,
-	getDefaultCategoryId,
-	getFilterOptions,
-	getSingleBudgetReportData,
-	getTagReportData,
-	getTags,
-	getTransactions,
-	updateBudget,
-	updateDefaultCategoryId,
-	use,
 	type Account,
 	type Budget,
 	type BudgetReportData,
 	type Category,
-	type GetTransactionsOptions,
 	type Tag,
 	type TagReportData,
 	type Transaction,
 	type Transactions
 } from './db';
-import { importStatement } from './db/importStatement';
-import { updateTransactionDescription } from './db/updateTransactionDescription';
+import { parseTransactionDescriptionAndTags } from './db/updateTransactionDescription';
 import type { ImportedTransaction } from './import/ImportedTransaction';
 import type { StatementMetadata } from './import/StatementMetadata';
 import type { Selection } from './types';
 import { Fetcher } from './utils/Fetcher';
 import { Filters } from './utils/Filters.svelte';
 import { NEVER_PROMISE } from './utils/promises';
-
-const LOCAL_STORAGE_KEY = 'lastDb';
-
-export interface DatabaseConnectionInfo {
-	url: string;
-	namespace: string;
-	database: string;
-}
 
 export interface FilterState {
 	years: Selection<number>[];
@@ -81,10 +57,8 @@ export class Sorting {
 	sortBy(field: SortingField): void {
 		const existing = this.#columns.find((c) => c.field === field);
 		if (this.#columns.length === 1 && existing) {
-			// Toggle direction if already the sole sort column
 			existing.direction = existing.direction === 'asc' ? 'desc' : 'asc';
 		} else {
-			// Replace all sorts with single column using default direction
 			this.#columns = [{ field, direction: this.#defaultDirections[field] }];
 		}
 	}
@@ -92,10 +66,8 @@ export class Sorting {
 	addOrToggle(field: SortingField): void {
 		const existing = this.#columns.find((c) => c.field === field);
 		if (existing) {
-			// Toggle direction in place
 			existing.direction = existing.direction === 'asc' ? 'desc' : 'asc';
 		} else {
-			// Add new column to end with default direction
 			this.#columns.push({ field, direction: this.#defaultDirections[field] });
 		}
 	}
@@ -113,7 +85,6 @@ export class Sorting {
 		return this.#columns;
 	}
 
-	// Backward-compatible getters for primary sort
 	get field(): SortingField {
 		return this.#columns[0]?.field ?? this.#defaultField;
 	}
@@ -124,14 +95,9 @@ export class Sorting {
 }
 
 export class State {
-	lastDb = $state<DatabaseConnectionInfo>();
 	lastError = $state<Error>();
-	#surreal = $state<Surreal>();
 	isConnecting = $state(false);
-	#reconnectAttempts = 0;
-	#maxReconnectAttempts = 5;
-	#reconnectTimeoutId: ReturnType<typeof setTimeout> | undefined;
-	#isIntentionalDisconnect = false;
+	#connected = $state(false);
 
 	filters = $state(new Filters());
 	transactions = $state<Transactions>();
@@ -154,25 +120,7 @@ export class State {
 	);
 
 	constructor() {
-		// Auto-connect to the backend on startup
-		this.#autoConnectToBackend();
-
-		// Listen for browser visibility changes (computer wake/sleep)
-		if (typeof document !== 'undefined') {
-			document.addEventListener('visibilitychange', () => {
-				if (document.visibilityState === 'visible') {
-					this.#handleBrowserResume();
-				}
-			});
-
-			// Listen for page show event (back button, etc)
-			window.addEventListener('pageshow', (event) => {
-				// If page was restored from bfcache (back-forward cache)
-				if (event.persisted) {
-					this.#handleBrowserResume();
-				}
-			});
-		}
+		this.#init();
 
 		$effect(() => {
 			this.#updateFilters();
@@ -183,26 +131,38 @@ export class State {
 		});
 	}
 
+	async #init() {
+		this.isConnecting = true;
+		try {
+			await this.#updateFilters();
+			this.#connected = true;
+		} catch (error) {
+			console.error('Failed to connect:', error);
+			this.lastError = error as Error;
+		} finally {
+			this.isConnecting = false;
+		}
+	}
+
 	async #updateFilters() {
-		if (!this.#surreal) return NEVER_PROMISE;
-		this.filters.resetOptions(await getFilterOptions(this.#surreal));
-		this.defaultCategoryId = await getDefaultCategoryId(this.#surreal);
-		this.tags = await getTags(this.#surreal);
-		this.budgets = await getBudgets(this.#surreal);
+		const filterOptions = await api.getFilterOptions();
+		this.filters.resetOptions(filterOptions);
+		this.defaultCategoryId = await api.getDefaultCategoryId();
+		this.tags = await api.getTags();
+		this.budgets = await api.getBudgets();
 	}
 
 	#getTransactionsFetcher = new Fetcher<
-		[options: GetTransactionsOptions, surreal: Surreal],
-		Transactions
-	>((options, surreal, signal) => getTransactions(options, surreal, signal));
+		[params: api.TransactionsQueryParams],
+		api.TransactionsQueryResult
+	>((params, signal) => api.queryTransactions(params, signal));
 
 	async #updateTransactions(stickyTransactionIds: readonly string[]) {
-		const surreal = this.#surreal;
-		if (!surreal) return NEVER_PROMISE;
+		if (!this.#connected) return NEVER_PROMISE;
 
 		const { sort } = this;
 
-		const options: GetTransactionsOptions = {
+		const params: api.TransactionsQueryParams = {
 			years: this.filters.years
 				.filter((selection) => selection.selected)
 				.map((selection) => selection.value),
@@ -211,16 +171,45 @@ export class State {
 				.map((selection) => selection.value),
 			categories: this.filters.categories
 				.filter((selection) => selection.selected)
-				.map((selection) => selection.value),
+				.map((selection) => selection.value.id),
 			accounts: this.filters.accounts
 				.filter((selection) => selection.selected)
-				.map((selection) => selection.value),
+				.map((selection) => selection.value.id),
 			searchTerm: this.filters.searchTerm,
-			stickyTransactionIds,
-			sort
+			stickyTransactionIds: [...stickyTransactionIds],
+			sort: { columns: [...sort.columns] }
 		};
 
-		this.transactions = await this.#getTransactionsFetcher.fetch(options, surreal);
+		const result = await this.#getTransactionsFetcher.fetch(params);
+
+		// Parse dates from JSON strings
+		const transactions = result.transactions.map((t) => ({
+			...t,
+			date: new Date(t.date)
+		}));
+
+		// Reconstruct the Transactions shape expected by the UI
+		const categories = this.filters.categories.filter((s) => s.selected).map((s) => s.value);
+		const accounts = this.filters.accounts.filter((s) => s.selected).map((s) => s.value);
+		const years = params.years;
+
+		this.transactions = {
+			count: transactions.length,
+			total: result.total,
+			totalByYear: years.map((year) => ({
+				year,
+				total: result.totalByYear.find((item) => item.year === year)?.total ?? 0
+			})),
+			totalByCategory: categories.map((category) => ({
+				category,
+				total: result.totalByCategoryId.find((item) => item.categoryId === category.id)?.total ?? 0
+			})),
+			totalByAccount: accounts.map((account) => ({
+				account,
+				total: result.totalByAccountId.find((item) => item.accountId === account.id)?.total ?? 0
+			})),
+			list: transactions
+		};
 	}
 
 	selectYears(keys: readonly string[]): void {
@@ -286,183 +275,11 @@ export class State {
 		callback(this.filters);
 	}
 
-	async #autoConnectToBackend() {
-		try {
-			const response = await fetch('/api/backend-info');
-			if (!response.ok) {
-				throw new Error('Backend info not available');
-			}
-			const info = await response.json();
-			if (!info.hasBackend) {
-				throw new Error('No backend database configured');
-			}
-
-			await this.connect({
-				url: info.url,
-				namespace: info.defaultNamespace,
-				database: info.defaultDatabase
-			});
-		} catch (error) {
-			console.error('Auto-connect to backend failed:', error);
-			this.lastError = error as Error;
-		}
-	}
-
 	get isConnected() {
-		return !!this.#surreal;
-	}
-
-	async connect({
-		url,
-		namespace,
-		database
-	}: {
-		url: string;
-		namespace: string;
-		database: string;
-	}) {
-		this.isConnecting = true;
-		this.lastError = undefined;
-
-		// Clear old data when switching connections
-		this.transactions = undefined;
-		this.defaultCategoryId = undefined;
-		this.tags = [];
-		this.budgets = undefined;
-		this.budgetReportData = undefined;
-		this.tagReportData = undefined;
-
-		try {
-			const surreal = new Surreal();
-			await surreal.connect(url);
-			await use(surreal, { namespace, database, init: true });
-
-			const connectionInfo = {
-				url,
-				namespace,
-				database
-			};
-
-			localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(connectionInfo));
-
-			this.lastDb = connectionInfo;
-			this.#surreal = surreal;
-			this.#reconnectAttempts = 0; // Reset reconnect attempts on successful connection
-
-			// Set up connection event listeners
-			this.#setupConnectionListeners(surreal);
-		} catch (error) {
-			console.error('Connection failed:', error);
-			this.lastError = error as Error;
-			throw error; // Re-throw so callers can handle it
-		} finally {
-			this.isConnecting = false;
-		}
-	}
-
-	#setupConnectionListeners(surreal: Surreal) {
-		// Listen for disconnection events
-		surreal.emitter.subscribe('disconnected', () => {
-			// Don't reconnect if this was an intentional disconnect
-			if (this.#isIntentionalDisconnect) {
-				this.#isIntentionalDisconnect = false;
-				return;
-			}
-			console.warn('SurrealDB connection disconnected, attempting to reconnect...');
-			this.#attemptReconnect();
-		});
-
-		// Listen for error events
-		surreal.emitter.subscribe('error', (error) => {
-			console.error('SurrealDB connection error:', error);
-			this.lastError = error;
-		});
-
-		// Listen for successful reconnection
-		surreal.emitter.subscribe('connected', () => {
-			console.log('SurrealDB connection established');
-			this.#reconnectAttempts = 0; // Reset on successful connection
-		});
-	}
-
-	#handleBrowserResume() {
-		const surreal = this.#surreal;
-		if (!surreal || !this.lastDb) return;
-
-		// Check connection status
-		if (
-			surreal.status === ConnectionStatus.Disconnected ||
-			surreal.status === ConnectionStatus.Error
-		) {
-			console.log('Browser resumed, connection lost. Attempting to reconnect...');
-			this.#attemptReconnect();
-		} else {
-			// Ping to verify connection is still alive
-			surreal.ping().catch((error) => {
-				console.warn('Ping failed after browser resume:', error);
-				this.#attemptReconnect();
-			});
-		}
-	}
-
-	#attemptReconnect() {
-		// Clear any existing reconnect timeout
-		if (this.#reconnectTimeoutId) {
-			clearTimeout(this.#reconnectTimeoutId);
-		}
-
-		const lastDb = this.lastDb;
-		if (!lastDb) {
-			console.warn('No previous connection info available for reconnection');
-			return;
-		}
-
-		if (this.#reconnectAttempts >= this.#maxReconnectAttempts) {
-			console.error('Max reconnection attempts reached');
-			this.lastError = new Error('Failed to reconnect to SurrealDB after multiple attempts');
-			return;
-		}
-
-		// Exponential backoff: 1s, 2s, 4s, 8s, 16s
-		const delay = Math.min(1000 * Math.pow(2, this.#reconnectAttempts), 16000);
-		this.#reconnectAttempts++;
-
-		console.log(
-			`Reconnect attempt ${this.#reconnectAttempts}/${this.#maxReconnectAttempts} in ${delay}ms...`
-		);
-
-		this.#reconnectTimeoutId = setTimeout(() => {
-			this.connect(lastDb).catch((error) => {
-				console.error('Reconnection attempt failed:', error);
-				// The connect method will have set lastError
-				// Try again
-				this.#attemptReconnect();
-			});
-		}, delay);
-	}
-
-	disconnect() {
-		// Mark this as an intentional disconnect to prevent auto-reconnect
-		this.#isIntentionalDisconnect = true;
-
-		// Clear any pending reconnection attempts
-		if (this.#reconnectTimeoutId) {
-			clearTimeout(this.#reconnectTimeoutId);
-			this.#reconnectTimeoutId = undefined;
-		}
-		this.#reconnectAttempts = 0;
-
-		if (this.#surreal) {
-			this.#surreal.close();
-			this.#surreal = undefined;
-		}
+		return this.#connected;
 	}
 
 	async setCategory(transaction: Transaction, category: Category | undefined) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-
 		if (!this.filters) {
 			throw new Error('No filters have been loaded');
 		}
@@ -470,16 +287,7 @@ export class State {
 		const oldCategory = transaction.categoryId;
 		transaction.categoryId = category?.id;
 		try {
-			if (category) {
-				await this.#surreal.query(`UPDATE $transaction SET category = $category`, {
-					transaction: new RecordId('transaction', transaction.id),
-					category: new RecordId('category', category.id)
-				});
-			} else {
-				await this.#surreal.query(`UPDATE $transaction SET category = none`, {
-					transaction: new RecordId('transaction', transaction.id)
-				});
-			}
+			await api.setTransactionCategory(transaction.id, category?.id ?? null);
 			this.filters.addStickyTransactionId(transaction.id);
 		} catch (error) {
 			console.error(error);
@@ -489,41 +297,25 @@ export class State {
 	}
 
 	async setBulkCategory(transactions: readonly Transaction[], category: Category | undefined) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-
 		if (!this.filters) {
 			throw new Error('No filters have been loaded');
 		}
 
-		// Store original category IDs for rollback on error
 		const originalCategories = new Map<string, string | undefined>();
 		for (const transaction of transactions) {
 			originalCategories.set(transaction.id, transaction.categoryId);
 		}
 
-		// Update local state first
 		for (const transaction of transactions) {
 			transaction.categoryId = category?.id;
 		}
 
 		try {
-			// Build array of transaction RecordIds
-			const transactionIds = transactions.map((t) => new RecordId('transaction', t.id));
+			await api.setBulkTransactionCategory(
+				transactions.map((t) => t.id),
+				category?.id ?? null
+			);
 
-			if (category) {
-				await this.#surreal.query(`UPDATE $transactions SET category = $category`, {
-					transactions: transactionIds,
-					category: new RecordId('category', category.id)
-				});
-			} else {
-				await this.#surreal.query(`UPDATE $transactions SET category = none`, {
-					transactions: transactionIds
-				});
-			}
-
-			// Add all transactions to sticky list to keep them visible
 			for (const transaction of transactions) {
 				this.filters.addStickyTransactionId(transaction.id);
 			}
@@ -531,7 +323,6 @@ export class State {
 			console.error(error);
 			this.lastError = error as Error;
 
-			// Rollback local state changes
 			for (const transaction of transactions) {
 				transaction.categoryId = originalCategories.get(transaction.id);
 			}
@@ -539,95 +330,76 @@ export class State {
 	}
 
 	async updateAccountName(accountId: string, name: string) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await this.#surreal.query(`UPDATE account SET name = $name WHERE id = $id`, {
-			id: new RecordId('account', accountId),
-			name
-		});
+		await api.updateAccount(accountId, { name });
 		await this.#updateFilters();
 	}
 
 	async updateAccountNumber(accountId: string, number?: string) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await this.#surreal.query(`UPDATE account SET number = $number WHERE id = $id`, {
-			id: new RecordId('account', accountId),
-			number
-		});
+		await api.updateAccount(accountId, { number });
 		await this.#updateFilters();
 	}
 
 	async updateAccountType(accountId: string, type: string) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await this.#surreal.query(`UPDATE account SET type = $type WHERE id = $id`, {
-			id: new RecordId('account', accountId),
-			type
-		});
+		await api.updateAccount(accountId, { type });
 		await this.#updateFilters();
 	}
 
 	async createCategory(category: Omit<Category, 'id' | 'ordinal'> & { id?: string }) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await this.#surreal.create(new Table('category'), category);
+		await api.createCategory(category);
 		await this.#updateFilters();
 	}
 
 	async updateCategoryName(categoryId: string, name: string) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await this.#surreal.query(`UPDATE category SET name = $name WHERE id = $id`, {
-			id: new RecordId('category', categoryId),
-			name
-		});
+		await api.updateCategory(categoryId, { name });
 		await this.#updateFilters();
 	}
 
 	async updateCategoryEmoji(categoryId: string, emoji: string) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await this.#surreal.query(`UPDATE category SET emoji = $emoji WHERE id = $id`, {
-			id: new RecordId('category', categoryId),
-			emoji
-		});
+		await api.updateCategory(categoryId, { emoji });
 		await this.#updateFilters();
 	}
 
 	async updateCategoryColor(categoryId: string, color: string) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await this.#surreal.query(`UPDATE category SET color = $color WHERE id = $id`, {
-			id: new RecordId('category', categoryId),
-			color
-		});
+		await api.updateCategory(categoryId, { color });
 		await this.#updateFilters();
 	}
 
 	async updateDefaultCategoryId(newDefaultCategoryId: string) {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await updateDefaultCategoryId(this.#surreal, newDefaultCategoryId);
+		await api.updateDefaultCategoryId(newDefaultCategoryId);
 	}
 
 	async updateTransactionDescription(
 		transaction: Transaction,
 		description?: string
 	): Promise<Result<void>> {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
+		const parsed = parseTransactionDescriptionAndTags(description ?? '');
+		const originalTagged = transaction.tagged;
+		const originalDescription = transaction.description;
 
-		return await updateTransactionDescription(this.#surreal, transaction, description ?? '');
+		transaction.description = parsed.description.trim();
+		transaction.tagged = parsed.tagged.map((t, i) => ({
+			id: `placeholder-${i}`,
+			tag: {
+				id: `placeholder-${i}`,
+				name: t.name
+			},
+			year: t.year
+		}));
+
+		try {
+			const result = await api.updateTransactionDescription(
+				transaction.id,
+				parsed.description,
+				parsed.tagged,
+				originalTagged
+			);
+			transaction.tagged = result.tagged;
+			return Result.ok(undefined);
+		} catch (error) {
+			transaction.description = originalDescription;
+			transaction.tagged = originalTagged;
+			return Result.err(error as Error);
+		}
 	}
 
 	async importStatement(
@@ -637,74 +409,69 @@ export class State {
 		metadata: StatementMetadata,
 		transactions: readonly ImportedTransaction[]
 	): Promise<Result<void>> {
-		const db = this.#surreal;
-		if (!db) {
-			throw new Error('Not connected to SurrealDB');
+		// Convert PDF data to base64
+		let binary = '';
+		for (let i = 0; i < pdfData.length; i++) {
+			binary += String.fromCharCode(pdfData[i]!);
 		}
+		const pdfDataBase64 = btoa(binary);
 
-		const result = await importStatement(db, filename, pdfData, source, metadata, transactions);
+		try {
+			const result = await api.importStatement({
+				source,
+				accountNumber: metadata.account,
+				accountName: metadata.accountName,
+				accountType: metadata.accountType,
+				filename,
+				pdfData: pdfDataBase64,
+				statementDate: metadata.closingDate.toISO()!,
+				transactions: transactions.map((t) => ({
+					date: t.date.toISO()!,
+					amount: t.amount,
+					statementDescription: t.statementDescription,
+					type: t.kind
+				}))
+			});
 
-		if (result.isErr) {
-			return Result.err(result.error);
+			await this.#updateFilters();
+			this.selectAccounts([result.account.id]);
+			const statementDate = new Date(result.statement.date);
+			this.selectYears([statementDate.getFullYear().toString()]);
+			this.selectMonths([(statementDate.getMonth() + 1).toString()]);
+			return Result.ok(undefined);
+		} catch (error) {
+			return Result.err(error as Error);
 		}
-
-		const { account, statement } = result.value;
-		await this.#updateFilters();
-		this.selectAccounts([account.id]);
-		this.selectYears([statement.date.getFullYear().toString()]);
-		this.selectMonths([(statement.date.getMonth() + 1).toString()]);
-		return Result.ok(undefined);
 	}
 
 	async createBudget(budget: Omit<Budget, 'id'>): Promise<void> {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await createBudget(this.#surreal, budget);
-		this.budgets = await getBudgets(this.#surreal);
+		await api.createBudget(budget);
+		this.budgets = await api.getBudgets();
 	}
 
 	async updateBudget(budget: Budget): Promise<void> {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await updateBudget(this.#surreal, budget);
-		this.budgets = await getBudgets(this.#surreal);
+		await api.updateBudget(budget);
+		this.budgets = await api.getBudgets();
 	}
 
 	async deleteBudget(budgetId: string): Promise<void> {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		await deleteBudget(this.#surreal, budgetId);
-		this.budgets = await getBudgets(this.#surreal);
+		await api.deleteBudget(budgetId);
+		this.budgets = await api.getBudgets();
 	}
 
 	async loadBudgetYears(): Promise<void> {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		this.budgetYears = await getBudgetYears(this.#surreal);
+		this.budgetYears = await api.getBudgetYears();
 	}
 
 	async loadBudgetReportData(year?: number): Promise<void> {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		this.budgetReportData = await getBudgetReportData(this.#surreal, year);
+		this.budgetReportData = await api.getBudgetReportData(year);
 	}
 
 	async loadSingleBudgetReportData(budgetName: string): Promise<void> {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		this.budgetReportData = await getSingleBudgetReportData(this.#surreal, budgetName);
+		this.budgetReportData = await api.getSingleBudgetReportData(budgetName);
 	}
 
 	async loadTagReportData(): Promise<void> {
-		if (!this.#surreal) {
-			throw new Error('Not connected to SurrealDB');
-		}
-		this.tagReportData = await getTagReportData(this.#surreal);
+		this.tagReportData = await api.getTagReportData();
 	}
 }

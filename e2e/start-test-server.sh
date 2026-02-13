@@ -33,10 +33,9 @@ if [ "$SURREAL_READY" != true ]; then
   exit 1
 fi
 # Start the web server with test database configuration
-export BACKEND_SURREALDB_WS_URL=ws://127.0.0.1:${SURREALDB_PORT}/rpc
-export BACKEND_SURREALDB_HTTP_URL=http://127.0.0.1:${SURREALDB_PORT}
-export DEFAULT_NAMESPACE=ns
-export DEFAULT_DATABASE=db
+export SURREALDB_URL=http://127.0.0.1:${SURREALDB_PORT}
+export SURREALDB_NAMESPACE=ns
+export SURREALDB_DATABASE=db
 export PORT=3000
 
 # Trap to kill SurrealDB when the web server exits
@@ -49,7 +48,7 @@ SERVER_PID=$!
 # Wait for web server to be fully ready and able to serve requests
 echo "Waiting for web server to be ready..."
 for i in {1..30}; do
-  if curl -s http://127.0.0.1:3000/api/backend-info >/dev/null 2>&1; then
+  if curl -s http://127.0.0.1:3000/api/filters >/dev/null 2>&1; then
     echo "Web server is ready!"
     # Additional delay to ensure all connections are stable
     sleep 2

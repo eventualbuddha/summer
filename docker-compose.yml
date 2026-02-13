@@ -9,6 +9,12 @@ services:
     volumes:
       - /home/brian/summer-data:/data
     command: start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all file:/data
+    healthcheck:
+      test: [CMD, /surreal, isready]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     networks:
       - summer-network
 
@@ -19,15 +25,15 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - surrealdb
+      surrealdb:
+        condition: service_healthy
     networks:
       - summer-network
     environment:
       - NODE_ENV=production
-      - BACKEND_SURREALDB_WS_URL=ws://surrealdb:8000/rpc
-      - BACKEND_SURREALDB_HTTP_URL=http://surrealdb:8000
-      - DEFAULT_NAMESPACE=summer
-      - DEFAULT_DATABASE=summer
+      - SURREALDB_URL=http://surrealdb:8000
+      - SURREALDB_NAMESPACE=summer
+      - SURREALDB_DATABASE=summer
 
 volumes:
   surrealdb-data:

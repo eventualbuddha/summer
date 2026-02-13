@@ -1,19 +1,40 @@
-import { AccountSchema, StatementSchema, type Account, type Statement } from '$lib/db';
-import type { ImportedTransaction } from '$lib/import/ImportedTransaction';
-import type { StatementMetadata } from '$lib/import/StatementMetadata';
-import { Result } from '@badrap/result';
-import { Surreal } from 'surrealdb';
+import { json, type RequestHandler } from '@sveltejs/kit';
+import { getDb } from '$lib/server/db';
 import { z } from 'zod';
 
-export async function importStatement(
-	surreal: Surreal,
-	filename: string,
-	pdfData: Uint8Array,
-	source: string,
-	metadata: StatementMetadata,
-	transactions: readonly ImportedTransaction[]
-): Promise<Result<{ account: Account; statement: Statement }>> {
-	const results = await surreal.queryRaw(
+export const POST: RequestHandler = async ({ request }) => {
+	const body = await request.json();
+	const {
+		source,
+		accountNumber,
+		accountName,
+		accountType,
+		filename,
+		pdfData,
+		statementDate,
+		transactions
+	} = body as {
+		source: string;
+		accountNumber: string;
+		accountName: string;
+		accountType: string;
+		filename: string;
+		pdfData: string; // base64
+		statementDate: string; // ISO date
+		transactions: Array<{
+			date: string;
+			amount: number;
+			statementDescription: string;
+			type: string;
+		}>;
+	};
+
+	const db = await getDb();
+
+	// Decode base64 PDF data to Uint8Array
+	const pdfBytes = Uint8Array.from(atob(pdfData), (c) => c.charCodeAt(0));
+
+	const results = await db.queryRaw(
 		`
 BEGIN TRANSACTION;
 
@@ -85,66 +106,75 @@ COMMIT TRANSACTION;
 		`,
 		{
 			source,
-			accountNumber: metadata.account,
-			accountName: metadata.accountName,
-			accountType: metadata.accountType,
+			accountNumber,
+			accountName,
+			accountType,
 			filename,
-			pdfData,
-			statementDate: metadata.closingDate.toJSDate(),
+			pdfData: pdfBytes,
+			statementDate: new Date(statementDate),
 			transactions: transactions.map((t) => ({
-				date: t.date.toJSDate(),
-				amount: t.amount,
-				statementDescription: t.statementDescription,
-				type: t.kind
+				...t,
+				date: new Date(t.date)
 			}))
 		}
 	);
 
 	const errors = results.filter((r) => r.status === 'ERR');
-	const errorMessage = errors
-		.find(({ status, result }) => status === 'ERR' && !/failed transaction/.test(result))
-		?.result?.replace(/^An error occurred:\s*/, '');
+	const errorMessage = errors.find(
+		({ status, result }) => status === 'ERR' && !/failed transaction/.test(result as string)
+	)?.result;
 
 	if (errors.length > 0) {
-		return Result.err(new Error(errorMessage));
+		return json(
+			{
+				error:
+					((errorMessage as string)?.replace(/^An error occurred:\s*/, '') as string) ??
+					'Import failed'
+			},
+			{ status: 400 }
+		);
 	}
+
+	const AccountSchema = z.object({
+		id: z.string().nonempty(),
+		type: z.string().nonempty(),
+		number: z.string().nonempty().optional(),
+		name: z.string().nonempty()
+	});
+
+	const StatementSchema = z.object({
+		id: z.string().nonempty(),
+		account: z.string().nonempty(),
+		date: z.instanceof(Date),
+		file: z.string().nonempty()
+	});
 
 	const [, accountResult, , , , , statementResult] = z
 		.tuple([
-			// LET $account = …
 			z.unknown(),
-			// Account record.
-			z.object({ status: z.union([z.literal('OK'), z.literal('ERR')]), result: AccountSchema }),
-			// LET $file = …
+			z.object({
+				status: z.union([z.literal('OK'), z.literal('ERR')]),
+				result: AccountSchema
+			}),
 			z.unknown(),
-			// LET $existingStatement = …
 			z.unknown(),
-			// IF $existingStatement { … }
 			z.unknown(),
-			// LET $statement = …
 			z.unknown(),
-			// Statement record.
-			z.object({ status: z.union([z.literal('OK'), z.literal('ERR')]), result: StatementSchema }),
-			// LET $defaultCategory = …
+			z.object({
+				status: z.union([z.literal('OK'), z.literal('ERR')]),
+				result: StatementSchema
+			}),
 			z.unknown(),
-			// IF !$defaultCategory { … }
 			z.unknown(),
-			// FOR $t IN $transactions { … }
 			z.unknown()
 		])
 		.parse(results);
 
-	console.log('Account result:', accountResult);
-	console.log('Statement result:', statementResult);
-	if (accountResult.status !== 'OK' || statementResult.status !== 'OK') {
-		throw new Error('Results should be OK');
-	}
-
-	return Result.ok({
+	return json({
 		account: accountResult.result,
 		statement: {
 			...statementResult.result,
-			account: accountResult.result
+			date: statementResult.result.date.toISOString()
 		}
 	});
-}
+};

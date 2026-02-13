@@ -7,8 +7,8 @@ import { dirname, parse } from 'node:path';
 import { argv, exit, stderr, stdout } from 'node:process';
 import { parseArgs } from 'node:util';
 import type PDFDocument from 'pdfkit';
-import { PageText } from '../src/lib/import/statement/page';
-import { Statement, StatementSchema } from '../src/lib/import/statement/Statement';
+import { PageText } from '../src/lib/import/statement/page.ts';
+import { Statement, StatementSchema } from '../src/lib/import/statement/Statement.ts';
 
 const options = parseArgs({
 	args: argv.slice(2),

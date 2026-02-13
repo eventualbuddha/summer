@@ -4,15 +4,15 @@ import { join } from 'node:path';
 import { argv, exit, stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
-import { backup, OPTIONS } from './backup';
-import { restore } from './restore';
+import { backup, OPTIONS } from './backup.ts';
+import { restore } from './restore.ts';
 
 function showHelp() {
 	stdout.write('Usage: update-schema [options]\n\n');
 	stdout.write('Options:\n');
 	stdout.write('  -h, --help      Display help information\n');
 	stdout.write('  -o, --output    Output path for backup directory\n');
-	stdout.write('  -u, --url       SurrealDB URL [ws://localhost:8000/]\n');
+	stdout.write('  -u, --url       SurrealDB URL [http://localhost:8000]\n');
 	stdout.write('  -U, --username  SurrealDB Username\n');
 	stdout.write('  -n, --namespace SurrealDB Namespace\n');
 	stdout.write('  -d, --database  SurrealDB Database\n');
