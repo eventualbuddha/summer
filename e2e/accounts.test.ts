@@ -1,15 +1,10 @@
 import { waitFor } from './utils/helpers';
 import { expect, test } from './utils/surrealdb-test';
 
-test('view & update accounts', async ({ page, pageHelpers, createAccount, surreal }) => {
-	await page.goto('/accounts');
-	const newConnectionButton = page.locator('button', { hasText: 'New Connection' });
-	await newConnectionButton.click();
-
+test('view & update accounts', async ({ page, createAccount, surreal }) => {
 	const account = await createAccount({ name: 'MyBank Checking' });
 
-	// Connect to the database
-	await pageHelpers.connect(page);
+	await page.goto('/accounts');
 
 	// Check for the account
 	const $accountType = page.getByRole('cell', { name: 'Account Type' }).getByRole('combobox');
