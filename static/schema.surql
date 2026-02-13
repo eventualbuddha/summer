@@ -45,6 +45,8 @@ DEFINE FIELD type ON TABLE transaction TYPE string;
 DEFINE INDEX transactionDateIndex ON TABLE transaction COLUMNS date;
 DEFINE INDEX transactionCategoryIndex ON TABLE transaction COLUMNS category;
 DEFINE INDEX transactionDateCategoryIndex ON TABLE transaction COLUMNS date, category;
+DEFINE INDEX transactionStatementDateIndex ON TABLE transaction COLUMNS statement.date;
+DEFINE INDEX transactionStatementDateCategoryIndex ON TABLE transaction COLUMNS statement.date, category;
 
 REMOVE TABLE IF EXISTS budget;
 DEFINE TABLE budget SCHEMAFULL;
