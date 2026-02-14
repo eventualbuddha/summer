@@ -34,7 +34,7 @@
 <div
 	bind:this={rowElement}
 	data-transaction
-	class="flex grow-0 cursor-pointer flex-row items-center gap-2"
+	class="-mx-1 flex grow-0 cursor-pointer flex-row items-center gap-2 rounded-md px-1 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
 	onclick={handleRowClick}
 	onkeydown={(e) => {
 		if (e.key === 'Enter' || e.key === ' ') {
