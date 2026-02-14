@@ -47,12 +47,21 @@
 		// Check if the popover fits below the trigger
 		const fitsBelow = triggerRect.bottom + contentRect.height <= window.innerHeight;
 
+		// Vertical positioning
 		if (fitsBelow) {
 			popoverElement.style.top = `${triggerRect.bottom}px`;
 		} else {
 			popoverElement.style.top = `${triggerRect.top - contentRect.height}px`;
 		}
-		popoverElement.style.left = `${triggerRect.left}px`;
+
+		// Horizontal positioning: prefer aligning left with the trigger,
+		// but keep the popover within the viewport width.
+		const fitsRight = triggerRect.left + contentRect.width <= window.innerWidth;
+		const left = fitsRight
+			? triggerRect.left
+			: Math.max(0, triggerRect.right - contentRect.width);
+
+		popoverElement.style.left = `${left}px`;
 	}
 
 	// Close on scroll of any ancestor
