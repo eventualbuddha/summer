@@ -24,7 +24,10 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 	const parsedBody = BODY.safeParse(await request.json());
 
 	if (!parsedBody.success) {
-		throw error(400, `invalid request body: ${JSON.stringify(parsedBody.error)}`);
+		return json(
+			{ error: `invalid request body: ${JSON.stringify(parsedBody.error)}` },
+			{ status: 400 }
+		);
 	}
 
 	const body = parsedBody.data;
