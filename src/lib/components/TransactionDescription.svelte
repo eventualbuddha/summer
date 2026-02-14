@@ -43,7 +43,14 @@
 		<span
 			class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-200"
 		>
-			#{tagged.tag.name}{#if tagged.year}-{tagged.year}{/if}
+			{tagged.tag.name}
+			{#if tagged.year}
+				<span
+					class="ml-1 rounded-full bg-blue-200 px-1.5 py-0.5 text-xs font-medium text-blue-900 dark:bg-blue-700 dark:text-blue-100"
+				>
+					{tagged.year}
+				</span>
+			{/if}
 		</span>
 	{/each}
 

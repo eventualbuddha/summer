@@ -1,9 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
-import {
-	parseTransactionDescriptionAndTags,
-	type NewTagged
-} from '$lib/db/updateTransactionDescription';
+import type { NewTagged } from '$lib/db/updateTransactionDescription';
 import { z } from 'zod';
 
 interface SortColumn {
@@ -16,7 +13,8 @@ const BODY = z.object({
 	months: z.array(z.number()),
 	categories: z.array(z.string()),
 	accounts: z.array(z.string()),
-	searchTerm: z.string(),
+	searchText: z.string(),
+	searchTags: z.array(z.object({ name: z.string(), year: z.number().optional() })),
 	stickyTransactionIds: z.array(z.string()),
 	sort: z.object({
 		columns: z.array(
@@ -28,8 +26,8 @@ const BODY = z.object({
 	})
 });
 
-function amountsToMatchForSearchTerm(searchTerm: string): number[] {
-	const match = searchTerm.match(/^([-+])?(\d{1,10}\.\d{2})$/);
+function amountsToMatchForSearchTerm(searchText: string): number[] {
+	const match = searchText.match(/^([-+])?(\d{1,10}\.\d{2})$/);
 	if (!match) return [];
 	const [, sign, amount] = match;
 	const amountNumber = parseFloat(amount as string) * 100;
@@ -67,8 +65,9 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const body = parsedBody.data;
 
-	const searchTermParsed = parseTransactionDescriptionAndTags(body.searchTerm);
-	const amounts = amountsToMatchForSearchTerm(body.searchTerm);
+	const descriptionFilter = body.searchText.trim();
+	const taggedFilter = body.searchTags;
+	const amounts = amountsToMatchForSearchTerm(body.searchText);
 
 	const columns = body.sort.columns;
 	if (columns.length === 0) {
@@ -127,8 +126,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		months: body.months,
 		categories: body.categories,
 		accounts: body.accounts,
-		descriptionFilter: searchTermParsed.description,
-		taggedFilter: searchTermParsed.tagged as NewTagged[],
+		descriptionFilter,
+		taggedFilter: taggedFilter as NewTagged[],
 		amounts
 	});
 

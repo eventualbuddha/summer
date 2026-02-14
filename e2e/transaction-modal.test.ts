@@ -112,8 +112,8 @@ test('add tag via token input', async ({ page, pageHelpers, createTransaction })
 	await tagInput.fill('vacation');
 	await tagInput.press('Enter');
 
-	// Verify chip appears
-	await expect(modal.getByText('#vacation')).toBeVisible();
+	// Verify chip appears (without # prefix)
+	await expect(modal.getByText('vacation')).toBeVisible();
 
 	// Verify persisted
 	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'vacation' }]);
@@ -133,13 +133,14 @@ test('add tag with year', async ({ page, pageHelpers, createTransaction }) => {
 	const modal = page.getByRole('dialog');
 	await expect(modal).toBeVisible();
 
-	// Add a tag with year
+	// Add a tag with year — year is now space-separated
 	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
-	await tagInput.fill('trip-2025');
+	await tagInput.fill('trip 2025');
 	await tagInput.press('Enter');
 
-	// Verify chip appears with year
-	await expect(modal.getByText('#trip-2025')).toBeVisible();
+	// Verify chip appears with year pill (without # prefix)
+	await expect(modal.getByText('trip')).toBeVisible();
+	await expect(modal.getByText('2025', { exact: true })).toBeVisible();
 
 	// Verify year is persisted
 	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'trip', year: 2025 }]);
@@ -196,15 +197,15 @@ test('tag autocomplete', async ({ page, createTransaction, tagTransaction }) => 
 	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
 	await tagInput.fill('vac');
 
-	// Verify autocomplete dropdown shows
-	await expect(modal.getByRole('option', { name: '#vacation' })).toBeVisible();
+	// Verify autocomplete dropdown shows (without # prefix)
+	await expect(modal.getByRole('option', { name: 'vacation' })).toBeVisible();
 
 	// Use arrow key to select and Enter to confirm
 	await tagInput.press('ArrowDown');
 	await tagInput.press('Enter');
 
-	// Verify chip appears
-	await expect(modal.getByText('#vacation')).toBeVisible();
+	// Verify chip appears (without # prefix)
+	await expect(modal.getByText('vacation')).toBeVisible();
 });
 
 test('change category in modal', async ({ page, createCategory, createTransaction, surreal }) => {

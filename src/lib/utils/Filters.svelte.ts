@@ -1,5 +1,6 @@
 import { SvelteSet as Set } from 'svelte/reactivity';
 import type { Account, Category, FilterOptions } from '$lib/db';
+import type { NewTagged } from '$lib/db/updateTransactionDescription';
 import type { Selection } from '$lib/types';
 
 export class Filters {
@@ -7,7 +8,8 @@ export class Filters {
 	months: Selection<number>[] = $state([]);
 	categories: Selection<Category>[] = $state([]);
 	accounts: Selection<Account>[] = $state([]);
-	searchTerm = $state('');
+	searchText = $state('');
+	searchTags: NewTagged[] = $state([]);
 	#stickyTransactionIds: string[] = $state([]);
 
 	constructor() {
@@ -19,7 +21,8 @@ export class Filters {
 			// If any of these change…
 			for (const selection of [...this.accounts, ...this.categories, ...this.months, ...this.years])
 				void selection.selected;
-			void this.searchTerm;
+			void this.searchText;
+			void this.searchTags;
 
 			// …clear the list of sticky transactions.
 			console.log('clearing sticky transaction IDs');
@@ -57,6 +60,7 @@ export class Filters {
 			value: category,
 			selected: true
 		}));
-		this.searchTerm = '';
+		this.searchText = '';
+		this.searchTags = [];
 	}
 }

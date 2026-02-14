@@ -1,56 +1,39 @@
 <script lang="ts">
-	import type { Account, Category } from '$lib/db';
+	import type { Account, Category, Tag } from '$lib/db';
+	import type { NewTagged } from '$lib/db/updateTransactionDescription';
 	import type { Selection } from '$lib/types';
 	import AccountMultiSelect from './AccountMultiSelect.svelte';
 	import CategoryMultiSelect from './CategoryMultiSelect.svelte';
 	import MonthMultiSelect from './MonthMultiSelect.svelte';
+	import SearchInput from './SearchInput.svelte';
 	import YearMultiSelect from './YearMultiSelect.svelte';
-	import { onMount, untrack } from 'svelte';
+	import { onMount } from 'svelte';
 
 	let {
 		yearSelections = $bindable(),
 		monthSelections = $bindable(),
 		categorySelections = $bindable(),
 		accountSelections = $bindable(),
-		searchTerm = $bindable(),
+		searchText = $bindable(),
+		searchTags = $bindable(),
+		availableTags,
 		onclear
 	}: {
 		yearSelections: Selection<number>[];
 		monthSelections: Selection<number>[];
 		categorySelections: Selection<Category>[];
 		accountSelections: Selection<Account>[];
-		searchTerm: string;
+		searchText: string;
+		searchTags: NewTagged[];
+		availableTags: Tag[];
 		onclear?: () => void;
 	} = $props();
 
-	let editableSearchTerm = $state(searchTerm);
-	let searchInput: HTMLInputElement;
-
-	// Sync editableSearchTerm → searchTerm (with debounce)
-	$effect(() => {
-		let newSearchTerm = editableSearchTerm;
-		let timeout = setTimeout(() => {
-			searchTerm = newSearchTerm;
-		}, 300);
-		return () => clearTimeout(timeout);
-	});
-
-	// Sync searchTerm → editableSearchTerm (when changed externally, e.g., by clearFilters)
-	$effect(() => {
-		const current = searchTerm;
-		untrack(() => {
-			// Only update if they're different to avoid infinite loops
-			if (current !== editableSearchTerm) {
-				editableSearchTerm = current;
-			}
-		});
-	});
+	let searchInput: SearchInput;
 
 	function handleKeydown(event: KeyboardEvent) {
-		// Focus search input when "/" is pressed (unless already in an input/textarea)
 		if (
 			event.key === '/' &&
-			event.target !== searchInput &&
 			!(event.target instanceof HTMLInputElement) &&
 			!(event.target instanceof HTMLTextAreaElement)
 		) {
@@ -60,17 +43,7 @@
 		}
 	}
 
-	function handleSearchKeydown(event: KeyboardEvent) {
-		// Blur search input when Escape is pressed
-		if (event.key === 'Escape') {
-			searchInput?.blur();
-		}
-	}
-
 	function handleClear() {
-		// Clear local state immediately to cancel any pending debounced updates
-		editableSearchTerm = '';
-		// Then call the parent's clear handler
 		onclear?.();
 	}
 
@@ -89,14 +62,7 @@
 		<MonthMultiSelect aria-label="Month Filter" bind:selections={monthSelections} />
 		<CategoryMultiSelect aria-label="Category Filter" bind:selections={categorySelections} />
 		<AccountMultiSelect aria-label="Account Filter" bind:selections={accountSelections} />
-		<input
-			bind:this={searchInput}
-			type="text"
-			placeholder="Search (/)"
-			bind:value={editableSearchTerm}
-			onkeydown={handleSearchKeydown}
-			class="rounded-md border border-gray-300 bg-white px-2 dark:border-gray-600 dark:bg-gray-800"
-		/>
+		<SearchInput bind:this={searchInput} bind:searchText bind:searchTags {availableTags} />
 		{#if onclear}
 			<button
 				type="button"

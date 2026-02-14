@@ -11,7 +11,7 @@ DEFINE INDEX categoryOrdinalIndex ON TABLE category COLUMNS ordinal UNIQUE;
 
 REMOVE TABLE IF EXISTS tag;
 DEFINE TABLE tag SCHEMAFULL;
-DEFINE FIELD name ON TABLE tag TYPE string ASSERT !name.contains(" ");
+DEFINE FIELD name ON TABLE tag TYPE string;
 DEFINE INDEX tagNameIndex ON TABLE tag COLUMNS name UNIQUE;
 
 REMOVE TABLE IF EXISTS file;
