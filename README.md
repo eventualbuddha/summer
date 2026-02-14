@@ -13,36 +13,32 @@ The easiest way to run Summer is with Docker Compose, which includes a built-in 
 1. Clone the repository: `git clone https://github.com/eventualbuddha/summer.git`
 2. Run with Docker Compose: `docker compose up`
 3. Open http://localhost:3000 in your browser
-4. Click "Use Built-in Database" to get started immediately
 
-The built-in database uses the `summer` namespace and `summer` database by default. Your data is persisted in a Docker volume.
+The database uses the `summer` namespace and `summer` database by default. Data is persisted on the host via a volume mount.
 
 ### Self-Hosted
 
 1. Clone the repository: `git clone https://github.com/eventualbuddha/summer.git`
 2. Install [Node.js](https://nodejs.org/) (v25 or later)
-3. Install dependencies: `npm install`
-4. Build the app: `npm run build`
-5. Start the server: `npm start`
-
-**Option A: Use built-in SurrealDB**
-
-1. Install and start [SurrealDB](https://surrealdb.com/) locally
-2. Set environment variables:
+3. Install and start [SurrealDB](https://surrealdb.com/) locally
+4. Install dependencies: `npm install`
+5. Build the app: `npm run build`
+6. Set environment variables and start the server:
    ```bash
-   export BACKEND_SURREALDB_URL=ws://localhost:8000
-   export DEFAULT_NAMESPACE=summer
-   export DEFAULT_DATABASE=summer
+   export SURREALDB_URL=http://localhost:8000
+   npm start
    ```
-3. Start the server: `npm start`
-4. Open http://localhost:3000 and click "Use Built-in Database"
+7. Open http://localhost:3000
 
-**Option B: Connect to external SurrealDB**
+#### Environment Variables
 
-1. Start the server without environment variables: `npm start`
-2. Open http://localhost:3000
-3. Click "Connect to External Database"
-4. Enter your SurrealDB instance URL, namespace, and database
+| Variable              | Default   | Description              |
+| --------------------- | --------- | ------------------------ |
+| `SURREALDB_URL`       | (none)    | SurrealDB connection URL |
+| `SURREALDB_NAMESPACE` | `summer`  | SurrealDB namespace      |
+| `SURREALDB_DATABASE`  | `summer`  | SurrealDB database name  |
+| `PORT`                | `3000`    | Server port              |
+| `HOST`                | `0.0.0.0` | Server bind address      |
 
 ### Development
 
@@ -52,25 +48,7 @@ For development with hot reload:
 npm run dev
 ```
 
-This runs the app without the built-in backend. You'll need to connect to an external SurrealDB instance.
-
-Alternatively, start a local SurrealDB and the production server:
-
-```bash
-# Terminal 1: Start SurrealDB
-surreal start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all memory
-
-# Terminal 2: Set env vars and start server
-export BACKEND_SURREALDB_URL=ws://localhost:8000
-export DEFAULT_NAMESPACE=summer
-export DEFAULT_DATABASE=summer
-npm run build
-npm start
-```
-
-### Cloud
-
-TBD. I'd like to host it somewhere static and just connect directly to SurrealDB from the browser, but haven't worked out exactly how to do that yet.
+This automatically starts a local SurrealDB instance and the Vite dev server.
 
 ## License
 
