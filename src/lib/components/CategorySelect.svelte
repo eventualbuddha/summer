@@ -81,7 +81,7 @@
 					}}
 					class="cursor-pointer rounded-md text-left {selection?.hoverIndex === index
 						? 'bg-gray-500 text-gray-50'
-						: ''}"
+						: 'text-gray-900 dark:text-gray-200'}"
 				>
 					<CategoryPill {category} style="full" />
 				</button>
@@ -97,7 +97,7 @@
 				}}
 				class="cursor-pointer rounded-md text-left {selection?.hoverIndex === categories.length
 					? 'bg-gray-500 text-gray-50'
-					: ''}"
+					: 'text-gray-900 dark:text-gray-200'}"
 			>
 				<CategoryPill category={NONE_CATEGORY} style="full" />
 			</button>

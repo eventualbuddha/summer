@@ -66,10 +66,15 @@ test('adding a description', async ({ page, createTransaction, surreal }) => {
 
 	await page.goto('/');
 
-	// Update the description
-	await page.getByText(transaction.statementDescription).click();
-	await page.getByRole('textbox', { name: 'Transaction description' }).fill('Custom Description');
-	await page.getByRole('textbox', { name: 'Transaction description' }).press('Enter');
+	// Click the row to open modal
+	await page.locator('[data-transaction]').click();
+	const modal = page.getByRole('dialog');
+	await expect(modal).toBeVisible();
+
+	// Update the description in the modal
+	const descriptionInput = modal.getByRole('textbox', { name: 'Transaction description' });
+	await descriptionInput.fill('Custom Description');
+	await descriptionInput.blur();
 
 	// Check for the updated description
 	await waitFor(async () => {
@@ -80,6 +85,8 @@ test('adding a description', async ({ page, createTransaction, surreal }) => {
 		return refreshedTransaction.description === 'Custom Description';
 	});
 
+	// Close modal and verify the row shows the updated description
+	await page.keyboard.press('Escape');
 	await expect(page.getByText('Custom Description Bank Description')).toBeVisible();
 });
 
@@ -103,7 +110,7 @@ test('clear category', async ({ page, createCategory, createTransaction, surreal
 	await expect(categorySummaryValue).toHaveText('$1');
 
 	// Remove the category from the transaction
-	await page.getByRole('button', { name: category.name }).click();
+	await page.getByRole('button', { name: category.name, exact: true }).click();
 	await page.getByRole('button', { name: 'None' }).click();
 
 	await waitFor(async () => {
@@ -154,8 +161,8 @@ test('update category', async ({ page, createCategory, createTransaction, surrea
 	await expect(category2SummaryValue).toHaveText('$0');
 
 	// Change the category
-	await page.getByRole('button', { name: category1.name }).click();
-	await page.getByRole('button', { name: category2.name }).click();
+	await page.getByRole('button', { name: category1.name, exact: true }).click();
+	await page.getByRole('button', { name: category2.name, exact: true }).click();
 
 	await waitFor(async () => {
 		const [refreshedTransaction] = await surreal.query<[{ category?: RecordId }]>(
@@ -206,8 +213,8 @@ test('updating to hidden category', async ({
 	await page.getByRole('checkbox', { name: 'Utilities' }).click();
 
 	// Change the category
-	await page.getByRole('button', { name: 'General' }).click();
-	await page.getByRole('button', { name: 'Utilities' }).click();
+	await page.getByRole('button', { name: 'General', exact: true }).click();
+	await page.getByRole('button', { name: 'Utilities', exact: true }).click();
 
 	await waitFor(async () => {
 		const [refreshedTransaction] = await surreal.query<[{ category?: RecordId }]>(

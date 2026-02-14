@@ -191,6 +191,38 @@ export async function updateTransactionDescription(
 	);
 }
 
+// Transaction detail
+export interface TransactionDetail {
+	accountName: string;
+	statementDate: string;
+	fileId: string;
+}
+
+export async function getTransactionDetail(id: string): Promise<TransactionDetail> {
+	return fetchJson<TransactionDetail>(`/api/transactions/${encodeURIComponent(id)}/detail`);
+}
+
+export async function updateTransactionUserDescription(
+	id: string,
+	description: string
+): Promise<{ description: string }> {
+	return patchJson<{ description: string }>(
+		`/api/transactions/${encodeURIComponent(id)}/user-description`,
+		{ description }
+	);
+}
+
+export async function updateTransactionTags(
+	transactionId: string,
+	tagged: NewTagged[],
+	originalTagged: Array<{ id: string; tag: { name: string }; year?: number }>
+): Promise<UpdateDescriptionResult> {
+	return patchJson<UpdateDescriptionResult>(
+		`/api/transactions/${encodeURIComponent(transactionId)}/tags`,
+		{ tagged, originalTagged }
+	);
+}
+
 // Statement import
 export interface ImportStatementParams {
 	source: string;
