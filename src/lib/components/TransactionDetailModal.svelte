@@ -95,7 +95,11 @@
 	async function handleDescriptionBlur() {
 		const trimmed = descriptionValue.trim();
 		if (trimmed !== (transaction.description ?? '')) {
-			await s.updateDescription(transaction, trimmed);
+			const result = await s.updateDescription(transaction, trimmed);
+			if (result.isErr) {
+				s.lastError = result.error;
+				descriptionValue = transaction.description ?? '';
+			}
 		}
 	}
 
@@ -112,7 +116,10 @@
 			year: t.year
 		}));
 		const originalTagged = transaction.tagged;
-		await s.updateTags(transaction, newTags, originalTagged);
+		const result = await s.updateTags(transaction, newTags, originalTagged);
+		if (result.isErr) {
+			s.lastError = result.error;
+		}
 	}
 
 	async function setCategory(category: Category | undefined) {
@@ -157,7 +164,9 @@
 					{#if detail}
 						<span data-testid="detail-account">{detail.accountName}</span>
 					{:else}
-						<span class="animate-pulse rounded bg-gray-200 dark:bg-gray-700">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+						<span class="animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+							>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
+						>
 					{/if}
 				</div>
 				<div class="flex justify-between">
@@ -176,12 +185,16 @@
 							<span data-testid="detail-statement">{statementLabel}</span>
 						{/if}
 					{:else}
-						<span class="animate-pulse rounded bg-gray-200 dark:bg-gray-700">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+						<span class="animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+							>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
+						>
 					{/if}
 				</div>
 				<div class="flex justify-between">
 					<span class="font-medium">Bank Description</span>
-					<span class="max-w-[60%] text-right font-mono" data-testid="detail-bank-description">{bankDescription.text}</span>
+					<span class="max-w-[60%] text-right font-mono" data-testid="detail-bank-description"
+						>{bankDescription.text}</span
+					>
 				</div>
 				<div class="flex justify-between">
 					<span class="font-medium">Amount</span>
@@ -194,7 +207,10 @@
 			<!-- Editable section -->
 			<div class="space-y-4">
 				<div>
-					<label for="modal-description" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+					<label
+						for="modal-description"
+						class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+					>
 						Description
 					</label>
 					<input
@@ -246,7 +262,11 @@
 								>
 									<CategoryPill category={currentCategory ?? NONE_CATEGORY} style="full" />
 									<svg class="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-										<path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+										<path
+											fill-rule="evenodd"
+											d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+											clip-rule="evenodd"
+										/>
 									</svg>
 								</button>
 							{/snippet}
