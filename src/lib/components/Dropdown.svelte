@@ -62,6 +62,21 @@
 		popoverElement.style.left = `${left}px`;
 	}
 
+	// Close on Escape key
+	$effect(() => {
+		if (!isOpen) return;
+
+		function onKeydown(e: KeyboardEvent) {
+			if (e.key === 'Escape') {
+				e.stopPropagation();
+				isOpen = false;
+			}
+		}
+
+		document.addEventListener('keydown', onKeydown);
+		return () => document.removeEventListener('keydown', onKeydown);
+	});
+
 	// Close on scroll of any ancestor
 	$effect(() => {
 		if (!isOpen || !containerElement) return;
@@ -107,6 +122,7 @@
 			{#if isOpen}
 				<div
 					class="fixed inset-0"
+					data-dropdown-overlay
 					onpointerdown={(e) => {
 						e.stopPropagation();
 						isOpen = false;

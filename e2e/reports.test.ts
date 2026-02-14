@@ -96,9 +96,7 @@ test('view budget reports with filtering', async ({ page, createBudget, createCa
 
 	// Close the dropdown
 	await page.keyboard.press('Escape');
-
-	// Wait for dropdown to close
-	await expect(page.locator('[data-dropdown-content]')).not.toBeVisible();
+	await expect(page.locator('[data-dropdown-overlay]')).not.toBeAttached();
 
 	// Food Budget should not be visible anymore
 	await expect(page.getByText('Food Budget')).not.toBeVisible();
@@ -111,9 +109,7 @@ test('view budget reports with filtering', async ({ page, createBudget, createCa
 
 	// Close the dropdown
 	await page.keyboard.press('Escape');
-
-	// Wait for dropdown to close
-	await expect(page.locator('[data-dropdown-content]')).not.toBeVisible();
+	await expect(page.locator('[data-dropdown-overlay]')).not.toBeAttached();
 
 	// Both should be visible again
 	await expect(page.getByText('Food Budget').first()).toBeVisible();
