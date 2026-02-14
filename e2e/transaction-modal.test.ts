@@ -169,7 +169,7 @@ test('remove tag', async ({ page, pageHelpers, createTransaction, tagTransaction
 	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'keepme' }]);
 });
 
-test('tag autocomplete', async ({ page, pageHelpers, createTransaction, tagTransaction }) => {
+test('tag autocomplete', async ({ page, createTransaction, tagTransaction }) => {
 	// Create a transaction with existing tags to populate the tag list
 	const setupTransaction = await createTransaction({
 		statementDescription: 'SETUP',
@@ -179,7 +179,7 @@ test('tag autocomplete', async ({ page, pageHelpers, createTransaction, tagTrans
 	await tagTransaction(setupTransaction.id, 'vacation');
 	await tagTransaction(setupTransaction.id, 'food');
 
-	const transaction = await createTransaction({
+	await createTransaction({
 		statementDescription: 'NEW PURCHASE',
 		date: new Date(2025, 0, 2),
 		amount: -200

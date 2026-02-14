@@ -9,6 +9,7 @@
 	import CategorySelect from './CategorySelect.svelte';
 	import CategoryPill from './CategoryPill.svelte';
 	import TagInput from './TagInput.svelte';
+	import { resolve } from '$app/paths';
 
 	let s: State = getContext('state');
 
@@ -129,7 +130,6 @@
 </script>
 
 <div bind:this={portalTarget}>
-	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
 		onclick={handleBackdropClick}
@@ -174,7 +174,7 @@
 					{#if detail}
 						{#if detail.fileId}
 							<a
-								href="/api/files/{detail.fileId}"
+								href={resolve(`/api/files/{detail.fileId}`)}
 								target="_blank"
 								class="text-blue-600 underline hover:text-blue-800 dark:text-blue-400"
 								data-testid="detail-statement"
