@@ -207,12 +207,7 @@ test('tag autocomplete', async ({ page, pageHelpers, createTransaction, tagTrans
 	await expect(modal.getByText('#vacation')).toBeVisible();
 });
 
-test('change category in modal', async ({
-	page,
-	createCategory,
-	createTransaction,
-	surreal
-}) => {
+test('change category in modal', async ({ page, createCategory, createTransaction, surreal }) => {
 	const category1 = await createCategory({ name: 'Food', emoji: '🍕' });
 	const category2 = await createCategory({ name: 'Travel', emoji: '✈️' });
 	const transaction = await createTransaction({

@@ -57,9 +57,7 @@
 		// Horizontal positioning: prefer aligning left with the trigger,
 		// but keep the popover within the viewport width.
 		const fitsRight = triggerRect.left + contentRect.width <= window.innerWidth;
-		const left = fitsRight
-			? triggerRect.left
-			: Math.max(0, triggerRect.right - contentRect.width);
+		const left = fitsRight ? triggerRect.left : Math.max(0, triggerRect.right - contentRect.width);
 
 		popoverElement.style.left = `${left}px`;
 	}

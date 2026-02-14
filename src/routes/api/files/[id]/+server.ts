@@ -6,7 +6,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	const db = await getDb();
 	const fileId = new RecordId('file', params.id!);
 
-	const [file] = await db.query<[{ name: string; data: ArrayBuffer }[] ]>(
+	const [file] = await db.query<[{ name: string; data: ArrayBuffer }[]]>(
 		'SELECT name, data FROM file WHERE id = $id',
 		{ id: fileId }
 	);
