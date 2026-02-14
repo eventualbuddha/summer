@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Transaction } from '$lib/db';
 	import { tidyBankDescription } from '$lib/utils/tidyBankDescription';
+	import TagChip from './TagChip.svelte';
 	import TransactionIcon from './TransactionIcon.svelte';
 
 	let { transaction }: { transaction: Transaction } = $props();
@@ -40,18 +41,7 @@
 	{/if}
 
 	{#each transaction.tagged as tagged (tagged.tag.id)}
-		<span
-			class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-		>
-			{tagged.tag.name}
-			{#if tagged.year}
-				<span
-					class="ml-1 rounded-full bg-blue-200 px-1.5 py-0.5 text-xs font-medium text-blue-900 dark:bg-blue-700 dark:text-blue-100"
-				>
-					{tagged.year}
-				</span>
-			{/if}
-		</span>
+		<TagChip name={tagged.tag.name} year={tagged.year} size="xs" />
 	{/each}
 
 	<span

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Tag, Tagged } from '$lib/db';
+	import TagChip from './TagChip.svelte';
 
 	let {
 		tags,
@@ -134,29 +135,7 @@
 		role="presentation"
 	>
 		{#each tags as tagged, index (tagged.id)}
-			<span
-				class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-sm text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-			>
-				{tagged.tag.name}
-				{#if tagged.year}
-					<span
-						class="ml-1 rounded-full bg-blue-200 px-1.5 py-0.5 text-xs font-medium text-blue-900 dark:bg-blue-700 dark:text-blue-100"
-					>
-						{tagged.year}
-					</span>
-				{/if}
-				<button
-					type="button"
-					class="ml-0.5 cursor-pointer text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100"
-					onclick={(e) => {
-						e.stopPropagation();
-						removeTag(index);
-					}}
-					aria-label="Remove tag {tagged.tag.name}"
-				>
-					&times;
-				</button>
-			</span>
+			<TagChip name={tagged.tag.name} year={tagged.year} onremove={() => removeTag(index)} />
 		{/each}
 		<input
 			bind:this={inputElement}
