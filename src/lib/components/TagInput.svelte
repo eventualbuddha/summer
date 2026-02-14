@@ -42,6 +42,7 @@
 	}
 
 	function addTag(name: string, year?: number) {
+		if (!name.trim()) return;
 		if (tags.some((t) => t.tag.name === name && t.year === year)) return;
 		const timestamp = Date.now();
 		const id = `new-${timestamp}`;
