@@ -212,6 +212,9 @@ test('updating to hidden category', async ({
 	await expect(page.getByRole('checkbox', { name: 'Utilities' })).toBeVisible();
 	await page.getByRole('checkbox', { name: 'Utilities' }).click();
 
+	// Wait for dropdown to close
+	await expect(page.locator('[data-dropdown-content]').first()).not.toBeVisible();
+
 	// Change the category
 	await page.getByRole('button', { name: 'General', exact: true }).click();
 	await page.getByRole('button', { name: 'Utilities', exact: true }).click();
@@ -441,6 +444,8 @@ test('bulk category editing with filtered transactions', async ({
 	await page.getByLabel('Category Filter').click();
 	await page.getByRole('checkbox', { name: 'All' }).click();
 	await page.getByRole('checkbox', { name: 'Unknown' }).click();
+	// Wait for dropdown to close
+	await expect(page.locator('[data-dropdown-content]').first()).not.toBeVisible();
 	await page.getByRole('heading', { name: 'Transactions' }).click();
 
 	// Should only show 2 filtered transactions
@@ -668,12 +673,16 @@ test('clear all filters', async ({ page, createCategory, createTransaction }) =>
 	// Show all years to see both transactions
 	await page.getByRole('button', { name: 'Year Filter' }).click();
 	await page.getByRole('checkbox', { name: '2024' }).click();
+	// Wait for dropdown to close
+	await expect(page.locator('[data-dropdown-content]').first()).not.toBeVisible();
 	await expect(page.getByText('Transaction #1')).toBeVisible();
 	await expect(page.getByText('Transaction #2')).toBeVisible();
 
 	// Apply category filter
 	await page.getByRole('button', { name: 'Category Filter' }).click();
 	await page.getByRole('checkbox', { name: generalCategory.name }).click();
+	// Wait for dropdown to close
+	await expect(page.locator('[data-dropdown-content]').first()).not.toBeVisible();
 
 	// Only transaction #2 should be visible
 	await expect(page.getByText('Transaction #1')).not.toBeVisible();
@@ -683,6 +692,8 @@ test('clear all filters', async ({ page, createCategory, createTransaction }) =>
 	await page.getByRole('button', { name: 'Year Filter' }).click();
 	await page.getByRole('checkbox', { name: '2025' }).click();
 	await page.getByRole('checkbox', { name: '2024' }).click();
+	// Wait for dropdown to close
+	await expect(page.locator('[data-dropdown-content]').first()).not.toBeVisible();
 
 	// No transactions should be visible (filtered by both category and year)
 	await expect(page.getByText('Transaction #1')).not.toBeVisible();
