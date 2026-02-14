@@ -62,7 +62,7 @@
 	{#snippet portal()}
 		<div
 			bind:this={dropdownElement}
-			class="absolute z-10 mt-2 min-w-45 rounded-md bg-white px-2 pb-2 shadow-lg ring-1 ring-black/5 focus:outline-hidden dark:bg-gray-800 dark:shadow-gray-600 dark:ring-gray-600 {alignRight
+			class="absolute z-10 mt-2 min-w-45 rounded-md bg-white px-2 pb-2 shadow-lg ring-1 ring-black/5 focus:outline-hidden dark:bg-gray-800 dark:text-gray-200 dark:shadow-gray-600 dark:ring-gray-600 {alignRight
 				? 'right-0 origin-top-right'
 				: 'left-0 origin-top-left'}"
 			role="menu"
