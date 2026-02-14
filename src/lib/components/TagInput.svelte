@@ -37,9 +37,11 @@
 
 	function addTag(name: string, year?: number) {
 		if (tags.some((t) => t.tag.name === name && t.year === year)) return;
+		const timestamp = Date.now();
+		const id = `new-${timestamp}`;
 		const newTagged: Tagged = {
-			id: `new-${Date.now()}`,
-			tag: { id: `new-${Date.now()}`, name },
+			id,
+			tag: { id, name },
 			year
 		};
 		onchange([...tags, newTagged]);
