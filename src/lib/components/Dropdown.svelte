@@ -76,7 +76,7 @@
 		const scrollParents: EventTarget[] = [];
 		let node: Element | null = containerElement.parentElement;
 		while (node) {
-			if (node.scrollHeight > node.clientHeight) {
+			if (node.scrollHeight > node.clientHeight || node.scrollWidth > node.clientWidth) {
 				scrollParents.push(node);
 			}
 			node = node.parentElement;
