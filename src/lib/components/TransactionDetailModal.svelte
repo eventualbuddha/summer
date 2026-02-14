@@ -46,7 +46,6 @@
 		const container = document.createElement('div');
 		document.body.appendChild(container);
 		container.appendChild(portalTarget!);
-		portalTarget = portalTarget;
 
 		// Focus after portal move
 		setTimeout(() => descriptionInput?.focus(), 0);
