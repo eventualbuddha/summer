@@ -117,7 +117,7 @@
 		onclick={() => inputElement?.focus()}
 		role="presentation"
 	>
-		{#each searchTags as tagged, index}
+		{#each searchTags as tagged, index ([tagged.name, tagged.year])}
 			<TagChip name={tagged.name} year={tagged.year} onremove={() => removeTag(index)} />
 		{/each}
 		<input
