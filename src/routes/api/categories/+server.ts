@@ -1,6 +1,14 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { RecordId, Table } from 'surrealdb';
+import { z } from 'zod';
+
+const BODY = z.object({
+	id: z.string().optional(),
+	name: z.string(),
+	emoji: z.string(),
+	color: z.string()
+});
 
 export const GET: RequestHandler = async () => {
 	const db = await getDb();
@@ -11,11 +19,25 @@ export const GET: RequestHandler = async () => {
 };
 
 export const POST: RequestHandler = async ({ request }) => {
-	const { id, name, emoji, color } = await request.json();
+	const parsedBody = BODY.safeParse(await request.json());
+
+	if (!parsedBody.success) {
+		return json(
+			{ error: `invalid request body: ${JSON.stringify(parsedBody.error)}` },
+			{ status: 400 }
+		);
+	}
+
+	const body = parsedBody.data;
 	const db = await getDb();
-	const record = id
-		? { id: new RecordId('category', id), name, emoji, color }
-		: { name, emoji, color };
+	const record = body.id
+		? {
+				id: new RecordId('category', body.id),
+				name: body.name,
+				emoji: body.emoji,
+				color: body.color
+			}
+		: { name: body.name, emoji: body.emoji, color: body.color };
 	await db.create(new Table('category'), record);
 	// Re-fetch to get the ordinal and normalized id
 	const [categories] = await db.query(

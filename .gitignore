@@ -27,6 +27,7 @@ vite.config.ts.timestamp-*
 
 backups/
 .surrealdb/
+history.txt
 
 # Claude Code
 .claude/settings.local.json

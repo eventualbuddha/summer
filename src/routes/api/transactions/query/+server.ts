@@ -4,11 +4,29 @@ import {
 	parseTransactionDescriptionAndTags,
 	type NewTagged
 } from '$lib/db/updateTransactionDescription';
+import { z } from 'zod';
 
 interface SortColumn {
 	field: string;
 	direction: 'asc' | 'desc';
 }
+
+const BODY = z.object({
+	years: z.array(z.number()),
+	months: z.array(z.number()),
+	categories: z.array(z.string()),
+	accounts: z.array(z.string()),
+	searchTerm: z.string(),
+	stickyTransactionIds: z.array(z.string()),
+	sort: z.object({
+		columns: z.array(
+			z.object({
+				field: z.string(),
+				direction: z.enum(['asc', 'desc'])
+			})
+		)
+	})
+});
 
 function amountsToMatchForSearchTerm(searchTerm: string): number[] {
 	const match = searchTerm.match(/^([-+])?(\d{1,10}\.\d{2})$/);
@@ -38,29 +56,21 @@ function buildOrderByClause(columns: readonly SortColumn[]): string {
 }
 
 export const POST: RequestHandler = async ({ request }) => {
-	const body = await request.json();
-	const {
-		years,
-		months,
-		categories,
-		accounts,
-		searchTerm,
-		stickyTransactionIds,
-		sort
-	}: {
-		years: number[];
-		months: number[];
-		categories: string[];
-		accounts: string[];
-		searchTerm: string;
-		stickyTransactionIds: string[];
-		sort: { columns: SortColumn[] };
-	} = body;
+	const parsedBody = BODY.safeParse(await request.json());
 
-	const searchTermParsed = parseTransactionDescriptionAndTags(searchTerm);
-	const amounts = amountsToMatchForSearchTerm(searchTerm);
+	if (!parsedBody.success) {
+		return json(
+			{ error: `invalid request body: ${JSON.stringify(parsedBody.error)}` },
+			{ status: 400 }
+		);
+	}
 
-	const columns = sort.columns;
+	const body = parsedBody.data;
+
+	const searchTermParsed = parseTransactionDescriptionAndTags(body.searchTerm);
+	const amounts = amountsToMatchForSearchTerm(body.searchTerm);
+
+	const columns = body.sort.columns;
 	if (columns.length === 0) {
 		return json({ error: 'At least one sort column required' }, { status: 400 });
 	}
@@ -112,11 +122,11 @@ export const POST: RequestHandler = async ({ request }) => {
 	`;
 
 	const data = await db.query(query, {
-		stickyTransactionIds: stickyTransactionIds,
-		years,
-		months,
-		categories,
-		accounts,
+		stickyTransactionIds: body.stickyTransactionIds,
+		years: body.years,
+		months: body.months,
+		categories: body.categories,
+		accounts: body.accounts,
 		descriptionFilter: searchTermParsed.description,
 		taggedFilter: searchTermParsed.tagged as NewTagged[],
 		amounts

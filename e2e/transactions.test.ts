@@ -66,10 +66,15 @@ test('adding a description', async ({ page, createTransaction, surreal }) => {
 
 	await page.goto('/');
 
-	// Update the description
-	await page.getByText(transaction.statementDescription).click();
-	await page.getByRole('textbox', { name: 'Transaction description' }).fill('Custom Description');
-	await page.getByRole('textbox', { name: 'Transaction description' }).press('Enter');
+	// Click the row to open modal
+	await page.locator('[data-transaction]').click();
+	const modal = page.getByRole('dialog');
+	await expect(modal).toBeVisible();
+
+	// Update the description in the modal
+	const descriptionInput = modal.getByRole('textbox', { name: 'Transaction description' });
+	await descriptionInput.fill('Custom Description');
+	await descriptionInput.blur();
 
 	// Check for the updated description
 	await waitFor(async () => {
@@ -80,6 +85,8 @@ test('adding a description', async ({ page, createTransaction, surreal }) => {
 		return refreshedTransaction.description === 'Custom Description';
 	});
 
+	// Close modal and verify the row shows the updated description
+	await page.keyboard.press('Escape');
 	await expect(page.getByText('Custom Description Bank Description')).toBeVisible();
 });
 
@@ -103,7 +110,7 @@ test('clear category', async ({ page, createCategory, createTransaction, surreal
 	await expect(categorySummaryValue).toHaveText('$1');
 
 	// Remove the category from the transaction
-	await page.getByRole('button', { name: category.name }).click();
+	await page.getByRole('button', { name: category.name, exact: true }).click();
 	await page.getByRole('button', { name: 'None' }).click();
 
 	await waitFor(async () => {
@@ -154,8 +161,8 @@ test('update category', async ({ page, createCategory, createTransaction, surrea
 	await expect(category2SummaryValue).toHaveText('$0');
 
 	// Change the category
-	await page.getByRole('button', { name: category1.name }).click();
-	await page.getByRole('button', { name: category2.name }).click();
+	await page.getByRole('button', { name: category1.name, exact: true }).click();
+	await page.getByRole('button', { name: category2.name, exact: true }).click();
 
 	await waitFor(async () => {
 		const [refreshedTransaction] = await surreal.query<[{ category?: RecordId }]>(
@@ -205,9 +212,13 @@ test('updating to hidden category', async ({
 	await expect(page.getByRole('checkbox', { name: 'Utilities' })).toBeVisible();
 	await page.getByRole('checkbox', { name: 'Utilities' }).click();
 
+	// Close dropdown and wait for overlay to disappear
+	await page.keyboard.press('Escape');
+	await expect(page.locator('[data-dropdown-overlay]')).not.toBeAttached();
+
 	// Change the category
-	await page.getByRole('button', { name: 'General' }).click();
-	await page.getByRole('button', { name: 'Utilities' }).click();
+	await page.getByRole('button', { name: 'General', exact: true }).click();
+	await page.getByRole('button', { name: 'Utilities', exact: true }).click();
 
 	await waitFor(async () => {
 		const [refreshedTransaction] = await surreal.query<[{ category?: RecordId }]>(
@@ -434,7 +445,10 @@ test('bulk category editing with filtered transactions', async ({
 	await page.getByLabel('Category Filter').click();
 	await page.getByRole('checkbox', { name: 'All' }).click();
 	await page.getByRole('checkbox', { name: 'Unknown' }).click();
-	await page.getByRole('heading', { name: 'Transactions' }).click();
+
+	// Close dropdown and wait for overlay to disappear
+	await page.keyboard.press('Escape');
+	await expect(page.locator('[data-dropdown-overlay]')).not.toBeAttached();
 
 	// Should only show 2 filtered transactions
 	await expect(page.getByText('First Coffee Shop')).toBeVisible();
@@ -661,12 +675,16 @@ test('clear all filters', async ({ page, createCategory, createTransaction }) =>
 	// Show all years to see both transactions
 	await page.getByRole('button', { name: 'Year Filter' }).click();
 	await page.getByRole('checkbox', { name: '2024' }).click();
+	await page.keyboard.press('Escape');
+	await expect(page.locator('[data-dropdown-overlay]')).not.toBeAttached();
 	await expect(page.getByText('Transaction #1')).toBeVisible();
 	await expect(page.getByText('Transaction #2')).toBeVisible();
 
 	// Apply category filter
 	await page.getByRole('button', { name: 'Category Filter' }).click();
 	await page.getByRole('checkbox', { name: generalCategory.name }).click();
+	await page.keyboard.press('Escape');
+	await expect(page.locator('[data-dropdown-overlay]')).not.toBeAttached();
 
 	// Only transaction #2 should be visible
 	await expect(page.getByText('Transaction #1')).not.toBeVisible();
@@ -676,6 +694,8 @@ test('clear all filters', async ({ page, createCategory, createTransaction }) =>
 	await page.getByRole('button', { name: 'Year Filter' }).click();
 	await page.getByRole('checkbox', { name: '2025' }).click();
 	await page.getByRole('checkbox', { name: '2024' }).click();
+	await page.keyboard.press('Escape');
+	await expect(page.locator('[data-dropdown-overlay]')).not.toBeAttached();
 
 	// No transactions should be visible (filtered by both category and year)
 	await expect(page.getByText('Transaction #1')).not.toBeVisible();

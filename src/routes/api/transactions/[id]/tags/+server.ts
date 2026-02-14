@@ -4,7 +4,6 @@ import { RecordId } from 'surrealdb';
 import { z } from 'zod';
 
 const BODY = z.object({
-	description: z.string(),
 	tagged: z.array(z.object({ name: z.string(), year: z.number().optional() })),
 	originalTagged: z.array(
 		z.object({ id: z.string(), tag: z.object({ name: z.string() }), year: z.number().optional() })
@@ -22,7 +21,6 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 	}
 
 	const body = parsedBody.data;
-
 	const taggedRecordsToCreate = body.tagged.filter(
 		(t) =>
 			!body.originalTagged.some((oldTag) => oldTag.tag.name === t.name && oldTag.year === t.year)
@@ -37,10 +35,6 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 	const results = await db.queryRaw(
 		`
 		BEGIN TRANSACTION;
-
-		UPDATE transaction
-		SET description = $description
-		WHERE id = $transactionId;
 
 		DELETE FROM tagged WHERE id IN $taggedRecordsToDelete;
 
@@ -71,7 +65,6 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 		COMMIT TRANSACTION;
 		`,
 		{
-			description: body.description,
 			transactionId,
 			taggedRecordsToCreate,
 			taggedRecordsToDelete: taggedRecordsToDelete.map((t) => new RecordId('tagged', t.id))
@@ -101,7 +94,7 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 				})
 			)
 		})
-		.parse(results[3]);
+		.parse(results[2]);
 
 	const sortedTagged = taggedResult.result.sort((a, b) => a.tag.name.localeCompare(b.tag.name));
 

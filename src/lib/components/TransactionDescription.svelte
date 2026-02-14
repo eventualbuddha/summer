@@ -3,17 +3,13 @@
 	import { tidyBankDescription } from '$lib/utils/tidyBankDescription';
 	import TransactionIcon from './TransactionIcon.svelte';
 
-	let { transaction, onclick }: { transaction: Transaction; onclick?: () => void } = $props();
+	let { transaction }: { transaction: Transaction } = $props();
 
 	let bankDescription = $derived(tidyBankDescription(transaction.statementDescription));
 	let ownDescription = $derived(transaction.description);
-
-	// This is here to ensure the tags have separation as far as screen readers
-	// are concerned, which is important for accessibility and testing.
-	const space = ' ';
 </script>
 
-<button class="flex flex-row items-center gap-2" {onclick}>
+<span class="flex flex-row items-center gap-2">
 	{#if bankDescription.amazon}
 		<TransactionIcon path="/amazon.svg" alt="Amazon" />
 	{/if}
@@ -43,15 +39,18 @@
 		</span>
 	{/if}
 
+	{#each transaction.tagged as tagged (tagged.tag.id)}
+		<span
+			class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+		>
+			#{tagged.tag.name}{#if tagged.year}-{tagged.year}{/if}
+		</span>
+	{/each}
+
 	<span
 		title={bankDescription.text}
-		class="flex flex-row gap-2 overflow-hidden text-sm overflow-ellipsis text-gray-400 dark:text-gray-400"
+		class="overflow-hidden font-mono text-sm overflow-ellipsis text-gray-400 dark:text-gray-400"
 	>
-		{#each transaction.tagged as tagged (tagged.tag.id)}
-			<span class="text-gray-700 dark:text-gray-300">
-				{space}#{tagged.tag.name}{#if tagged.year}-{tagged.year}{/if}
-			</span>
-		{/each}
-		<span class="font-mono">{bankDescription.text}</span>
+		{bankDescription.text}
 	</span>
-</button>
+</span>

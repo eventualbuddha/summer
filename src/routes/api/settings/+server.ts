@@ -1,6 +1,11 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { RecordId } from 'surrealdb';
+import { z } from 'zod';
+
+const BODY = z.object({
+	defaultCategoryId: z.string().nullable()
+});
 
 export const GET: RequestHandler = async () => {
 	const db = await getDb();
@@ -11,10 +16,21 @@ export const GET: RequestHandler = async () => {
 };
 
 export const PATCH: RequestHandler = async ({ request }) => {
-	const { defaultCategoryId } = await request.json();
+	const parsedBody = BODY.safeParse(await request.json());
+
+	if (!parsedBody.success) {
+		return json(
+			{ error: `invalid request body: ${JSON.stringify(parsedBody.error)}` },
+			{ status: 400 }
+		);
+	}
+
+	const body = parsedBody.data;
 	const db = await getDb();
 	await db.query('UPSERT settings:global SET defaultCategory = $defaultCategory', {
-		defaultCategory: defaultCategoryId ? new RecordId('category', defaultCategoryId) : null
+		defaultCategory: body.defaultCategoryId
+			? new RecordId('category', body.defaultCategoryId)
+			: null
 	});
-	return json({ defaultCategoryId: defaultCategoryId ?? null });
+	return json({ defaultCategoryId: body.defaultCategoryId ?? null });
 };

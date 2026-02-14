@@ -4,7 +4,7 @@ import { RecordId } from 'surrealdb';
 import { z } from 'zod';
 
 const BODY = z.object({
-	categoryId: z.string().nullable()
+	description: z.string()
 });
 
 export const PATCH: RequestHandler = async ({ params, request }) => {
@@ -19,17 +19,12 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 
 	const body = parsedBody.data;
 	const db = await getDb();
+	const transactionId = new RecordId('transaction', params.id!);
 
-	if (body.categoryId) {
-		await db.query('UPDATE $transaction SET category = $category', {
-			transaction: new RecordId('transaction', params.id!),
-			category: new RecordId('category', body.categoryId)
-		});
-	} else {
-		await db.query('UPDATE $transaction SET category = none', {
-			transaction: new RecordId('transaction', params.id!)
-		});
-	}
+	await db.query('UPDATE $transaction SET description = $description', {
+		transaction: transactionId,
+		description: body.description
+	});
 
-	return json({ ok: true });
+	return json({ description: body.description });
 };

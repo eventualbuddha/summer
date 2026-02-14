@@ -402,6 +402,41 @@ export class State {
 		}
 	}
 
+	async updateDescription(transaction: Transaction, description: string): Promise<Result<void>> {
+		const originalDescription = transaction.description;
+		transaction.description = description;
+
+		try {
+			await api.updateTransactionUserDescription(transaction.id, description);
+			return Result.ok(undefined);
+		} catch (error) {
+			transaction.description = originalDescription;
+			return Result.err(error as Error);
+		}
+	}
+
+	async updateTags(
+		transaction: Transaction,
+		tags: Array<{ name: string; year?: number }>,
+		originalTagged: Transaction['tagged']
+	): Promise<Result<void>> {
+		const savedTagged = transaction.tagged;
+		transaction.tagged = tags.map((t, i) => ({
+			id: `placeholder-${i}`,
+			tag: { id: `placeholder-${i}`, name: t.name },
+			year: t.year
+		}));
+
+		try {
+			const result = await api.updateTransactionTags(transaction.id, tags, originalTagged);
+			transaction.tagged = result.tagged;
+			return Result.ok(undefined);
+		} catch (error) {
+			transaction.tagged = savedTagged;
+			return Result.err(error as Error);
+		}
+	}
+
 	async importStatement(
 		filename: string,
 		pdfData: Uint8Array,
