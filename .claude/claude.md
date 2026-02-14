@@ -210,6 +210,14 @@ npm run test:e2e
 npm run lint
 ```
 
+### E2E Tests Require a Build
+
+**CRITICAL**: E2E tests (Playwright) run against a **production build** (`node server.js`), NOT a dev server. You **must run `npm run build`** before running e2e tests, otherwise you are testing stale code. Always rebuild after making code changes and before running Playwright tests:
+
+```bash
+npm run build && npx playwright test
+```
+
 ## Troubleshooting
 
 ### "Internal Error" from API
