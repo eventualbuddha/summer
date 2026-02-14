@@ -32,8 +32,11 @@
 		if (!cleaned) return { name: cleaned };
 		const parts = cleaned.split(/\s+/);
 		const lastPart = parts[parts.length - 1]!;
-		if (/^2\d{3}$/.test(lastPart) && parts.length > 1) {
-			return { name: parts.slice(0, -1).join(' '), year: parseInt(lastPart, 10) };
+		const yearMatch = /^\d{4}$/.test(lastPart) ? parseInt(lastPart, 10) : NaN;
+		const currentYear = new Date().getFullYear();
+		const maxYear = currentYear + 10;
+		if (!Number.isNaN(yearMatch) && yearMatch >= 1900 && yearMatch <= maxYear && parts.length > 1) {
+			return { name: parts.slice(0, -1).join(' '), year: yearMatch };
 		}
 		return { name: cleaned };
 	}
