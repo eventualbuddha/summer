@@ -51,6 +51,7 @@ test('category icon does not open modal', async ({ page, createCategory, createT
 	});
 
 	await page.goto('/');
+	await expect(page.getByText('RESTAURANT')).toBeVisible();
 
 	// Click the category pill
 	await page.getByRole('button', { name: category.name, exact: true }).click();
