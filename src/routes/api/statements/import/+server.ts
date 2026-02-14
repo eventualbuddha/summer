@@ -1,38 +1,38 @@
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { z } from 'zod';
 
+const BODY = z.object({
+	source: z.string(),
+	accountNumber: z.string(),
+	accountName: z.string(),
+	accountType: z.string(),
+	filename: z.string(),
+	pdfData: z.string(),
+	statementDate: z.string(),
+	transactions: z.array(
+		z.object({
+			date: z.string(),
+			amount: z.number(),
+			statementDescription: z.string(),
+			type: z.string()
+		})
+	)
+});
+
 export const POST: RequestHandler = async ({ request }) => {
-	const body = await request.json();
-	const {
-		source,
-		accountNumber,
-		accountName,
-		accountType,
-		filename,
-		pdfData,
-		statementDate,
-		transactions
-	} = body as {
-		source: string;
-		accountNumber: string;
-		accountName: string;
-		accountType: string;
-		filename: string;
-		pdfData: string; // base64
-		statementDate: string; // ISO date
-		transactions: Array<{
-			date: string;
-			amount: number;
-			statementDescription: string;
-			type: string;
-		}>;
-	};
+	const parsedBody = BODY.safeParse(await request.json());
+
+	if (!parsedBody.success) {
+		throw error(400, `invalid request body: ${JSON.stringify(parsedBody.error)}`);
+	}
+
+	const body = parsedBody.data;
 
 	const db = await getDb();
 
 	// Decode base64 PDF data to Uint8Array
-	const pdfBytes = Uint8Array.from(atob(pdfData), (c) => c.charCodeAt(0));
+	const pdfBytes = Uint8Array.from(atob(body.pdfData), (c) => c.charCodeAt(0));
 
 	const results = await db.queryRaw(
 		`
@@ -105,14 +105,14 @@ FOR $t IN $transactions {
 COMMIT TRANSACTION;
 		`,
 		{
-			source,
-			accountNumber,
-			accountName,
-			accountType,
-			filename,
+			source: body.source,
+			accountNumber: body.accountNumber,
+			accountName: body.accountName,
+			accountType: body.accountType,
+			filename: body.filename,
 			pdfData: pdfBytes,
-			statementDate: new Date(statementDate),
-			transactions: transactions.map((t) => ({
+			statementDate: new Date(body.statementDate),
+			transactions: body.transactions.map((t) => ({
 				...t,
 				date: new Date(t.date)
 			}))

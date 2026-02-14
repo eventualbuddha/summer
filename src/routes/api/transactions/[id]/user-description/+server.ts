@@ -1,16 +1,27 @@
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { RecordId } from 'surrealdb';
+import { z } from 'zod';
+
+const BODY = z.object({
+	description: z.string()
+});
 
 export const PATCH: RequestHandler = async ({ params, request }) => {
-	const { description } = await request.json();
+	const parsedBody = BODY.safeParse(await request.json());
+
+	if (!parsedBody.success) {
+		throw error(400, `invalid request body: ${JSON.stringify(parsedBody.error)}`);
+	}
+
+	const body = parsedBody.data;
 	const db = await getDb();
 	const transactionId = new RecordId('transaction', params.id!);
 
 	await db.query('UPDATE $transaction SET description = $description', {
 		transaction: transactionId,
-		description
+		description: body.description
 	});
 
-	return json({ description });
+	return json({ description: body.description });
 };

@@ -1,9 +1,22 @@
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { RecordId } from 'surrealdb';
+import { z } from 'zod';
+
+const BODY = z.object({
+	name: z.string().optional(),
+	emoji: z.string().optional(),
+	color: z.string().optional()
+});
 
 export const PATCH: RequestHandler = async ({ params, request }) => {
-	const body = await request.json();
+	const parsedBody = BODY.safeParse(await request.json());
+
+	if (!parsedBody.success) {
+		throw error(400, `invalid request body: ${JSON.stringify(parsedBody.error)}`);
+	}
+
+	const body = parsedBody.data;
 	const db = await getDb();
 
 	const sets: string[] = [];

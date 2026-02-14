@@ -1,6 +1,14 @@
 import { json, error, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { RecordId } from 'surrealdb';
+import { z } from 'zod';
+
+const BODY = z.object({
+	name: z.string(),
+	year: z.number(),
+	amount: z.number(),
+	categories: z.array(z.object({ id: z.string() }))
+});
 
 export const GET: RequestHandler = async ({ params }) => {
 	const db = await getDb();
@@ -13,11 +21,15 @@ export const GET: RequestHandler = async ({ params }) => {
 };
 
 export const PATCH: RequestHandler = async ({ params, request }) => {
-	const body = await request.json();
+	const parsedBody = BODY.safeParse(await request.json());
+
+	if (!parsedBody.success) {
+		throw error(400, `invalid request body: ${JSON.stringify(parsedBody.error)}`);
+	}
+
+	const body = parsedBody.data;
 	const db = await getDb();
-	const categoryRecords = body.categories.map(
-		(cat: { id: string }) => new RecordId('category', cat.id)
-	);
+	const categoryRecords = body.categories.map((cat) => new RecordId('category', cat.id));
 	const [updated] = await db.query(
 		`UPDATE $id SET name = $name, year = $year, amount = $amount, categories = $categories
 		 RETURN id.id() AS id, name, year, amount, categories[*].{id: id.id(), name, emoji, color, ordinal}`,

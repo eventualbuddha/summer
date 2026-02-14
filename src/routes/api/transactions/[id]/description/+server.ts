@@ -1,20 +1,31 @@
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { RecordId } from 'surrealdb';
 import { z } from 'zod';
 
-export const PATCH: RequestHandler = async ({ params, request }) => {
-	const body = await request.json();
-	const description: string = body.description;
-	const tagged: Array<{ name: string; year?: number }> = body.tagged;
-	const originalTagged: Array<{ id: string; tag: { name: string }; year?: number }> =
-		body.originalTagged;
+const BODY = z.object({
+	description: z.string(),
+	tagged: z.array(z.object({ name: z.string(), year: z.number().optional() })),
+	originalTagged: z.array(
+		z.object({ id: z.string(), tag: z.object({ name: z.string() }), year: z.number().optional() })
+	)
+});
 
-	const taggedRecordsToCreate = tagged.filter(
-		(t) => !originalTagged.some((oldTag) => oldTag.tag.name === t.name && oldTag.year === t.year)
+export const PATCH: RequestHandler = async ({ params, request }) => {
+	const parsedBody = BODY.safeParse(await request.json());
+
+	if (!parsedBody.success) {
+		throw error(400, `invalid request body: ${JSON.stringify(parsedBody.error)}`);
+	}
+
+	const body = parsedBody.data;
+
+	const taggedRecordsToCreate = body.tagged.filter(
+		(t) =>
+			!body.originalTagged.some((oldTag) => oldTag.tag.name === t.name && oldTag.year === t.year)
 	);
-	const taggedRecordsToDelete = originalTagged.filter(
-		(t) => !tagged.some((newTag) => newTag.name === t.tag.name && newTag.year === t.year)
+	const taggedRecordsToDelete = body.originalTagged.filter(
+		(t) => !body.tagged.some((newTag) => newTag.name === t.tag.name && newTag.year === t.year)
 	);
 
 	const db = await getDb();
@@ -57,7 +68,7 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 		COMMIT TRANSACTION;
 		`,
 		{
-			description,
+			description: body.description,
 			transactionId,
 			taggedRecordsToCreate,
 			taggedRecordsToDelete: taggedRecordsToDelete.map((t) => new RecordId('tagged', t.id))
