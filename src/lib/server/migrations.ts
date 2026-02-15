@@ -1,5 +1,5 @@
 import { readdir, readFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { isAbsolute, join, resolve } from 'node:path';
 import type { Surreal } from 'surrealdb';
 
 interface AppliedMigration {
@@ -25,7 +25,7 @@ export async function applyMigrations(
 	// Otherwise, resolve from process.cwd() (which is project root when running via node server.js or npm)
 	const defaultDir =
 		migrationsDir || (process.env.MIGRATIONS_DIR ?? join(process.cwd(), 'migrations'));
-	const dir = defaultDir.startsWith('/') ? defaultDir : resolve(process.cwd(), defaultDir);
+	const dir = isAbsolute(defaultDir) ? defaultDir : resolve(process.cwd(), defaultDir);
 
 	// Ensure migrations table exists
 	const migrationTableSql = await readFile(join(dir, '000_migrations_table.surql'), 'utf8');
