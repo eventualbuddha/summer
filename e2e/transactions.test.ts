@@ -216,6 +216,9 @@ test('updating to hidden category', async ({
 	await page.keyboard.press('Escape');
 	await expect(page.locator('[data-dropdown-overlay]')).not.toBeAttached();
 
+	// Wait for transaction list to stabilize after filter change
+	await expect(page.getByText(generalTransaction.statementDescription)).toBeVisible();
+
 	// Change the category
 	await page.getByRole('button', { name: 'General', exact: true }).click();
 	await page.getByRole('button', { name: 'Utilities', exact: true }).click();

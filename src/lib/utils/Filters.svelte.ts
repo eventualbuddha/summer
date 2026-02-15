@@ -26,7 +26,7 @@ export class Filters {
 
 			// …clear the list of sticky transactions.
 			console.log('clearing sticky transaction IDs');
-			this.#stickyTransactionIds.length = 0;
+			this.#stickyTransactionIds = [];
 		});
 	}
 
