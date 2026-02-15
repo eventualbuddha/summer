@@ -234,6 +234,9 @@ test('updating to hidden category', async ({
 	// Check that the transaction is still shown.
 	await expect(page.getByText(generalTransaction.statementDescription)).toBeVisible();
 
+	// wait for a second (TODO: remove this)
+	await page.waitForTimeout(1000);
+
 	// Update the filters.
 	const searchInput = page.getByPlaceholder('Search (/)');
 	await searchInput.fill('test');
