@@ -31,8 +31,11 @@ export async function applyMigrations(
 	const migrationTableSql = await readFile(join(dir, '000_migrations_table.surql'), 'utf8');
 	try {
 		await db.query(migrationTableSql);
-	} catch {
-		// Ignore errors if table already exists
+	} catch (err) {
+		// Only ignore the specific "already exists" error; rethrow everything else
+		if (!(err instanceof Error) || !/already exists/i.test(err.message)) {
+			throw err;
+		}
 	}
 
 	// Get list of applied migrations
@@ -64,13 +67,21 @@ export async function applyMigrations(
 		progress?.(`→ Applying ${migrationName}...`);
 		const migrationSql = await readFile(join(dir, filename), 'utf8');
 
-		await db.query(migrationSql);
+		// Run the migration and record it as applied atomically to avoid concurrent runners
+		const transactionalSql = `
+BEGIN TRANSACTION;
 
-		// Record the migration as applied
-		await db.query('CREATE migration SET name = $name, applied_at = time::now();', {
-			name: migrationName
-		});
+LET $claim = (CREATE ONLY migration:${migrationName} SET name = $name, applied_at = time::now());
 
+IF $claim != NONE THEN {
+${migrationSql}
+	UPDATE $claim SET applied_at = time::now();
+};
+
+COMMIT TRANSACTION;
+		`;
+
+		await db.query(transactionalSql, { name: migrationName });
 		progress?.(`✓ ${migrationName} (applied successfully)`);
 		pendingCount++;
 	}
