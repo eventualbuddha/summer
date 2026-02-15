@@ -236,11 +236,10 @@ test('updating to hidden category', async ({
 
 	// Update the filters.
 	await page.getByPlaceholder('Search (/)').fill('test');
+	await page.getByPlaceholder('Search (/)').press('Enter');
 
 	// Check that the transaction is now hidden.
-	await expect(page.getByText(generalTransaction.statementDescription)).not.toBeVisible({
-		timeout: 30_000
-	});
+	await expect(page.getByText(generalTransaction.statementDescription)).not.toBeVisible();
 });
 
 test('search keyboard shortcuts', async ({ page, createTransaction }) => {
