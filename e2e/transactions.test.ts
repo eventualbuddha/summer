@@ -235,8 +235,10 @@ test('updating to hidden category', async ({
 	await expect(page.getByText(generalTransaction.statementDescription)).toBeVisible();
 
 	// Update the filters.
-	await page.getByPlaceholder('Search (/)').fill('test');
-	await page.getByPlaceholder('Search (/)').press('Enter');
+	const searchInput = page.getByPlaceholder('Search (/)');
+	await searchInput.fill('test');
+	await searchInput.press('Enter');
+	await searchInput.blur();
 
 	// Check that the transaction is now hidden.
 	await expect(page.getByText(generalTransaction.statementDescription)).not.toBeVisible();
