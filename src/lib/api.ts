@@ -44,7 +44,7 @@ export async function getFilterOptions(): Promise<FilterOptions> {
 		categories: Category[];
 		accounts: Account[];
 	}>('/api/filters');
-	return { ...data, searchTerm: '' };
+	return { ...data, searchText: '', searchTags: [] };
 }
 
 // Settings
@@ -135,7 +135,8 @@ export interface TransactionsQueryParams {
 	months: number[];
 	categories: string[];
 	accounts: string[];
-	searchTerm: string;
+	searchText: string;
+	searchTags: NewTagged[];
 	stickyTransactionIds: string[];
 	sort: {
 		columns: Array<{ field: string; direction: 'asc' | 'desc' }>;
@@ -175,22 +176,6 @@ export async function setBulkTransactionCategory(
 	await patchJson('/api/transactions/bulk-category', { transactionIds, categoryId });
 }
 
-export interface UpdateDescriptionResult {
-	tagged: Array<{ id: string; tag: { id: string; name: string }; year?: number }>;
-}
-
-export async function updateTransactionDescription(
-	transactionId: string,
-	description: string,
-	tagged: NewTagged[],
-	originalTagged: Array<{ id: string; tag: { name: string }; year?: number }>
-): Promise<UpdateDescriptionResult> {
-	return patchJson<UpdateDescriptionResult>(
-		`/api/transactions/${encodeURIComponent(transactionId)}/description`,
-		{ description, tagged, originalTagged }
-	);
-}
-
 // Transaction detail
 export interface TransactionDetail {
 	accountName: string;
@@ -210,6 +195,10 @@ export async function updateTransactionUserDescription(
 		`/api/transactions/${encodeURIComponent(id)}/user-description`,
 		{ description }
 	);
+}
+
+export interface UpdateDescriptionResult {
+	tagged: Array<{ id: string; tag: { id: string; name: string }; year?: number }>;
 }
 
 export async function updateTransactionTags(

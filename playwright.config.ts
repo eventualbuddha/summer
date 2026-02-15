@@ -13,7 +13,8 @@ export default defineConfig({
 	testDir: 'e2e',
 
 	use: {
-		baseURL: 'http://localhost:3000'
+		baseURL: 'http://localhost:3000',
+		video: 'retain-on-failure'
 	},
 
 	// Use single worker since tests share a database

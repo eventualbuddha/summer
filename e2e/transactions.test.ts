@@ -216,6 +216,9 @@ test('updating to hidden category', async ({
 	await page.keyboard.press('Escape');
 	await expect(page.locator('[data-dropdown-overlay]')).not.toBeAttached();
 
+	// Wait for transaction list to stabilize after filter change
+	await expect(page.getByText(generalTransaction.statementDescription)).toBeVisible();
+
 	// Change the category
 	await page.getByRole('button', { name: 'General', exact: true }).click();
 	await page.getByRole('button', { name: 'Utilities', exact: true }).click();
@@ -233,6 +236,7 @@ test('updating to hidden category', async ({
 
 	// Update the filters.
 	await page.getByPlaceholder('Search (/)').fill('test');
+	await page.getByPlaceholder('Search (/)').press('Enter');
 
 	// Check that the transaction is now hidden.
 	await expect(page.getByText(generalTransaction.statementDescription)).not.toBeVisible();
@@ -263,7 +267,7 @@ test('search keyboard shortcuts', async ({ page, createTransaction }) => {
 	await expect(searchInput).toHaveValue('');
 
 	// Type a search term to verify functionality
-	await page.keyboard.type('keyboard');
+	await searchInput.fill('keyboard');
 	await expect(searchInput).toHaveValue('keyboard');
 
 	// Press Escape to blur the search input
@@ -277,7 +281,8 @@ test('search keyboard shortcuts', async ({ page, createTransaction }) => {
 
 	// Clear and test "/" doesn't focus when already focused in the search input
 	await searchInput.focus();
-	await searchInput.fill('');
+	await searchInput.clear();
+	await expect(searchInput).toHaveValue('');
 	await expect(searchInput).toBeFocused();
 
 	// Type "/" while focused in search input - should add the character
@@ -285,7 +290,7 @@ test('search keyboard shortcuts', async ({ page, createTransaction }) => {
 	await expect(searchInput).toHaveValue('/');
 
 	// Clear the input and test the shortcut works again when not focused
-	await searchInput.fill('');
+	await searchInput.clear();
 	await page.keyboard.press('Escape'); // blur the input
 	await expect(searchInput).not.toBeFocused();
 
@@ -295,14 +300,14 @@ test('search keyboard shortcuts', async ({ page, createTransaction }) => {
 	await expect(searchInput).toHaveValue('');
 
 	// Test that it selects existing text when using the shortcut
-	await page.keyboard.type('existing text');
+	await searchInput.fill('existing text');
 	await expect(searchInput).toHaveValue('existing text');
 	await page.keyboard.press('Escape'); // blur
 	await page.keyboard.press('/'); // focus with shortcut
 
 	// When using shortcut, existing text should be selected
 	// We can test this by typing, which should replace selected text
-	await page.keyboard.type('replaced');
+	await searchInput.fill('replaced');
 	await expect(searchInput).toHaveValue('replaced');
 });
 

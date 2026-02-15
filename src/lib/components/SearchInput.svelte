@@ -1,66 +1,43 @@
 <script lang="ts">
-	import type { Tag, Tagged } from '$lib/db';
+	import type { Tag } from '$lib/db';
+	import type { NewTagged } from '$lib/db/updateTransactionDescription';
 	import TagChip from './TagChip.svelte';
 
 	let {
-		tags,
-		availableTags,
-		onchange
+		searchText = $bindable(),
+		searchTags = $bindable(),
+		availableTags
 	}: {
-		tags: Tagged[];
+		searchText: string;
+		searchTags: NewTagged[];
 		availableTags: Tag[];
-		onchange: (tagged: Tagged[]) => void;
 	} = $props();
 
-	let inputValue = $state('');
 	let inputElement = $state<HTMLInputElement>();
 	let showAutocomplete = $state(false);
 	let hoverIndex = $state(-1);
 
 	let filteredSuggestions = $derived.by(() => {
-		if (!inputValue.trim()) return [];
-		const search = inputValue.toLowerCase();
+		if (!searchText.trim()) return [];
+		const search = searchText.toLowerCase();
 		if (!search) return [];
-		const currentTagNames = new Set(tags.map((t) => t.tag.name));
+		const currentTagNames = new Set(searchTags.map((t) => t.name));
 		return availableTags
-			.filter((t) => t.name.toLowerCase().startsWith(search) && !currentTagNames.has(t.name))
+			.filter((t) => t.name.toLowerCase().includes(search) && !currentTagNames.has(t.name))
 			.slice(0, 8);
 	});
 
-	function parseTagText(text: string): { name: string; year?: number } {
-		const cleaned = text.trim();
-		if (!cleaned) return { name: cleaned };
-		const parts = cleaned.split(/\s+/);
-		const lastPart = parts[parts.length - 1]!;
-		const yearMatch = /^\d{4}$/.test(lastPart) ? parseInt(lastPart, 10) : NaN;
-		const currentYear = new Date().getFullYear();
-		const maxYear = currentYear + 10;
-		if (!Number.isNaN(yearMatch) && yearMatch >= 1900 && yearMatch <= maxYear && parts.length > 1) {
-			return { name: parts.slice(0, -1).join(' '), year: yearMatch };
-		}
-		return { name: cleaned };
-	}
-
 	function addTag(name: string, year?: number) {
-		if (!name.trim()) return;
-		if (tags.some((t) => t.tag.name === name && t.year === year)) return;
-		const timestamp = Date.now();
-		const id = `new-${timestamp}`;
-		const newTagged: Tagged = {
-			id,
-			tag: { id, name },
-			year
-		};
-		onchange([...tags, newTagged]);
-		inputValue = '';
+		if (searchTags.some((t) => t.name === name && t.year === year)) return;
+		searchTags = [...searchTags, { name, year }];
+		searchText = '';
+		if (inputElement) inputElement.value = '';
 		showAutocomplete = false;
 		hoverIndex = -1;
 	}
 
 	function removeTag(index: number) {
-		const newTags = [...tags];
-		newTags.splice(index, 1);
-		onchange(newTags);
+		searchTags = searchTags.filter((_, i) => i !== index);
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -70,15 +47,12 @@
 				if (hoverIndex >= 0 && hoverIndex < filteredSuggestions.length) {
 					const suggestion = filteredSuggestions[hoverIndex]!;
 					addTag(suggestion.name);
-				} else if (inputValue.trim()) {
-					const { name, year } = parseTagText(inputValue);
-					if (name) addTag(name, year);
 				}
 				break;
 			}
 			case 'Backspace': {
-				if (inputValue === '' && tags.length > 0) {
-					removeTag(tags.length - 1);
+				if (inputElement?.value === '' && searchTags.length > 0) {
+					removeTag(searchTags.length - 1);
 				}
 				break;
 			}
@@ -87,6 +61,8 @@
 					e.stopPropagation();
 					showAutocomplete = false;
 					hoverIndex = -1;
+				} else {
+					inputElement?.blur();
 				}
 				break;
 			}
@@ -108,8 +84,8 @@
 		}
 	}
 
-	function handleInput(e: Event) {
-		inputValue = (e.target as HTMLInputElement).value;
+	function handleInput() {
+		searchText = inputElement?.value ?? '';
 		showAutocomplete = filteredSuggestions.length > 0;
 		hoverIndex = -1;
 	}
@@ -121,7 +97,6 @@
 	}
 
 	function handleBlur() {
-		// Delay to allow click on autocomplete options
 		setTimeout(() => {
 			showAutocomplete = false;
 		}, 150);
@@ -130,28 +105,32 @@
 	export function focus() {
 		inputElement?.focus();
 	}
+
+	export function select() {
+		inputElement?.select();
+	}
 </script>
 
 <div class="relative">
 	<div
-		class="flex min-h-[2.25rem] flex-wrap items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+		class="flex min-h-[1.75rem] flex-wrap items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-0.5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
 		onclick={() => inputElement?.focus()}
 		role="presentation"
 	>
-		{#each tags as tagged, index (tagged.id)}
-			<TagChip name={tagged.tag.name} year={tagged.year} onremove={() => removeTag(index)} />
+		{#each searchTags as tagged, index ([tagged.name, tagged.year])}
+			<TagChip name={tagged.name} year={tagged.year} onremove={() => removeTag(index)} />
 		{/each}
 		<input
 			bind:this={inputElement}
 			type="text"
+			value={searchText}
 			class="min-w-[4rem] flex-1 border-none bg-transparent p-0 text-sm outline-none focus:ring-0"
-			placeholder={tags.length === 0 ? 'Add tags...' : ''}
-			value={inputValue}
+			placeholder={searchTags.length === 0 ? 'Search (/)' : ''}
 			oninput={handleInput}
 			onkeydown={handleKeydown}
 			onfocus={handleFocus}
 			onblur={handleBlur}
-			aria-label="Tag input"
+			aria-label="Search input"
 		/>
 	</div>
 

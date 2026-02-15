@@ -29,8 +29,9 @@
 				a.selected = true;
 			});
 
-			// Set search term to the tag with year
-			s.filters.searchTerm = `#${tagName}-${year}`;
+			// Set search tags to the tag with year
+			s.filters.searchText = '';
+			s.filters.searchTags = [{ name: tagName, year }];
 		}
 
 		goto(resolve('/'));
@@ -79,10 +80,9 @@
 		<div class="no-data">
 			<p>No tagged transactions found.</p>
 			<p class="hint">
-				Tags are created when you add them to transaction descriptions. Use the format
-				<code>#tagname-YYYY</code> where YYYY is the year.
+				Tags are created when you add them to transactions. Use the tag input to add tags with an
+				optional year, e.g. <code>santa barbara 2025</code>.
 			</p>
-			<p class="hint">For example: <code>#santa-barbara-2025</code></p>
 		</div>
 	{:else}
 		<div class="table-container">
@@ -99,7 +99,7 @@
 				<tbody>
 					{#each s.tagReportData.tagNames as tagName (tagName)}
 						<tr class="tag-row">
-							<td class="tag-name">#{tagName}</td>
+							<td class="tag-name">{tagName}</td>
 							{#each s.tagReportData.years as year (year)}
 								{@const amount = s.tagReportData.spendingByTagAndYear[tagName]?.[year] || 0}
 								<td

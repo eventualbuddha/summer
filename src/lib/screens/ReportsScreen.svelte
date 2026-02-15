@@ -32,7 +32,8 @@
 			});
 
 			// Clear search and account filters
-			s.filters.searchTerm = '';
+			s.filters.searchText = '';
+			s.filters.searchTags = [];
 			s.filters.accounts.forEach((a) => {
 				a.selected = true;
 			});
@@ -60,7 +61,8 @@
 			});
 
 			// Clear search and account filters
-			s.filters.searchTerm = '';
+			s.filters.searchText = '';
+			s.filters.searchTags = [];
 			s.filters.accounts.forEach((a) => {
 				a.selected = true;
 			});

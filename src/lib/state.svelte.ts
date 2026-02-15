@@ -11,7 +11,7 @@ import {
 	type Transaction,
 	type Transactions
 } from './db';
-import { parseTransactionDescriptionAndTags } from './db/updateTransactionDescription';
+import type { NewTagged } from './db/updateTransactionDescription';
 import type { ImportedTransaction } from './import/ImportedTransaction';
 import type { StatementMetadata } from './import/StatementMetadata';
 import type { Selection } from './types';
@@ -24,7 +24,8 @@ export interface FilterState {
 	months: Selection<number>[];
 	categories: Selection<Category>[];
 	accounts: Selection<Account>[];
-	searchTerm: string;
+	searchText: string;
+	searchTags: NewTagged[];
 }
 
 export type SortingField = 'date' | 'amount' | 'statementDescription';
@@ -175,7 +176,8 @@ export class State {
 			accounts: this.filters.accounts
 				.filter((selection) => selection.selected)
 				.map((selection) => selection.value.id),
-			searchTerm: this.filters.searchTerm,
+			searchText: this.filters.searchText,
+			searchTags: this.filters.searchTags,
 			stickyTransactionIds: [...stickyTransactionIds],
 			sort: { columns: [...sort.columns] }
 		};
@@ -244,9 +246,15 @@ export class State {
 		});
 	}
 
-	updateSearchTerm(searchTerm: string): void {
+	updateSearchText(searchText: string): void {
 		this.#updateFiltersWith((filters) => {
-			filters.searchTerm = searchTerm;
+			filters.searchText = searchText;
+		});
+	}
+
+	updateSearchTags(searchTags: NewTagged[]): void {
+		this.#updateFiltersWith((filters) => {
+			filters.searchTags = searchTags;
 		});
 	}
 
@@ -265,7 +273,8 @@ export class State {
 			for (const accountFilter of filters.accounts) {
 				accountFilter.selected = true;
 			}
-			filters.searchTerm = '';
+			filters.searchText = '';
+			filters.searchTags = [];
 		});
 	}
 
@@ -366,40 +375,6 @@ export class State {
 
 	async updateDefaultCategoryId(newDefaultCategoryId: string) {
 		await api.updateDefaultCategoryId(newDefaultCategoryId);
-	}
-
-	async updateTransactionDescription(
-		transaction: Transaction,
-		description?: string
-	): Promise<Result<void>> {
-		const parsed = parseTransactionDescriptionAndTags(description ?? '');
-		const originalTagged = transaction.tagged;
-		const originalDescription = transaction.description;
-
-		transaction.description = parsed.description.trim();
-		transaction.tagged = parsed.tagged.map((t, i) => ({
-			id: `placeholder-${i}`,
-			tag: {
-				id: `placeholder-${i}`,
-				name: t.name
-			},
-			year: t.year
-		}));
-
-		try {
-			const result = await api.updateTransactionDescription(
-				transaction.id,
-				parsed.description,
-				parsed.tagged,
-				originalTagged
-			);
-			transaction.tagged = result.tagged;
-			return Result.ok(undefined);
-		} catch (error) {
-			transaction.description = originalDescription;
-			transaction.tagged = originalTagged;
-			return Result.err(error as Error);
-		}
 	}
 
 	async updateDescription(transaction: Transaction, description: string): Promise<Result<void>> {

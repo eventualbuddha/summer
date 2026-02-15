@@ -12,9 +12,11 @@ test('existing tags', async ({ page, createTransaction, tagTransaction }) => {
 
 	await page.goto('/');
 
-	// Check for the tags (displayed as individual chips)
-	await expect(page.getByText('#gelato')).toBeVisible();
-	await expect(page.getByText('#hawaii-2025')).toBeVisible();
+	// Check for the tags (displayed as individual chips without # prefix)
+	const tagChips = page.locator('[data-transaction] .bg-blue-100');
+	await expect(tagChips).toHaveCount(2);
+	await expect(tagChips.filter({ hasText: 'gelato' })).toBeVisible();
+	await expect(tagChips.filter({ hasText: 'hawaii' })).toBeVisible();
 });
 
 test('adding tag without a year', async ({ page, pageHelpers, createTransaction }) => {
@@ -53,9 +55,9 @@ test('adding tag with a year', async ({ page, pageHelpers, createTransaction }) 
 	const modal = page.getByRole('dialog');
 	await expect(modal).toBeVisible();
 
-	// Use the tag input in the modal
+	// Use the tag input in the modal — year is now space-separated
 	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
-	await tagInput.fill('hawaii-2025');
+	await tagInput.fill('hawaii 2025');
 	await tagInput.press('Enter');
 
 	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'hawaii', year: 2025 }]);
@@ -91,9 +93,9 @@ test('editing tags', async ({ page, pageHelpers, createTransaction }) => {
 	await tagInput.press('Enter');
 	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'maui' }]);
 
-	// Replace with a year-tagged version
+	// Replace with a year-tagged version — year is now space-separated
 	await modal.getByRole('button', { name: 'Remove tag maui' }).click();
-	await tagInput.fill('hawaii-2025');
+	await tagInput.fill('hawaii 2025');
 	await tagInput.press('Enter');
 	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'hawaii', year: 2025 }]);
 
@@ -135,25 +137,30 @@ test('searching by tag', async ({ page, createTransaction, tagTransaction }) => 
 	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
 	await expect(page.getByText(untaggedTransaction.statementDescription)).toBeVisible();
 
-	const $search = page.getByRole('textbox', { name: 'Search' });
+	const $search = page.getByRole('textbox', { name: 'Search input' });
 
-	// Filter by tag without year
-	$search.fill('#hawaii');
+	// Type a tag name — autocomplete should appear, select it
+	await $search.fill('hawaii');
+	const hawaiiOption = page.getByRole('option', { name: 'hawaii' });
+	await expect(hawaiiOption).toBeVisible();
+	await hawaiiOption.click();
+
+	// Verify the tag chip was added
+	const removeHawaii = page.getByRole('button', { name: 'Remove tag hawaii' });
+	await expect(removeHawaii).toBeVisible();
+
+	// Only the tagged transaction should be visible
 	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
 	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
 
-	// Filter by tag with year
-	$search.fill('#hawaii-2025');
+	// Remove the tag chip — both transactions should be visible again
+	await removeHawaii.click();
+	await expect(removeHawaii).not.toBeVisible();
 	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
-	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
+	await expect(page.getByText(untaggedTransaction.statementDescription)).toBeVisible();
 
-	// Filter by tag that has no year
-	$search.fill('#gelato');
-	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
-	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
-
-	// Filter by tag that has no transactions
-	$search.fill('#nothing');
+	// Search by text for something that doesn't match
+	await $search.fill('nothing');
 	await expect(page.getByText(taggedTransaction.statementDescription)).not.toBeVisible();
 	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
 });

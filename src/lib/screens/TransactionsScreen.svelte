@@ -66,12 +66,6 @@
 			});
 		}
 
-		// Read search term from URL
-		const searchParam = params.get('search');
-		if (searchParam) {
-			s.filters.searchTerm = searchParam;
-		}
-
 		hasInitializedFromUrl = true;
 	});
 
@@ -84,8 +78,6 @@
 		const months = s.filters.months.map((m) => ({ key: m.key, selected: m.selected }));
 		const categories = s.filters.categories.map((c) => ({ key: c.key, selected: c.selected }));
 		const accounts = s.filters.accounts.map((a) => ({ key: a.key, selected: a.selected }));
-		const searchTerm = s.filters.searchTerm;
-
 		// Use untrack to read current URL without creating a dependency
 		untrack(() => {
 			// eslint-disable-next-line svelte/prefer-svelte-reactivity
@@ -127,14 +119,8 @@
 				params.delete('accounts');
 			}
 
-			// Update search parameter
-			if (searchTerm) {
-				params.set('search', searchTerm);
-			} else {
-				params.delete('search');
-			}
-
 			// Update URL without triggering navigation
+			params.delete('search');
 			const newUrl = `${$page.url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
 			// eslint-disable-next-line svelte/no-navigation-without-resolve
 			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
@@ -165,7 +151,9 @@
 		bind:monthSelections={s.filters.months}
 		bind:categorySelections={s.filters.categories}
 		bind:accountSelections={s.filters.accounts}
-		bind:searchTerm={s.filters.searchTerm}
+		bind:searchText={s.filters.searchText}
+		bind:searchTags={s.filters.searchTags}
+		availableTags={s.tags}
 		onclear={() => s.clearFilters()}
 	/>
 	<BulkTransactionActions />

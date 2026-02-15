@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { NewTagged } from './db/updateTransactionDescription';
 
 export interface Transactions {
 	count: number;
@@ -118,7 +119,8 @@ export interface FilterOptions {
 	months: number[];
 	categories: Category[];
 	accounts: Account[];
-	searchTerm: string;
+	searchText: string;
+	searchTags: NewTagged[];
 }
 
 export const FilterOptionsSchema = z.object({
@@ -126,7 +128,8 @@ export const FilterOptionsSchema = z.object({
 	months: z.array(z.number().min(0)),
 	categories: z.array(CategorySchema),
 	accounts: z.array(AccountSchema),
-	searchTerm: z.string()
+	searchText: z.string(),
+	searchTags: z.array(z.object({ name: z.string(), year: z.number().optional() }))
 });
 
 export interface Budget {
