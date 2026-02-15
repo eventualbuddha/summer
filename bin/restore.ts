@@ -2,13 +2,14 @@
 
 import assert from 'node:assert';
 import { createReadStream } from 'node:fs';
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir } from 'node:fs/promises';
 import path, { join } from 'node:path';
 import { argv, exit, stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
 import { StringRecordId, Surreal } from 'surrealdb';
 import { parseRecord } from '../src/lib/serialization.ts';
+import { applyMigrations } from '../src/lib/server/migrations.ts';
 
 export const OPTIONS = {
 	help: {
@@ -97,8 +98,8 @@ export async function restore({
 
 	await db.use({ namespace, database });
 
-	const schema = await readFile(join(import.meta.dirname, '../static/schema.surql'), 'utf8');
-	await db.query(schema);
+	// Apply migrations to set up schema
+	await applyMigrations(db);
 
 	const files = await readdir(backupPath);
 

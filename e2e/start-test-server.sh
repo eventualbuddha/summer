@@ -37,6 +37,7 @@ export SURREALDB_URL=http://127.0.0.1:${SURREALDB_PORT}
 export SURREALDB_NAMESPACE=ns
 export SURREALDB_DATABASE=db
 export PORT=3000
+export MIGRATIONS_DIR="$(pwd)/migrations"
 
 # Trap to kill SurrealDB when the web server exits
 trap "kill $SURREAL_PID 2>/dev/null" EXIT
