@@ -30,9 +30,9 @@ summer/
 │       ├── db/           # Database schemas and utilities
 │       ├── server/       # Server-side utilities
 │       └── components/   # Svelte components
+├── migrations/           # Database migrations
 ├── static/
-│   └── schema.surql      # SurrealDB schema definition
-├── bin/                  # CLI utilities (backup, restore, etc.)
+├── bin/                  # CLI utilities (backup, restore, migrate, etc.)
 ├── backups/              # Database backups
 └── tests/                # Test files
 ```
@@ -70,10 +70,10 @@ DEFINE INDEX transactionDateCategoryIndex ON transaction COLUMNS date, category;
 
 ### Schema Management
 
-- Schema is defined in `static/schema.surql`
-- **WARNING**: The schema file starts with `REMOVE TABLE IF EXISTS` commands - applying it will delete all data
-- Always backup before applying schema changes
-- Use `./bin/backup` and `./bin/restore` for data management
+- Schema is managed through migrations in the `migrations/` directory
+- Migrations are applied automatically when the application starts (if database is empty)
+- Use `./bin/migrate` to manually apply migrations
+- See `migrations/README.md` for details on creating new migrations
 
 ## Key Patterns & Conventions
 
@@ -138,14 +138,17 @@ docker compose up -d summer        # Recreate and start app
 
 ## Common Tasks
 
-### Adding a Database Index
+### Adding a Database Migration
 
-1. Update `static/schema.surql`
-2. Apply to database:
+1. Create a new migration file in `migrations/` with the next sequential number:
    ```bash
-   cat static/schema.surql | docker exec -i summer-surrealdb /surreal sql --endpoint http://localhost:8000 --namespace summer --database summer
+   # e.g., migrations/003_add_new_feature.surql
    ```
-3. **WARNING**: This will reset all tables - restore data afterward
+2. Add migration SQL (see `migrations/README.md` for format)
+3. Apply migrations:
+   ```bash
+   ./bin/migrate -u http://localhost:8001 -n summer -d summer
+   ```
 
 ### Testing Query Performance
 

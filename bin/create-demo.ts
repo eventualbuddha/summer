@@ -2,8 +2,6 @@
 
 import { faker } from '@faker-js/faker'; // Import faker.js for generating realistic data.
 import { DateTime, Interval } from 'luxon';
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { argv, exit, stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
@@ -16,6 +14,7 @@ import {
 	StatementSchema,
 	TransactionRecordSchema
 } from '../src/lib/db.ts';
+import { applyMigrations } from '../src/lib/server/migrations.ts';
 
 // Define categories with associated emojis, weights, account-specific weights, and amount ranges.
 const categories = [
@@ -422,10 +421,8 @@ if (options.values.username) {
 
 await db.use({ namespace: options.values.namespace, database: options.values.database });
 
-const schema = await readFile(join(import.meta.dirname, '../static/schema.surql'), 'utf8');
-
-stdout.write('Restoring schema…');
-await db.query(schema);
+stdout.write('Applying migrations…');
+await applyMigrations(db);
 stdout.write('\n');
 
 await addTransactionsToSurrealDB(db, Interval.fromDateTimes(startDate, endDate), transactions);

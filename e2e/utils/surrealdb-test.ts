@@ -1,6 +1,7 @@
 import { test as base, expect } from '@playwright/test';
 import Surreal, { RecordId } from 'surrealdb';
 import { waitFor } from './helpers';
+import { applyMigrations } from '../../src/lib/server/migrations';
 
 export { expect };
 
@@ -79,14 +80,14 @@ export const test = base.extend<{
 		waitForConnection(): Promise<void>;
 	};
 }>({
-	surreal: async ({ baseURL }, use) => {
+	// eslint-disable-next-line no-empty-pattern
+	surreal: async ({}, use) => {
 		const surreal = new Surreal();
 		await surreal.connect('http://127.0.0.1:18000');
 		await surreal.use({ namespace: 'ns', database: 'db' });
 
-		// Load schema
-		const schema = await (await fetch(`${baseURL}/schema.surql`)).text();
-		await surreal.query(schema);
+		// Apply migrations to set up schema
+		await applyMigrations(surreal);
 
 		// Small delay to ensure database is fully ready for page connections
 		// await new Promise((resolve) => setTimeout(resolve, 100));
