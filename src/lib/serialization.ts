@@ -1,3 +1,4 @@
+import assert from 'node:assert';
 import { RecordId, StringRecordId } from 'surrealdb';
 
 export function parseRecord(raw: string): {
@@ -33,7 +34,12 @@ export function parseRecord(raw: string): {
 		}
 
 		if (value.type === 'Date' && value.encoding === 'ISO') {
-			return new Date(value.value);
+			const parts = value.value.match(/^(\d+)-(\d+)-(\d+)$/);
+			// parse as noon to prevent timezone shenanigans
+			const date =
+				parts && new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]), 12, 0, 0);
+			assert(!Number.isNaN(date?.valueOf()), `Unable to parse date: ${value.value}`);
+			return date;
 		}
 
 		if (value.type === 'RecordId' && value.encoding === 'string') {
@@ -75,7 +81,7 @@ export function toJSON(value: unknown): unknown {
 		return {
 			type: 'Date',
 			encoding: 'ISO',
-			value: value.toISOString()
+			value: value.toISOString().split('T')[0]
 		};
 	}
 

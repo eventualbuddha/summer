@@ -9,6 +9,8 @@ import { parseArgs } from 'node:util';
 import { RecordId, Surreal } from 'surrealdb';
 import { serializeRecord } from '../src/lib/serialization.ts';
 
+process.env.TZ = 'UTC';
+
 export const OPTIONS = {
 	help: {
 		type: 'boolean',
