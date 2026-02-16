@@ -43,6 +43,9 @@ DEFINE INDEX transactionDateCategoryIndex ON TABLE transaction COLUMNS date, cat
 DEFINE INDEX transactionStatementDateIndex ON TABLE transaction COLUMNS statement.date;
 DEFINE INDEX transactionStatementDateCategoryIndex ON TABLE transaction COLUMNS statement.date, category;
 
+DEFINE TABLE tagged SCHEMAFULL TYPE RELATION IN transaction OUT tag;
+DEFINE FIELD year ON TABLE tagged TYPE option<number>;
+
 DEFINE TABLE budget SCHEMAFULL;
 DEFINE FIELD name ON TABLE budget TYPE string;
 DEFINE FIELD year ON TABLE budget TYPE number;

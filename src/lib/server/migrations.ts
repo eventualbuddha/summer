@@ -11,20 +11,22 @@ interface AppliedMigration {
  * Apply all pending database migrations.
  *
  * @param db - Connected and authenticated Surreal instance with namespace/database selected
- * @param migrationsDir - Path to migrations directory (defaults to /migrations in project root)
- * @param progress - Optional callback for progress updates
+ * @param options - Options for migration application
  * @returns Number of migrations applied (0 if all up to date)
  */
 export async function applyMigrations(
 	db: Surreal,
-	migrationsDir?: string,
-	progress?: (message: string) => void
+	options: {
+		migrationsDir?: string;
+		progress?: (message: string) => void;
+		migrations?: string[];
+	} = {}
 ): Promise<number> {
 	// Migrations directory is always at project root
 	// If migrations dir starts with /, it's already absolute
 	// Otherwise, resolve from process.cwd() (which is project root when running via node server.js or npm)
 	const defaultDir =
-		migrationsDir || (process.env.MIGRATIONS_DIR ?? join(process.cwd(), 'migrations'));
+		options.migrationsDir || (process.env.MIGRATIONS_DIR ?? join(process.cwd(), 'migrations'));
 	const dir = isAbsolute(defaultDir) ? defaultDir : resolve(process.cwd(), defaultDir);
 
 	// Ensure migrations table exists
@@ -59,29 +61,33 @@ export async function applyMigrations(
 
 		// Check if migration has already been applied
 		if (appliedMigrations.has(migrationName)) {
-			progress?.(`✓ ${migrationName} (already applied)`);
+			options.progress?.(`✓ ${migrationName} (already applied)`);
 			continue;
 		}
 
 		// Apply the migration
-		progress?.(`→ Applying ${migrationName}...`);
-		const migrationSql = await readFile(join(dir, filename), 'utf8');
+		if (!options.migrations || options.migrations.includes(migrationName)) {
+			options.progress?.(`→ Applying ${migrationName}...`);
+			const migrationSql = await readFile(join(dir, filename), 'utf8');
 
-		await db.query(migrationSql);
+			await db.query(migrationSql);
 
-		// Record the migration as applied
-		await db.query('CREATE migration SET name = $name, applied_at = time::now();', {
-			name: migrationName
-		});
+			// Record the migration as applied
+			await db.query('CREATE migration SET name = $name, applied_at = time::now();', {
+				name: migrationName
+			});
 
-		progress?.(`✓ ${migrationName} (applied successfully)`);
-		pendingCount++;
+			pendingCount++;
+			options.progress?.(`✓ ${migrationName} (applied successfully)`);
+		} else {
+			options.progress?.(`✓ ${migrationName} (skipped)`);
+		}
 	}
 
 	if (pendingCount === 0) {
-		progress?.('All migrations are up to date!');
+		options.progress?.('All migrations are up to date!');
 	} else {
-		progress?.(`Applied ${pendingCount} migration(s) successfully!`);
+		options.progress?.(`Applied ${pendingCount} migration(s) successfully!`);
 	}
 
 	return pendingCount;

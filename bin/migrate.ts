@@ -83,7 +83,7 @@ export async function migrate({
 	progress?.('Checking for applied migrations...');
 
 	try {
-		await applyMigrations(db, undefined, progress);
+		await applyMigrations(db, { progress });
 		await db.close();
 		return 0;
 	} catch (error) {

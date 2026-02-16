@@ -63,7 +63,6 @@ echo "mypassword" | ./bin/migrate -u http://localhost:8000 -U root
 
 - **Migrations are irreversible** - there is no "down" migration support
 - **Backup before migrating** - use `./bin/backup` to create a backup first
-- **Events must be single-line** - SurrealDB CLI breaks up multiline statements when piped
 - **Test migrations first** - always test on a copy of your data before applying to production
 
 ## Migration Tracking
