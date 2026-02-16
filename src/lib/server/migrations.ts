@@ -67,21 +67,13 @@ export async function applyMigrations(
 		progress?.(`→ Applying ${migrationName}...`);
 		const migrationSql = await readFile(join(dir, filename), 'utf8');
 
-		// Run the migration and record it as applied atomically to avoid concurrent runners
-		const transactionalSql = `
-BEGIN TRANSACTION;
+		await db.query(migrationSql);
 
-LET $claim = (CREATE ONLY migration:${migrationName} SET name = $name, applied_at = time::now());
+		// Record the migration as applied
+		await db.query('CREATE migration SET name = $name, applied_at = time::now();', {
+			name: migrationName
+		});
 
-IF $claim != NONE THEN {
-${migrationSql}
-	UPDATE $claim SET applied_at = time::now();
-};
-
-COMMIT TRANSACTION;
-		`;
-
-		await db.query(transactionalSql, { name: migrationName });
 		progress?.(`✓ ${migrationName} (applied successfully)`);
 		pendingCount++;
 	}
