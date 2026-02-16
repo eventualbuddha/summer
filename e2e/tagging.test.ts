@@ -2,26 +2,26 @@ import { expect, test } from './utils/surrealdb-test';
 
 test('existing tags', async ({ page, createTransaction, tagTransaction }) => {
 	const transaction = await createTransaction({
-		statementDescription: 'ONO GELATO',
+		statementDescription: 'ONO Gelato',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
 
-	await tagTransaction(transaction.id, 'hawaii', 2025);
-	await tagTransaction(transaction.id, 'gelato');
+	await tagTransaction(transaction.id, 'Hawaii');
+	await tagTransaction(transaction.id, 'Gelato');
 
 	await page.goto('/');
 
-	// Check for the tags (displayed as individual chips without # prefix)
+	// Check for the tags
 	const tagChips = page.locator('[data-transaction] .bg-blue-100');
 	await expect(tagChips).toHaveCount(2);
-	await expect(tagChips.filter({ hasText: 'gelato' })).toBeVisible();
-	await expect(tagChips.filter({ hasText: 'hawaii' })).toBeVisible();
+	await expect(tagChips.filter({ hasText: 'Gelato' })).toBeVisible();
+	await expect(tagChips.filter({ hasText: 'Hawaii' })).toBeVisible();
 });
 
-test('adding tag without a year', async ({ page, pageHelpers, createTransaction }) => {
+test('adding a tag', async ({ page, pageHelpers, createTransaction }) => {
 	const transaction = await createTransaction({
-		statementDescription: 'ONO GELATO',
+		statementDescription: 'ONO Gelato',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
@@ -35,37 +35,15 @@ test('adding tag without a year', async ({ page, pageHelpers, createTransaction 
 
 	// Use the tag input in the modal
 	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
-	await tagInput.fill('hawaii');
+	await tagInput.fill('Hawaii');
 	await tagInput.press('Enter');
 
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'hawaii' }]);
-});
-
-test('adding tag with a year', async ({ page, pageHelpers, createTransaction }) => {
-	const transaction = await createTransaction({
-		statementDescription: 'ONO GELATO',
-		date: new Date(2025, 0, 1),
-		amount: -123
-	});
-
-	await page.goto('/');
-
-	// Click the row to open modal
-	await page.locator('[data-transaction]').click();
-	const modal = page.getByRole('dialog');
-	await expect(modal).toBeVisible();
-
-	// Use the tag input in the modal — year is now space-separated
-	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
-	await tagInput.fill('hawaii 2025');
-	await tagInput.press('Enter');
-
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'hawaii', year: 2025 }]);
+	await pageHelpers.waitForTaggedTransaction(transaction.id, ['Hawaii']);
 });
 
 test('editing tags', async ({ page, pageHelpers, createTransaction }) => {
 	const transaction = await createTransaction({
-		statementDescription: 'ONO GELATO',
+		statementDescription: 'ONO Gelato',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
@@ -83,42 +61,29 @@ test('editing tags', async ({ page, pageHelpers, createTransaction }) => {
 	await descriptionInput.blur();
 
 	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
-	await tagInput.fill('hawaii');
+	await tagInput.fill('Hawaii');
 	await tagInput.press('Enter');
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'hawaii' }]);
+	await pageHelpers.waitForTaggedTransaction(transaction.id, ['Hawaii']);
 
 	// Remove existing tag and add new one
-	await modal.getByRole('button', { name: 'Remove tag hawaii' }).click();
-	await tagInput.fill('maui');
+	await modal.getByRole('button', { name: 'Remove tag Hawaii' }).click();
+	await tagInput.fill('Maui');
 	await tagInput.press('Enter');
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'maui' }]);
-
-	// Replace with a year-tagged version — year is now space-separated
-	await modal.getByRole('button', { name: 'Remove tag maui' }).click();
-	await tagInput.fill('hawaii 2025');
-	await tagInput.press('Enter');
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'hawaii', year: 2025 }]);
+	await pageHelpers.waitForTaggedTransaction(transaction.id, ['Maui']);
 
 	// Add multiple tags
-	await tagInput.fill('maui');
+	await tagInput.fill('Gelato');
 	await tagInput.press('Enter');
-	await tagInput.fill('gelato');
-	await tagInput.press('Enter');
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [
-		{ name: 'hawaii', year: 2025 },
-		{ name: 'maui' },
-		{ name: 'gelato' }
-	]);
+	await pageHelpers.waitForTaggedTransaction(transaction.id, ['Maui', 'Gelato']);
 
 	// Remove all but one
-	await modal.getByRole('button', { name: 'Remove tag hawaii' }).click();
-	await modal.getByRole('button', { name: 'Remove tag gelato' }).click();
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'maui' }]);
+	await modal.getByRole('button', { name: 'Remove tag Gelato' }).click();
+	await pageHelpers.waitForTaggedTransaction(transaction.id, ['Maui']);
 });
 
 test('searching by tag', async ({ page, createTransaction, tagTransaction }) => {
 	const taggedTransaction = await createTransaction({
-		statementDescription: 'ONO GELATO',
+		statementDescription: 'ONO Gelato',
 		date: new Date(2025, 0, 1),
 		amount: -123
 	});
@@ -128,8 +93,8 @@ test('searching by tag', async ({ page, createTransaction, tagTransaction }) => 
 		amount: -1800
 	});
 
-	await tagTransaction(taggedTransaction.id, 'hawaii', 2025);
-	await tagTransaction(taggedTransaction.id, 'gelato');
+	await tagTransaction(taggedTransaction.id, 'Hawaii');
+	await tagTransaction(taggedTransaction.id, 'Gelato');
 
 	await page.goto('/');
 
@@ -140,13 +105,13 @@ test('searching by tag', async ({ page, createTransaction, tagTransaction }) => 
 	const $search = page.getByRole('textbox', { name: 'Search input' });
 
 	// Type a tag name — autocomplete should appear, select it
-	await $search.fill('hawaii');
-	const hawaiiOption = page.getByRole('option', { name: 'hawaii' });
+	await $search.fill('Hawaii');
+	const hawaiiOption = page.getByRole('option', { name: 'Hawaii' });
 	await expect(hawaiiOption).toBeVisible();
 	await hawaiiOption.click();
 
 	// Verify the tag chip was added
-	const removeHawaii = page.getByRole('button', { name: 'Remove tag hawaii' });
+	const removeHawaii = page.getByRole('button', { name: 'Remove tag Hawaii' });
 	await expect(removeHawaii).toBeVisible();
 
 	// Only the tagged transaction should be visible

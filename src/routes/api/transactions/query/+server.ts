@@ -1,6 +1,5 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
-import type { NewTagged } from '$lib/db/updateTransactionDescription';
 import { z } from 'zod';
 
 interface SortColumn {
@@ -14,7 +13,7 @@ const BODY = z.object({
 	categories: z.array(z.string()),
 	accounts: z.array(z.string()),
 	searchText: z.string(),
-	searchTags: z.array(z.object({ name: z.string(), year: z.number().optional() })),
+	searchTags: z.array(z.string()),
 	stickyTransactionIds: z.array(z.string()),
 	sort: z.object({
 		columns: z.array(
@@ -40,7 +39,12 @@ function amountsToMatchForSearchTerm(searchText: string): number[] {
 
 function buildOrderByFields(columns: readonly SortColumn[]): string {
 	return columns
-		.map((col, index) => `type::field("${col.field}") as orderField${index}`)
+		.map((col, index) => {
+			if (col.field === 'date') {
+				return `(effectiveDate ?? date) as orderField${index}`;
+			}
+			return `type::field("${col.field}") as orderField${index}`;
+		})
 		.join(',\n\t\t\t\t\t\t\t ');
 }
 
@@ -66,7 +70,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	const body = parsedBody.data;
 
 	const descriptionFilter = body.searchText.trim();
-	const taggedFilter = body.searchTags;
+	const tagsFilter = body.searchTags;
 	const amounts = amountsToMatchForSearchTerm(body.searchText);
 
 	const columns = body.sort.columns;
@@ -82,6 +86,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		let $transactions = (
 			SELECT id.id(),
 				date,
+				effectiveDate,
 				amount,
 				category AND category.id() as categoryId,
 				category AND category.ordinal as categoryOrdinal,
@@ -89,22 +94,22 @@ export const POST: RequestHandler = async ({ request }) => {
 				description,
 				statementDescription,
 				statement.id() as statementId,
-				statement.date.year() as year,
-				->(SELECT id.id() as id, ->(SELECT id.id() as id, name FROM tag LIMIT 1)[0] as tag, year FROM tagged) as tagged,
+				(effectiveDate ?? statement.date).year() as year,
+        ->tagged->tag.name as tags,
 				${orderByFields}
 			FROM transaction
 			WHERE id.id() IN $stickyTransactionIds
 				OR (
-					statement.date.year() IN $years
-					AND statement.date.month() IN $months
+					(effectiveDate ?? statement.date).year() IN $years
+					AND (effectiveDate ?? statement.date).month() IN $months
 					AND category AND category.id() IN $categories
 					AND statement.account AND statement.account.id() IN $accounts
 					AND (
-						(!$descriptionFilter AND $taggedFilter.len() == 0 AND !$amounts)
+						(!$descriptionFilter AND $tagsFilter.len() == 0 AND !$amounts)
 						OR (description AND $descriptionFilter AND description.lowercase().contains($descriptionFilter.lowercase()))
 						OR (statementDescription AND $descriptionFilter AND statementDescription.lowercase().contains($descriptionFilter.lowercase()))
 						OR (amount IN $amounts)
-						OR count(->(tagged WHERE $taggedFilter.any(|$tag| out.name.lowercase().contains($tag.name.lowercase()) AND (!$tag.year OR year == $tag.year)))) > 0
+						OR ($tagsFilter.len() > 0 AND $tagsFilter ALLINSIDE ->tagged->tag.name)
 					)
 				)
 			ORDER BY ${orderByClause}
@@ -127,7 +132,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		categories: body.categories,
 		accounts: body.accounts,
 		descriptionFilter,
-		taggedFilter: taggedFilter as NewTagged[],
+		tagsFilter: tagsFilter as string[],
 		amounts
 	});
 
@@ -135,15 +140,15 @@ export const POST: RequestHandler = async ({ request }) => {
 		unknown,
 		unknown,
 		number,
-		Array<{ tagged?: Array<{ tag?: { name?: string } }> }>,
+		Array<{ tags?: string[] }>,
 		Array<{ year: number; total: number }>,
 		Array<{ categoryId: string; categoryOrdinal: number; total: number }>,
 		Array<{ accountId: string; total: number }>
 	];
 
-	// Sort each transaction's tagged array by tag name (was previously done by SortedTaggedArraySchema)
+	// Sort each transaction's tagged array by tag name
 	for (const t of transactions) {
-		t.tagged?.sort((a, b) => (a.tag?.name ?? '').localeCompare(b.tag?.name ?? ''));
+		t.tags?.sort((a, b) => a.localeCompare(b));
 	}
 
 	return json({

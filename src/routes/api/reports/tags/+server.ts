@@ -7,8 +7,8 @@ export const GET: RequestHandler = async () => {
 
 	const [tagSpending] = await db.query(`
 		SELECT
-			->tagged[WHERE year IS NOT NONE].out.name AS tagNames,
-			->tagged[WHERE year IS NOT NONE].year AS tagYears,
+			->tagged->tag.name AS tagNames,
+			(effectiveDate ?? statement.date).year() AS year,
 			amount
 		FROM transaction
 		WHERE statement.date IS NOT NONE
@@ -20,7 +20,7 @@ export const GET: RequestHandler = async () => {
 		.array(
 			z.object({
 				tagNames: z.union([z.string(), z.array(z.string())]),
-				tagYears: z.union([z.number(), z.array(z.number())]),
+				year: z.number(),
 				amount: z.number()
 			})
 		)
@@ -35,12 +35,9 @@ export const GET: RequestHandler = async () => {
 	const flatData: TagYearAmount[] = [];
 	rawData.forEach((item) => {
 		const tagNames = Array.isArray(item.tagNames) ? item.tagNames : [item.tagNames];
-		const tagYears = Array.isArray(item.tagYears) ? item.tagYears : [item.tagYears];
-
-		tagNames.forEach((tagName, index) => {
-			const year = tagYears[index];
-			if (tagName && year !== undefined) {
-				flatData.push({ tagName, year, amount: item.amount });
+		tagNames.forEach((tagName) => {
+			if (tagName) {
+				flatData.push({ tagName, year: item.year, amount: item.amount });
 			}
 		});
 	});

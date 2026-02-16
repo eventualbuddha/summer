@@ -19,10 +19,10 @@ export const GET: RequestHandler = async ({ url }) => {
 	const yearFilter = year ? 'WHERE year == $year' : '';
 
 	const currentYearFilter = year
-		? `AND statement.date >= d'${year}-01-01' AND statement.date < d'${year + 1}-01-01'`
+		? `AND (effectiveDate ?? statement.date) >= d'${year}-01-01' AND (effectiveDate ?? statement.date) < d'${year + 1}-01-01'`
 		: '';
 	const prevYearFilter = year
-		? `AND statement.date >= d'${year - 1}-01-01' AND statement.date < d'${year}-01-01'`
+		? `AND (effectiveDate ?? statement.date) >= d'${year - 1}-01-01' AND (effectiveDate ?? statement.date) < d'${year}-01-01'`
 		: '';
 
 	const results = await db.query(
@@ -31,7 +31,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		let $currentYearTxns = (
 			SELECT
 				category.id() AS categoryId,
-				statement.date.month() AS month,
+				(effectiveDate ?? statement.date).month() AS month,
 				amount
 			FROM transaction
 			WHERE statement.date IS NOT NONE
@@ -42,7 +42,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		let $prevYearTxns = (
 			SELECT
 				category.id() AS categoryId,
-				statement.date.month() AS month,
+				(effectiveDate ?? statement.date).month() AS month,
 				amount
 			FROM transaction
 			WHERE statement.date IS NOT NONE

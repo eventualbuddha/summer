@@ -38,7 +38,7 @@ export const GET: RequestHandler = async ({ params }) => {
 					SELECT VALUE amount
 					FROM transaction
 					WHERE statement.date IS NOT NONE
-					AND statement.date.year() == $parent.year
+					AND (effectiveDate ?? statement.date).year() == $parent.year
 					AND category IS NOT NONE
 					AND category.id() IN $parent.categories[*].id.id()
 				)) AS actualAmount
@@ -56,11 +56,11 @@ export const GET: RequestHandler = async ({ params }) => {
 						math::sum(amount) AS monthlyAmount
 					FROM (
 						SELECT
-							statement.date.month() AS month,
+							(effectiveDate ?? statement.date).month() AS month,
 							amount
 						FROM transaction
 						WHERE statement.date IS NOT NONE
-						AND statement.date.year() == $parent.year
+						AND (effectiveDate ?? statement.date).year() == $parent.year
 						AND category IS NOT NONE
 						AND category.id() IN $parent.categories[*].id.id()
 					)
@@ -82,11 +82,11 @@ export const GET: RequestHandler = async ({ params }) => {
 						math::sum(amount) AS monthlyAmount
 					FROM (
 						SELECT
-							statement.date.month() AS month,
+							(effectiveDate ?? statement.date).month() AS month,
 							amount
 						FROM transaction
 						WHERE statement.date IS NOT NONE
-						AND statement.date.year() == $parent.year - 1
+						AND (effectiveDate ?? statement.date).year() == $parent.year - 1
 						AND category IS NOT NONE
 						AND category.id() IN $parent.categories[*].id.id()
 					)

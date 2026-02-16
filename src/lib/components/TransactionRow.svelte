@@ -45,10 +45,19 @@
 	role="button"
 	tabindex="0"
 >
-	<div class="text-xs text-gray-600">
-		<div class="w-12 text-center">
-			{transaction.date.toLocaleDateString(undefined, { month: 'short', day: '2-digit' })}<br />
-			{transaction.date.toLocaleDateString(undefined, { year: 'numeric' })}
+	<div
+		class="text-xs"
+		class:text-blue-600={transaction.effectiveDate}
+		class:text-gray-600={!transaction.effectiveDate}
+	>
+		<div class="w-12 text-center" data-testid="transaction-date">
+			{#if transaction.effectiveDate}
+				{transaction.effectiveDate.toLocaleDateString(undefined, { month: 'short' })}<br />
+				{transaction.effectiveDate.toLocaleDateString(undefined, { year: 'numeric' })}
+			{:else}
+				{transaction.date.toLocaleDateString(undefined, { month: 'short', day: '2-digit' })}<br />
+				{transaction.date.toLocaleDateString(undefined, { year: 'numeric' })}
+			{/if}
 		</div>
 	</div>
 	<!-- svelte-ignore a11y_click_events_have_key_events -->

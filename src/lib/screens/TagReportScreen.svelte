@@ -29,9 +29,9 @@
 				a.selected = true;
 			});
 
-			// Set search tags to the tag with year
+			// Set search tags to the tag
 			s.filters.searchText = '';
-			s.filters.searchTags = [{ name: tagName, year }];
+			s.filters.searchTags = [tagName];
 		}
 
 		goto(resolve('/'));

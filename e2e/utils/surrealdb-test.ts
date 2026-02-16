@@ -2,8 +2,12 @@ import { test as base, expect } from '@playwright/test';
 import Surreal, { RecordId } from 'surrealdb';
 import { waitFor } from './helpers';
 import { applyMigrations } from '../../src/lib/server/migrations';
+import assert from 'node:assert';
 
 export { expect };
+
+const SURREALDB_URL = process.env.SURREALDB_URL;
+assert(SURREALDB_URL, 'SURREALDB_URL is not set');
 
 export interface Account {
 	id: RecordId<'account'>;
@@ -44,12 +48,6 @@ export interface Transaction {
 	description?: string;
 }
 
-export interface Tagged {
-	id: RecordId<'tagged'>;
-	name: string;
-	year?: number;
-}
-
 export interface Tag {
 	id: RecordId<'tag'>;
 	name: string;
@@ -71,31 +69,25 @@ export const test = base.extend<{
 	createCategory: (data?: Partial<Category>) => Promise<Category>;
 	createTransaction: (data?: Partial<Transaction>) => Promise<Transaction>;
 	createBudget: (data?: Partial<Budget>) => Promise<Budget>;
-	tagTransaction: (transactionId: Transaction['id'], name: string, year?: number) => Promise<void>;
+	tagTransaction: (transactionId: Transaction['id'], name: string) => Promise<void>;
 	pageHelpers: {
-		waitForTaggedTransaction(
-			transactionId: Transaction['id'],
-			tags: Array<{ name: string; year?: number }>
-		): Promise<void>;
+		waitForTaggedTransaction(transactionId: Transaction['id'], tags: string[]): Promise<void>;
 		waitForConnection(): Promise<void>;
 	};
 }>({
 	// eslint-disable-next-line no-empty-pattern
 	surreal: async ({}, use) => {
 		const surreal = new Surreal();
-		await surreal.connect('http://127.0.0.1:18000');
-		await surreal.use({ namespace: 'ns', database: 'db' });
+		await surreal.connect(SURREALDB_URL);
+		await surreal.query('REMOVE NAMESPACE IF EXISTS e2e');
+		await surreal.use({ namespace: 'e2e', database: 'e2e' });
 
 		// Apply migrations to set up schema
 		await applyMigrations(surreal);
 
-		// Small delay to ensure database is fully ready for page connections
-		// await new Promise((resolve) => setTimeout(resolve, 100));
-
 		await use(surreal);
 
-		// Clean up: delete all data after each test
-		await surreal.query('REMOVE DATABASE db');
+		await surreal.query('REMOVE NAMESPACE IF EXISTS e2e');
 		await surreal.close();
 	},
 
@@ -189,11 +181,17 @@ export const test = base.extend<{
 	},
 
 	tagTransaction: async ({ surreal }, use) => {
-		await use(async (transactionId, name, year) => {
+		await use(async (transactionId, name) => {
 			const tag =
 				(await surreal.query<[[Tag]]>('SELECT * FROM tag WHERE name = $name', { name }))[0]?.[0] ??
 				((await surreal.create('tag', { name }))?.[0] as unknown as Tag);
-			await surreal.relate(transactionId, 'tagged', tag.id, { year });
+			await surreal.relate(transactionId, 'tagged', tag.id);
+			const result = await surreal.query<[[{ tags: string[] }]]>(
+				'SELECT ->tagged->tag.name as tags FROM $transactionId',
+				{ transactionId }
+			);
+			const [[{ tags }]] = result;
+			expect(tags).toContain(name);
 		});
 	},
 
@@ -210,25 +208,14 @@ export const test = base.extend<{
 			},
 			async waitForTaggedTransaction(transactionId, tags) {
 				await waitFor(async () => {
-					const [taggedRecords] = await surreal.query<
-						[Array<{ tags: Array<{ name: string; year?: number }> }>]
-					>(
-						`
-						SELECT ->(
-							SELECT ->(SELECT name FROM tag)[0].name AS name, year
-								FROM tagged) AS tags
-						FROM transaction
-						WHERE id = $transactionId`,
-						{
-							transactionId
-						}
+					const [taggedRecords] = await surreal.query<[Array<{ tags: string[] }>]>(
+						`SELECT ->tagged->tag.name AS tags FROM $transactionId;`,
+						{ transactionId }
 					);
 					return (
 						taggedRecords.length === 1 &&
 						taggedRecords[0].tags.length === tags.length &&
-						taggedRecords[0].tags.every((tag) =>
-							tags.some((t) => tag.name === t.name && tag.year === t.year)
-						)
+						taggedRecords[0].tags.every((tag) => tags.some((t) => tag === t))
 					);
 				});
 			}

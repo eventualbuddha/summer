@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Tag, Tagged } from '$lib/db';
+	import type { Tag } from '$lib/db';
 	import TagChip from './TagChip.svelte';
 
 	let {
@@ -7,9 +7,9 @@
 		availableTags,
 		onchange
 	}: {
-		tags: Tagged[];
+		tags: string[];
 		availableTags: Tag[];
-		onchange: (tagged: Tagged[]) => void;
+		onchange: (tags: string[]) => void;
 	} = $props();
 
 	let inputValue = $state('');
@@ -21,46 +21,25 @@
 		if (!inputValue.trim()) return [];
 		const search = inputValue.toLowerCase();
 		if (!search) return [];
-		const currentTagNames = new Set(tags.map((t) => t.tag.name));
+		const currentTagNames = new Set(tags);
 		return availableTags
 			.filter((t) => t.name.toLowerCase().startsWith(search) && !currentTagNames.has(t.name))
 			.slice(0, 8);
 	});
 
-	function parseTagText(text: string): { name: string; year?: number } {
-		const cleaned = text.trim();
-		if (!cleaned) return { name: cleaned };
-		const parts = cleaned.split(/\s+/);
-		const lastPart = parts[parts.length - 1]!;
-		const yearMatch = /^\d{4}$/.test(lastPart) ? parseInt(lastPart, 10) : NaN;
-		const currentYear = new Date().getFullYear();
-		const maxYear = currentYear + 10;
-		if (!Number.isNaN(yearMatch) && yearMatch >= 1900 && yearMatch <= maxYear && parts.length > 1) {
-			return { name: parts.slice(0, -1).join(' '), year: yearMatch };
-		}
-		return { name: cleaned };
-	}
-
-	function addTag(name: string, year?: number) {
+	function addTag(name: string) {
 		if (!name.trim()) return;
-		if (tags.some((t) => t.tag.name === name && t.year === year)) return;
+		if (tags.some((t) => t === name)) return;
 		const timestamp = Date.now();
 		const id = `new-${timestamp}`;
-		const newTagged: Tagged = {
-			id,
-			tag: { id, name },
-			year
-		};
-		onchange([...tags, newTagged]);
+		onchange([...tags, name]);
 		inputValue = '';
 		showAutocomplete = false;
 		hoverIndex = -1;
 	}
 
-	function removeTag(index: number) {
-		const newTags = [...tags];
-		newTags.splice(index, 1);
-		onchange(newTags);
+	function removeTag(name: string) {
+		onchange(tags.filter((tag) => tag !== name));
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -71,14 +50,15 @@
 					const suggestion = filteredSuggestions[hoverIndex]!;
 					addTag(suggestion.name);
 				} else if (inputValue.trim()) {
-					const { name, year } = parseTagText(inputValue);
-					if (name) addTag(name, year);
+					const name = inputValue.trim();
+					if (name) addTag(name);
 				}
 				break;
 			}
 			case 'Backspace': {
-				if (inputValue === '' && tags.length > 0) {
-					removeTag(tags.length - 1);
+				const lastTag = tags[tags.length - 1];
+				if (inputValue === '' && lastTag) {
+					removeTag(lastTag);
 				}
 				break;
 			}
@@ -138,8 +118,8 @@
 		onclick={() => inputElement?.focus()}
 		role="presentation"
 	>
-		{#each tags as tagged, index (tagged.id)}
-			<TagChip name={tagged.tag.name} year={tagged.year} onremove={() => removeTag(index)} />
+		{#each tags as tag (tag)}
+			<TagChip name={tag} onremove={() => removeTag(tag)} />
 		{/each}
 		<input
 			bind:this={inputElement}

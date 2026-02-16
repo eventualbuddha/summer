@@ -4,10 +4,7 @@ import { RecordId } from 'surrealdb';
 import { z } from 'zod';
 
 const BODY = z.object({
-	tagged: z.array(z.object({ name: z.string(), year: z.number().optional() })),
-	originalTagged: z.array(
-		z.object({ id: z.string(), tag: z.object({ name: z.string() }), year: z.number().optional() })
-	)
+	tags: z.array(z.string())
 });
 
 export const PATCH: RequestHandler = async ({ params, request }) => {
@@ -20,55 +17,26 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 		);
 	}
 
-	const body = parsedBody.data;
-	const taggedRecordsToCreate = body.tagged.filter(
-		(t) =>
-			!body.originalTagged.some((oldTag) => oldTag.tag.name === t.name && oldTag.year === t.year)
-	);
-	const taggedRecordsToDelete = body.originalTagged.filter(
-		(t) => !body.tagged.some((newTag) => newTag.name === t.tag.name && newTag.year === t.year)
-	);
-
+	const { tags } = parsedBody.data;
 	const db = await getDb();
-	const transactionId = new RecordId('transaction', params.id!);
+	const transaction = new RecordId('transaction', params.id!);
 
 	const results = await db.queryRaw(
 		`
-		BEGIN TRANSACTION;
+      BEGIN TRANSACTION;
 
-		DELETE FROM tagged WHERE id IN $taggedRecordsToDelete;
+      DELETE $transaction->tagged;
 
-		FOR $tagged IN $taggedRecordsToCreate {
-			LET $tag = (
-				SELECT * FROM ONLY tag WHERE name = $tagged.name LIMIT 1
-			) ?? (
-				CREATE ONLY tag SET name = $tagged.name
-			);
-			LET $existingTagged = count(
-				SELECT * FROM tagged WHERE in.id = $transactionId AND out.id = $tag.id
-			);
-			IF $existingTagged > 0 {
-				THROW 'Tag already exists for this transaction.';
-			};
-			LET $tagId = $tag.id;
-			RELATE $transactionId->tagged->$tagId
-			   SET year = $tagged.year;
-		};
+      FOR $name IN $tags {
+          LET $tag = (UPSERT tag SET name = $name WHERE name = $name RETURN VALUE id)[0];
+          RELATE $transaction->tagged->$tag;
+      };
 
-		SELECT
-			id.id() as id,
-			->(SELECT id.id() as id, name FROM tag LIMIT 1)[0] as tag,
-			year
-		FROM tagged
-		WHERE in = $transactionId;
+      SELECT ->tagged->tag.name AS tags FROM ONLY $transaction;
 
-		COMMIT TRANSACTION;
-		`,
-		{
-			transactionId,
-			taggedRecordsToCreate,
-			taggedRecordsToDelete: taggedRecordsToDelete.map((t) => new RecordId('tagged', t.id))
-		}
+      COMMIT TRANSACTION;
+    `,
+		{ transaction, tags }
 	);
 
 	const errors = results.filter((r) => r.status === 'ERR');
@@ -83,20 +51,19 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 		);
 	}
 
-	const taggedResult = z
-		.object({
-			status: z.union([z.literal('OK'), z.literal('ERR')]),
-			result: z.array(
-				z.object({
-					id: z.string(),
-					tag: z.object({ id: z.string(), name: z.string() }),
-					year: z.number().optional()
-				})
-			)
-		})
-		.parse(results[2]);
+	const resultSchema = z.object({
+		status: z.literal('OK'),
+		result: z.object({ tags: z.array(z.string()) })
+	});
 
-	const sortedTagged = taggedResult.result.sort((a, b) => a.tag.name.localeCompare(b.tag.name));
+	for (const result of results) {
+		const parsed = resultSchema.safeParse(result);
 
-	return json({ tagged: sortedTagged });
+		if (parsed.success) {
+			return json({ tags: parsed.data.result.tags.sort((a, b) => a.localeCompare(b)) });
+		}
+	}
+
+	const errorResult = results.find((result) => result.status === 'ERR');
+	return json({ error: errorResult }, { status: 500 });
 };
