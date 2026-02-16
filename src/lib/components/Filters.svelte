@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Account, Category, Tag } from '$lib/db';
-	import type { NewTagged } from '$lib/db/updateTransactionDescription';
 	import type { Selection } from '$lib/types';
 	import AccountMultiSelect from './AccountMultiSelect.svelte';
 	import CategoryMultiSelect from './CategoryMultiSelect.svelte';
@@ -24,7 +23,7 @@
 		categorySelections: Selection<Category>[];
 		accountSelections: Selection<Account>[];
 		searchText: string;
-		searchTags: NewTagged[];
+		searchTags: string[];
 		availableTags: Tag[];
 		onclear?: () => void;
 	} = $props();

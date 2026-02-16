@@ -13,7 +13,7 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --experimental-cli --write .",
-		"lint": "prettier --check . && eslint .",
+		"lint": "prettier --experimental-cli --check . && eslint .",
 		"test:unit": "TZ=UTC vitest run src",
 		"test": "npm run test:unit && npm run test:e2e",
 		"test:e2e": "TZ=UTC playwright test"

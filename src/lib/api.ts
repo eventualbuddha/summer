@@ -8,7 +8,6 @@ import type {
 	TagReportData,
 	Transaction
 } from './db';
-import type { NewTagged } from './db/updateTransactionDescription';
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
 	const res = await fetch(url, init);
@@ -136,7 +135,7 @@ export interface TransactionsQueryParams {
 	categories: string[];
 	accounts: string[];
 	searchText: string;
-	searchTags: NewTagged[];
+	searchTags: string[];
 	stickyTransactionIds: string[];
 	sort: {
 		columns: Array<{ field: string; direction: 'asc' | 'desc' }>;
@@ -198,17 +197,27 @@ export async function updateTransactionUserDescription(
 }
 
 export interface UpdateDescriptionResult {
-	tagged: Array<{ id: string; tag: { id: string; name: string }; year?: number }>;
+	tags: string[];
+}
+
+export async function updateTransactionEffectiveDate(
+	id: string,
+	effectiveDate: string | null
+): Promise<{ effectiveDate: string | null }> {
+	return patchJson<{ effectiveDate: string | null }>(
+		`/api/transactions/${encodeURIComponent(id)}/effective-date`,
+		{ effectiveDate }
+	);
 }
 
 export async function updateTransactionTags(
 	transactionId: string,
-	tagged: NewTagged[],
-	originalTagged: Array<{ id: string; tag: { name: string }; year?: number }>
+	tags: string[],
+	originalTags: string[]
 ): Promise<UpdateDescriptionResult> {
 	return patchJson<UpdateDescriptionResult>(
 		`/api/transactions/${encodeURIComponent(transactionId)}/tags`,
-		{ tagged, originalTagged }
+		{ tags, originalTags }
 	);
 }
 

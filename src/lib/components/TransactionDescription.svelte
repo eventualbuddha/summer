@@ -40,8 +40,8 @@
 		</span>
 	{/if}
 
-	{#each transaction.tagged as tagged (tagged.tag.id)}
-		<TagChip name={tagged.tag.name} year={tagged.year} size="xs" />
+	{#each transaction.tags as tag (tag)}
+		<TagChip name={tag} size="xs" />
 	{/each}
 
 	<span

@@ -1,6 +1,5 @@
 import { SvelteSet as Set } from 'svelte/reactivity';
 import type { Account, Category, FilterOptions } from '$lib/db';
-import type { NewTagged } from '$lib/db/updateTransactionDescription';
 import type { Selection } from '$lib/types';
 
 export class Filters {
@@ -9,7 +8,7 @@ export class Filters {
 	categories: Selection<Category>[] = $state([]);
 	accounts: Selection<Account>[] = $state([]);
 	searchText = $state('');
-	searchTags: NewTagged[] = $state([]);
+	searchTags: string[] = $state([]);
 	#stickyTransactionIds: string[] = $state([]);
 
 	constructor() {

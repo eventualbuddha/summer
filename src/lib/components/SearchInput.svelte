@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Tag } from '$lib/db';
-	import type { NewTagged } from '$lib/db/updateTransactionDescription';
 	import TagChip from './TagChip.svelte';
 
 	let {
@@ -9,7 +8,7 @@
 		availableTags
 	}: {
 		searchText: string;
-		searchTags: NewTagged[];
+		searchTags: string[];
 		availableTags: Tag[];
 	} = $props();
 
@@ -21,23 +20,23 @@
 		if (!searchText.trim()) return [];
 		const search = searchText.toLowerCase();
 		if (!search) return [];
-		const currentTagNames = new Set(searchTags.map((t) => t.name));
+		const currentTagNames = new Set(searchTags);
 		return availableTags
 			.filter((t) => t.name.toLowerCase().includes(search) && !currentTagNames.has(t.name))
 			.slice(0, 8);
 	});
 
-	function addTag(name: string, year?: number) {
-		if (searchTags.some((t) => t.name === name && t.year === year)) return;
-		searchTags = [...searchTags, { name, year }];
+	function addTag(name: string) {
+		if (searchTags.includes(name)) return;
+		searchTags = [...searchTags, name];
 		searchText = '';
 		if (inputElement) inputElement.value = '';
 		showAutocomplete = false;
 		hoverIndex = -1;
 	}
 
-	function removeTag(index: number) {
-		searchTags = searchTags.filter((_, i) => i !== index);
+	function removeTag(name: string) {
+		searchTags = searchTags.filter((t) => t !== name);
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -117,8 +116,8 @@
 		onclick={() => inputElement?.focus()}
 		role="presentation"
 	>
-		{#each searchTags as tagged, index ([tagged.name, tagged.year])}
-			<TagChip name={tagged.name} year={tagged.year} onremove={() => removeTag(index)} />
+		{#each searchTags as tag (tag)}
+			<TagChip name={tag} onremove={() => removeTag(tag)} />
 		{/each}
 		<input
 			bind:this={inputElement}

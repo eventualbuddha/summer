@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SvelteDate as Date } from 'svelte/reactivity';
 	import type { Category, Transaction } from '$lib/db';
 	import type { State } from '$lib/state.svelte';
 	import { getTransactionDetail, type TransactionDetail } from '$lib/api';
@@ -9,6 +10,7 @@
 	import CategorySelect from './CategorySelect.svelte';
 	import CategoryPill from './CategoryPill.svelte';
 	import TagInput from './TagInput.svelte';
+	import MonthYearPicker from './MonthYearPicker.svelte';
 	import { resolve } from '$app/paths';
 
 	let s: State = getContext('state');
@@ -31,6 +33,24 @@
 	let tagInput = $state<{ focus: () => void }>();
 	let modalContent = $state<HTMLDivElement>();
 	let portalTarget = $state<HTMLDivElement>();
+
+	let isPickingEffectiveDate = $state(false);
+
+	let effectiveDateLabel = $derived.by(() => {
+		if (!transaction.effectiveDate) return 'Same as statement';
+		return transaction.effectiveDate.toLocaleDateString(undefined, {
+			month: 'short',
+			year: 'numeric'
+		});
+	});
+
+	let effectiveDateValue = $derived.by(() => {
+		const basisDate = transaction.effectiveDate ?? transaction.date;
+		return {
+			month: basisDate.getMonth() + 1,
+			year: basisDate.getFullYear()
+		};
+	});
 
 	let bankDescription = $derived(tidyBankDescription(transaction.statementDescription));
 
@@ -111,16 +131,21 @@
 		}
 	}
 
-	async function handleTagsChange(newTagged: typeof transaction.tagged) {
-		const newTags = newTagged.map((t) => ({
-			name: t.tag.name,
-			year: t.year
-		}));
-		const originalTagged = transaction.tagged;
-		const result = await s.updateTags(transaction, newTags, originalTagged);
+	async function handleTagsChange(updatedTags: Transaction['tags']) {
+		const originalTagged = transaction.tags;
+		const result = await s.updateTags(transaction, updatedTags, originalTagged);
 		if (result.isErr) {
 			s.lastError = result.error;
 		}
+	}
+
+	async function handleEffectiveDateChange(value: { month: number; year: number } | null) {
+		const effectiveDate = value ? new Date(value.year, value.month - 1, 1) : null;
+		const result = await s.updateEffectiveDate(transaction, effectiveDate);
+		if (result.isErr) {
+			s.lastError = result.error;
+		}
+		isPickingEffectiveDate = false;
 	}
 
 	async function setCategory(category: Category | undefined) {
@@ -200,6 +225,12 @@
 					<span class="font-medium">Amount</span>
 					<span data-testid="detail-amount">{formatTransactionAmount(transaction.amount)}</span>
 				</div>
+				<div class="flex justify-between">
+					<span class="font-medium">Posted Date</span>
+					<span data-testid="detail-posted-date"
+						>{transaction.date.toLocaleDateString(undefined, { dateStyle: 'short' })}</span
+					>
+				</div>
 			</div>
 
 			<hr class="my-4 border-gray-200 dark:border-gray-700" />
@@ -232,11 +263,40 @@
 					</label>
 					<TagInput
 						bind:this={tagInput}
-						tags={transaction.tagged}
+						tags={transaction.tags}
 						availableTags={s.tags}
 						onchange={handleTagsChange}
 					/>
 				</div>
+
+				<div>
+					<!-- svelte-ignore a11y_label_has_associated_control -->
+					<label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+						Effective Date
+					</label>
+					<button
+						type="button"
+						class="flex w-full cursor-pointer items-center justify-between rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+						onclick={() => (isPickingEffectiveDate = !isPickingEffectiveDate)}
+						data-testid="effective-date-button"
+					>
+						<span
+							class={transaction.effectiveDate
+								? 'text-blue-600 dark:text-blue-400'
+								: 'text-gray-500 dark:text-gray-400'}
+						>
+							{effectiveDateLabel}
+						</span>
+					</button>
+				</div>
+
+				{#if isPickingEffectiveDate}
+					<MonthYearPicker
+						value={effectiveDateValue}
+						onchange={handleEffectiveDateChange}
+						onclose={() => (isPickingEffectiveDate = false)}
+					/>
+				{/if}
 
 				<div>
 					<!-- svelte-ignore a11y_label_has_associated_control -->

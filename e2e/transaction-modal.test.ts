@@ -35,6 +35,7 @@ test('open modal by clicking transaction row', async ({
 	// Verify read-only fields
 	await expect(modal.getByTestId('detail-bank-description')).toContainText('COFFEE SHOP PURCHASE');
 	await expect(modal.getByTestId('detail-amount')).toContainText('$5.50');
+	await expect(modal.getByTestId('detail-posted-date')).toContainText('1/15/25');
 
 	// Verify account name and statement link load
 	await expect(modal.getByTestId('detail-account')).toHaveText('My Credit Card');
@@ -110,41 +111,14 @@ test('add tag via token input', async ({ page, pageHelpers, createTransaction })
 
 	// Add a tag
 	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
-	await tagInput.fill('vacation');
+	await tagInput.fill('Vacation');
 	await tagInput.press('Enter');
 
 	// Verify chip appears (without # prefix)
-	await expect(modal.getByText('vacation')).toBeVisible();
+	await expect(modal.getByText('Vacation')).toBeVisible();
 
 	// Verify persisted
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'vacation' }]);
-});
-
-test('add tag with year', async ({ page, pageHelpers, createTransaction }) => {
-	const transaction = await createTransaction({
-		statementDescription: 'HOTEL BOOKING',
-		date: new Date(2025, 0, 1),
-		amount: -15000
-	});
-
-	await page.goto('/');
-
-	// Open modal
-	await page.locator('[data-transaction]').click();
-	const modal = page.getByRole('dialog');
-	await expect(modal).toBeVisible();
-
-	// Add a tag with year — year is now space-separated
-	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
-	await tagInput.fill('trip 2025');
-	await tagInput.press('Enter');
-
-	// Verify chip appears with year pill (without # prefix)
-	await expect(modal.getByText('trip')).toBeVisible();
-	await expect(modal.getByText('2025', { exact: true })).toBeVisible();
-
-	// Verify year is persisted
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'trip', year: 2025 }]);
+	await pageHelpers.waitForTaggedTransaction(transaction.id, ['Vacation']);
 });
 
 test('remove tag', async ({ page, pageHelpers, createTransaction, tagTransaction }) => {
@@ -154,8 +128,8 @@ test('remove tag', async ({ page, pageHelpers, createTransaction, tagTransaction
 		amount: -500
 	});
 
-	await tagTransaction(transaction.id, 'removeme');
-	await tagTransaction(transaction.id, 'keepme');
+	await tagTransaction(transaction.id, 'Remove Me');
+	await tagTransaction(transaction.id, 'Keep Me');
 
 	await page.goto('/');
 
@@ -165,10 +139,10 @@ test('remove tag', async ({ page, pageHelpers, createTransaction, tagTransaction
 	await expect(modal).toBeVisible();
 
 	// Remove the tag
-	await modal.getByRole('button', { name: 'Remove tag removeme' }).click();
+	await modal.getByRole('button', { name: 'Remove tag Remove Me' }).click();
 
 	// Verify tag is removed from DB
-	await pageHelpers.waitForTaggedTransaction(transaction.id, [{ name: 'keepme' }]);
+	await pageHelpers.waitForTaggedTransaction(transaction.id, ['Keep Me']);
 });
 
 test('tag autocomplete', async ({ page, createTransaction, tagTransaction }) => {
@@ -178,8 +152,8 @@ test('tag autocomplete', async ({ page, createTransaction, tagTransaction }) => 
 		date: new Date(2025, 0, 1),
 		amount: -100
 	});
-	await tagTransaction(setupTransaction.id, 'vacation');
-	await tagTransaction(setupTransaction.id, 'food');
+	await tagTransaction(setupTransaction.id, 'Vacation');
+	await tagTransaction(setupTransaction.id, 'Food');
 
 	await createTransaction({
 		statementDescription: 'NEW PURCHASE',
@@ -196,17 +170,17 @@ test('tag autocomplete', async ({ page, createTransaction, tagTransaction }) => 
 
 	// Type to trigger autocomplete
 	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
-	await tagInput.fill('vac');
+	await tagInput.fill('Vac');
 
 	// Verify autocomplete dropdown shows (without # prefix)
-	await expect(modal.getByRole('option', { name: 'vacation' })).toBeVisible();
+	await expect(modal.getByRole('option', { name: 'Vacation' })).toBeVisible();
 
 	// Use arrow key to select and Enter to confirm
 	await tagInput.press('ArrowDown');
 	await tagInput.press('Enter');
 
 	// Verify chip appears (without # prefix)
-	await expect(modal.getByText('vacation')).toBeVisible();
+	await expect(modal.getByText('Vacation')).toBeVisible();
 });
 
 test('change category in modal', async ({ page, createCategory, createTransaction, surreal }) => {

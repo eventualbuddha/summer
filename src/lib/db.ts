@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import type { NewTagged } from './db/updateTransactionDescription';
 
 export interface Transactions {
 	count: number;
@@ -10,24 +9,13 @@ export interface Transactions {
 	list: Transaction[];
 }
 
-export interface File {
-	id: string;
-	name: string;
-	data: ArrayBuffer;
-}
-
 export const FileSchema = z.object({
 	id: z.string().nonempty(),
 	name: z.string().nonempty(),
 	data: z.instanceof(ArrayBuffer)
 });
 
-export interface Statement {
-	id: string;
-	account: Account;
-	date: Date;
-	file: string;
-}
+export interface File extends z.infer<typeof FileSchema> {}
 
 export const StatementSchema = z.object({
 	id: z.string().nonempty(),
@@ -36,34 +24,21 @@ export const StatementSchema = z.object({
 	file: z.string().nonempty()
 });
 
-export interface Transaction {
-	id: string;
-	date: Date;
-	amount: number;
-	categoryId?: string;
-	statementId: string;
-	description?: string;
-	statementDescription: string;
-	tagged: Tagged[];
-}
+export interface Statement extends z.infer<typeof StatementSchema> {}
 
 export const TransactionRecordSchema = z.object({
 	id: z.string().nonempty(),
 	date: z.instanceof(Date),
+	effectiveDate: z.instanceof(Date).optional(),
 	amount: z.number(),
 	categoryId: z.string().optional(),
 	statementId: z.string(),
 	description: z.string().optional(),
 	statementDescription: z.string(),
-	tagged: z.lazy(() => SortedTaggedArraySchema)
+	tags: z.array(z.string())
 });
 
-export interface Account {
-	id: string;
-	type: string;
-	number?: string;
-	name: string;
-}
+export interface Transaction extends z.infer<typeof TransactionRecordSchema> {}
 
 export const AccountSchema = z.object({
 	id: z.string().nonempty(),
@@ -72,13 +47,7 @@ export const AccountSchema = z.object({
 	name: z.string().nonempty()
 });
 
-export interface Category {
-	id: string;
-	name: string;
-	emoji: string;
-	color: string;
-	ordinal: number;
-}
+export interface Account extends z.infer<typeof AccountSchema> {}
 
 export const CategorySchema = z.object({
 	id: z.string().nonempty(),
@@ -88,40 +57,14 @@ export const CategorySchema = z.object({
 	ordinal: z.number().min(0)
 });
 
-export interface Tag {
-	id: string;
-	name: string;
-}
+export interface Category extends z.infer<typeof CategorySchema> {}
 
 export const TagSchema = z.object({
 	id: z.string().nonempty(),
 	name: z.string().nonempty()
 });
 
-export interface Tagged {
-	id: string;
-	tag: Tag;
-	year?: number;
-}
-
-export const TaggedSchema = z.object({
-	id: z.string().nonempty(),
-	tag: TagSchema,
-	year: z.number().min(0).optional()
-});
-
-export const SortedTaggedArraySchema = TaggedSchema.array().transform((tagged) =>
-	tagged.sort((a, b) => a.tag.name.localeCompare(b.tag.name))
-);
-
-export interface FilterOptions {
-	years: number[];
-	months: number[];
-	categories: Category[];
-	accounts: Account[];
-	searchText: string;
-	searchTags: NewTagged[];
-}
+export interface Tag extends z.infer<typeof TagSchema> {}
 
 export const FilterOptionsSchema = z.object({
 	years: z.array(z.number().min(0)),
@@ -129,16 +72,10 @@ export const FilterOptionsSchema = z.object({
 	categories: z.array(CategorySchema),
 	accounts: z.array(AccountSchema),
 	searchText: z.string(),
-	searchTags: z.array(z.object({ name: z.string(), year: z.number().optional() }))
+	searchTags: z.array(z.string())
 });
 
-export interface Budget {
-	id: string;
-	name: string;
-	year: number;
-	amount: number;
-	categories: Category[];
-}
+export interface FilterOptions extends z.infer<typeof FilterOptionsSchema> {}
 
 export const BudgetSchema = z.object({
 	id: z.string().nonempty(),
@@ -147,6 +84,8 @@ export const BudgetSchema = z.object({
 	amount: z.number(),
 	categories: z.array(CategorySchema)
 });
+
+export interface Budget extends z.infer<typeof BudgetSchema> {}
 
 export interface BudgetReportData {
 	budgetNames: string[];

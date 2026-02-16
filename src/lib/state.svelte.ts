@@ -11,7 +11,6 @@ import {
 	type Transaction,
 	type Transactions
 } from './db';
-import type { NewTagged } from './db/updateTransactionDescription';
 import type { ImportedTransaction } from './import/ImportedTransaction';
 import type { StatementMetadata } from './import/StatementMetadata';
 import type { Selection } from './types';
@@ -25,7 +24,7 @@ export interface FilterState {
 	categories: Selection<Category>[];
 	accounts: Selection<Account>[];
 	searchText: string;
-	searchTags: NewTagged[];
+	searchTags: string[];
 }
 
 export type SortingField = 'date' | 'amount' | 'statementDescription';
@@ -187,7 +186,8 @@ export class State {
 		// Parse dates from JSON strings
 		const transactions = result.transactions.map((t) => ({
 			...t,
-			date: new Date(t.date)
+			date: new Date(t.date),
+			effectiveDate: t.effectiveDate ? new Date(t.effectiveDate) : undefined
 		}));
 
 		// Reconstruct the Transactions shape expected by the UI
@@ -252,7 +252,7 @@ export class State {
 		});
 	}
 
-	updateSearchTags(searchTags: NewTagged[]): void {
+	updateSearchTags(searchTags: string[]): void {
 		this.#updateFiltersWith((filters) => {
 			filters.searchTags = searchTags;
 		});
@@ -392,22 +392,38 @@ export class State {
 
 	async updateTags(
 		transaction: Transaction,
-		tags: Array<{ name: string; year?: number }>,
-		originalTagged: Transaction['tagged']
+		tags: Transaction['tags'],
+		originalTags: Transaction['tags']
 	): Promise<Result<void>> {
-		const savedTagged = transaction.tagged;
-		transaction.tagged = tags.map((t, i) => ({
-			id: `placeholder-${i}`,
-			tag: { id: `placeholder-${i}`, name: t.name },
-			year: t.year
-		}));
+		const savedTags = transaction.tags;
+		transaction.tags = tags;
 
 		try {
-			const result = await api.updateTransactionTags(transaction.id, tags, originalTagged);
-			transaction.tagged = result.tagged;
+			const result = await api.updateTransactionTags(transaction.id, tags, originalTags);
+			transaction.tags = result.tags;
 			return Result.ok(undefined);
 		} catch (error) {
-			transaction.tagged = savedTagged;
+			transaction.tags = savedTags;
+			return Result.err(error as Error);
+		}
+	}
+
+	async updateEffectiveDate(
+		transaction: Transaction,
+		effectiveDate: Date | null
+	): Promise<Result<void>> {
+		const original = transaction.effectiveDate;
+		transaction.effectiveDate = effectiveDate ?? undefined;
+
+		try {
+			this.filters.addStickyTransactionId(transaction.id);
+			await api.updateTransactionEffectiveDate(
+				transaction.id,
+				effectiveDate ? effectiveDate.toISOString() : null
+			);
+			return Result.ok(undefined);
+		} catch (error) {
+			transaction.effectiveDate = original;
 			return Result.err(error as Error);
 		}
 	}
