@@ -71,7 +71,7 @@
 			</button>
 		</div>
 		<div class="grid grid-cols-4 gap-1">
-			{#each MONTHS as monthName, i}
+			{#each MONTHS as monthName, i (monthName)}
 				{@const isSelected = value !== null && value.month === i + 1 && value.year === displayYear}
 				<button
 					type="button"

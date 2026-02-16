@@ -30,8 +30,6 @@
 	function addTag(name: string) {
 		if (!name.trim()) return;
 		if (tags.some((t) => t === name)) return;
-		const timestamp = Date.now();
-		const id = `new-${timestamp}`;
 		onchange([...tags, name]);
 		inputValue = '';
 		showAutocomplete = false;
