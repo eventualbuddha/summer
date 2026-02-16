@@ -91,22 +91,40 @@ export async function restore({
 	}
 
 	if (overwriteDatabase) {
-		await db.query(`DEFINE DATABASE OVERWRITE \`${database}\`;`);
-	} else {
-		await db.query(`DEFINE DATABASE \`${database}\`;`);
+		await db.query(`REMOVE DATABASE \`${database}\`;`);
 	}
 
+	await db.query(`DEFINE DATABASE \`${database}\`;`);
 	await db.use({ namespace, database });
 
-	// Apply migrations to set up schema
-	await applyMigrations(db);
-
 	const files = await readdir(backupPath);
+
+	// Restore migration state first
+	const migrationsFilename = files.find((f) => f === 'migration.jsonl');
+
+	if (migrationsFilename) {
+		const file = createReadStream(join(backupPath, migrationsFilename));
+		const lines = createInterface(file);
+		const migrations: string[] = [];
+
+		for await (const line of lines) {
+			const parsed = parseRecord(line);
+			assert(parsed.type === 'record');
+
+			const record = parsed.value;
+			migrations.push(record['name'] as string);
+		}
+
+		migrations.sort((a, b) => a.localeCompare(b));
+
+		// Apply only migrations defined before the backup was created.
+		await applyMigrations(db, { migrations, progress });
+	}
 
 	for (const filename of files) {
 		const parts = path.parse(filename);
 
-		if (parts.ext !== '.jsonl') {
+		if (parts.ext !== '.jsonl' || filename === migrationsFilename) {
 			continue;
 		}
 
@@ -144,6 +162,9 @@ export async function restore({
 			progress?.(table);
 		}
 	}
+
+	// Apply any migrations defined after the backup was created.
+	await applyMigrations(db, { progress });
 
 	await db.close();
 }
