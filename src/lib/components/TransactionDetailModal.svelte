@@ -174,7 +174,7 @@
 					{#if detail}
 						{#if detail.fileId}
 							<a
-								href={resolve(`/api/files/{detail.fileId}`)}
+								href={resolve(`/api/files/${detail.fileId}`)}
 								target="_blank"
 								class="text-blue-600 underline hover:text-blue-800 dark:text-blue-400"
 								data-testid="detail-statement"
