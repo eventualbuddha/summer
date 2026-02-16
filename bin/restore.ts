@@ -11,6 +11,8 @@ import { StringRecordId, Surreal } from 'surrealdb';
 import { parseRecord } from '../src/lib/serialization.ts';
 import { applyMigrations } from '../src/lib/server/migrations.ts';
 
+process.env.TZ = 'UTC';
+
 export const OPTIONS = {
 	help: {
 		type: 'boolean',
