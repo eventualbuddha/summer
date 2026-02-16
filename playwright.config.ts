@@ -15,27 +15,20 @@ process.env.SURREALDB_DATABASE = SURREALDB_DATABASE;
 export default defineConfig({
 	globalSetup: './e2e/global-setup.ts',
 
-	webServer: process.env.CI
-		? {
-				command: './e2e/start-test-server.sh',
-				port: 3000,
-				reuseExistingServer: false,
-				timeout: 60_000
-			}
-		: [
-				{
-					command: 'npx vite dev --port 3000',
-					port: 3000,
-					reuseExistingServer: true,
-					timeout: 5_000
-				},
-				{
-					command: `surreal start memory --bind 127.0.0.1:${SURREALDB_PORT} --unauthenticated`,
-					port: SURREALDB_PORT,
-					reuseExistingServer: false,
-					timeout: 5_000
-				}
-			],
+	webServer: [
+		{
+			command: 'npx vite dev --port 3000',
+			port: 3000,
+			reuseExistingServer: true,
+			timeout: 5_000
+		},
+		{
+			command: `surreal start memory --bind 127.0.0.1:${SURREALDB_PORT} --unauthenticated`,
+			port: SURREALDB_PORT,
+			reuseExistingServer: false,
+			timeout: 5_000
+		}
+	],
 
 	testDir: 'e2e',
 
