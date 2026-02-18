@@ -50,8 +50,9 @@
 				break;
 			}
 			case 'Backspace': {
-				if (inputElement?.value === '' && searchTags.length > 0) {
-					removeTag(searchTags.length - 1);
+				const lastTag = searchTags[searchTags.length - 1];
+				if (inputElement?.value === '' && lastTag) {
+					removeTag(lastTag);
 				}
 				break;
 			}
