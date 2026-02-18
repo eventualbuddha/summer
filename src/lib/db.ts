@@ -61,7 +61,8 @@ export interface Category extends z.infer<typeof CategorySchema> {}
 
 export const TagSchema = z.object({
 	id: z.string().nonempty(),
-	name: z.string().nonempty()
+	name: z.string().nonempty(),
+	transactionCount: z.number()
 });
 
 export interface Tag extends z.infer<typeof TagSchema> {}

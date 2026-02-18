@@ -500,4 +500,43 @@ export class State {
 	async loadTagReportData(): Promise<void> {
 		this.tagReportData = await api.getTagReportData();
 	}
+
+	async renameTag(tagId: string, name: string): Promise<void> {
+		await api.renameTag(tagId, name);
+		this.tags = await api.getTags();
+	}
+
+	async deleteTag(tagId: string): Promise<void> {
+		await api.deleteTag(tagId);
+		this.tags = await api.getTags();
+	}
+
+	async deleteTags(tagIds: string[]): Promise<void> {
+		await Promise.all(tagIds.map((id) => api.deleteTag(id)));
+		this.tags = await api.getTags();
+	}
+
+	async mergeTags(sourceIds: string[], targetId: string): Promise<void> {
+		await api.mergeTags(sourceIds, targetId);
+		this.tags = await api.getTags();
+	}
+
+	filterByTag(tagName: string): void {
+		this.#updateFiltersWith((filters) => {
+			for (const yearFilter of filters.years) {
+				yearFilter.selected = true;
+			}
+			for (const monthFilter of filters.months) {
+				monthFilter.selected = true;
+			}
+			for (const categoryFilter of filters.categories) {
+				categoryFilter.selected = true;
+			}
+			for (const accountFilter of filters.accounts) {
+				accountFilter.selected = true;
+			}
+			filters.searchText = '';
+			filters.searchTags = [tagName];
+		});
+	}
 }
