@@ -1,6 +1,6 @@
 services:
   surrealdb:
-    image: surrealdb/surrealdb:latest
+    image: surrealdb/surrealdb:v2.6.2
     container_name: summer-test-surrealdb
     volumes:
       - summer-test-data:/data
