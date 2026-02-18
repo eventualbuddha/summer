@@ -66,6 +66,18 @@
 			});
 		}
 
+		// Read search text from URL
+		const qParam = params.get('q');
+		if (qParam !== null) {
+			s.filters.searchText = qParam;
+		}
+
+		// Read search tags from URL
+		const tagsParam = params.get('tags');
+		if (tagsParam) {
+			s.filters.searchTags = tagsParam.split(',').filter(Boolean);
+		}
+
 		hasInitializedFromUrl = true;
 	});
 
@@ -78,6 +90,8 @@
 		const months = s.filters.months.map((m) => ({ key: m.key, selected: m.selected }));
 		const categories = s.filters.categories.map((c) => ({ key: c.key, selected: c.selected }));
 		const accounts = s.filters.accounts.map((a) => ({ key: a.key, selected: a.selected }));
+		const searchText = s.filters.searchText;
+		const searchTags = [...s.filters.searchTags];
 		// Use untrack to read current URL without creating a dependency
 		untrack(() => {
 			// eslint-disable-next-line svelte/prefer-svelte-reactivity
@@ -119,8 +133,20 @@
 				params.delete('accounts');
 			}
 
-			// Update URL without triggering navigation
-			params.delete('search');
+			// Update search text parameter
+			if (searchText) {
+				params.set('q', searchText);
+			} else {
+				params.delete('q');
+			}
+
+			// Update search tags parameter
+			if (searchTags.length > 0) {
+				params.set('tags', searchTags.join(','));
+			} else {
+				params.delete('tags');
+			}
+
 			const newUrl = `${$page.url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
 			// eslint-disable-next-line svelte/no-navigation-without-resolve
 			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
