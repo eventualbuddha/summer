@@ -65,6 +65,18 @@ export async function getTags(): Promise<Tag[]> {
 	return fetchJson<Tag[]>('/api/tags');
 }
 
+export async function renameTag(id: string, name: string): Promise<void> {
+	await patchJson(`/api/tags/${encodeURIComponent(id)}`, { name });
+}
+
+export async function deleteTag(id: string): Promise<void> {
+	await fetchJson<void>(`/api/tags/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export async function mergeTags(sourceIds: string[], targetId: string): Promise<void> {
+	await postJson('/api/tags/merge', { sourceIds, targetId });
+}
+
 // Budgets
 export async function getBudgets(): Promise<Budget[]> {
 	return fetchJson<Budget[]>('/api/budgets');
