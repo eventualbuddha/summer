@@ -6,6 +6,14 @@ DATA_DIR="${SURREALDB_DATA_DIR:-.surrealdb}"
 
 mkdir -p "$DATA_DIR"
 
+# Ensure SurrealDB v2 is installed
+SURREAL_VER=$(surreal version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+SURREAL_MAJOR=${SURREAL_VER%%.*}
+if [ "$SURREAL_MAJOR" != "2" ]; then
+  echo "Error: SurrealDB v2 is required (found: ${SURREAL_VER:-not found}). Please install SurrealDB v2." >&2
+  exit 1
+fi
+
 # Start SurrealDB in the background
 surreal start --log info --bind 127.0.0.1:${SURREALDB_PORT} --unauthenticated --allow-all "file:${DATA_DIR}" &
 SURREAL_PID=$!
