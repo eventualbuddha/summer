@@ -1,4 +1,4 @@
-import { SvelteMap as Map, SvelteDate as Date } from 'svelte/reactivity';
+import { SvelteDate as Date } from 'svelte/reactivity';
 import { Result } from '@badrap/result';
 import * as api from './api';
 import {
@@ -310,36 +310,72 @@ export class State {
 		}
 	}
 
-	async setBulkCategory(transactions: readonly Transaction[], category: Category | undefined) {
+	async bulkEdit(
+		transactions: readonly Transaction[],
+		updates: {
+			description?: string;
+			categoryId?: string | null;
+			effectiveDate?: Date | null;
+			tags?: string[];
+		}
+	): Promise<Result<void>> {
 		if (!this.filters) {
 			throw new Error('No filters have been loaded');
 		}
 
-		const originalCategories = new Map<string, string | undefined>();
-		for (const transaction of transactions) {
-			originalCategories.set(transaction.id, transaction.categoryId);
-		}
+		type Snapshot = {
+			description: string | undefined;
+			categoryId: string | undefined;
+			effectiveDate: Date | undefined;
+			tags: string[];
+		};
+		const originals = transactions.map(
+			(t): Snapshot => ({
+				description: t.description,
+				categoryId: t.categoryId,
+				effectiveDate: t.effectiveDate,
+				tags: [...t.tags]
+			})
+		);
 
-		for (const transaction of transactions) {
-			transaction.categoryId = category?.id;
+		for (const t of transactions) {
+			if ('description' in updates) t.description = updates.description ?? '';
+			if ('categoryId' in updates) t.categoryId = updates.categoryId ?? undefined;
+			if ('effectiveDate' in updates) t.effectiveDate = updates.effectiveDate ?? undefined;
+			if ('tags' in updates) t.tags = updates.tags ?? [];
 		}
 
 		try {
-			await api.setBulkTransactionCategory(
+			const apiUpdates: Parameters<typeof api.bulkEditTransactions>[1] = {};
+			if ('description' in updates) apiUpdates.description = updates.description ?? '';
+			if ('categoryId' in updates) apiUpdates.categoryId = updates.categoryId ?? null;
+			if ('effectiveDate' in updates)
+				apiUpdates.effectiveDate = updates.effectiveDate
+					? updates.effectiveDate.toISOString()
+					: null;
+			if ('tags' in updates) apiUpdates.tags = updates.tags ?? [];
+
+			await api.bulkEditTransactions(
 				transactions.map((t) => t.id),
-				category?.id ?? null
+				apiUpdates
 			);
 
-			for (const transaction of transactions) {
-				this.filters.addStickyTransactionId(transaction.id);
+			for (const t of transactions) {
+				this.filters.addStickyTransactionId(t.id);
 			}
+
+			return Result.ok(undefined);
 		} catch (error) {
 			console.error(error);
-			this.lastError = error as Error;
-
-			for (const transaction of transactions) {
-				transaction.categoryId = originalCategories.get(transaction.id);
+			for (let i = 0; i < transactions.length; i++) {
+				const t = transactions[i]!;
+				const orig = originals[i]!;
+				t.description = orig.description;
+				t.categoryId = orig.categoryId;
+				t.effectiveDate = orig.effectiveDate;
+				t.tags = orig.tags;
 			}
+			return Result.err(error as Error);
 		}
 	}
 

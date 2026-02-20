@@ -357,34 +357,24 @@ test('bulk category editing', async ({ page, createCategory, createTransaction, 
 	await expect(page.getByText('Transaction 2')).toBeVisible();
 	await expect(page.getByText('Transaction 3')).toBeVisible();
 
-	// Should show bulk edit button with transaction count
-	const bulkEditButton = page.getByRole('button', { name: /Edit category for all/ });
+	// Click Bulk Edit button
+	const bulkEditButton = page.getByRole('button', { name: 'Bulk edit filtered transactions' });
 	await expect(bulkEditButton).toBeVisible();
-
-	// Click bulk edit button
 	await bulkEditButton.click();
 
-	// Should show category selection dropdown
-	await page.getByRole('button', { name: 'Utilities' }).click();
-
-	// Should show confirmation modal
-	await expect(page.getByText('Update Category')).toBeVisible();
-	await expect(
-		page.getByText('You are about to change the category of 3 transactions to ⚡ Utilities.')
-	).toBeVisible();
-
-	// Should show current category summary
-	const dialog = page.getByRole('dialog');
+	// Bulk edit modal should be open showing transaction count
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
 	await expect(dialog).toBeVisible();
+	// Save button shows the count (disabled until a field is changed)
+	await expect(dialog.getByRole('button', { name: 'Update 3 Transactions' })).toBeDisabled();
 
-	await expect(dialog.getByText('🛍️ General')).toBeVisible();
-	await expect(dialog.getByText('2 transactions, $3')).toBeVisible(); // transaction1 + transaction2
-	await expect(dialog.getByText('❓ Unknown')).toBeVisible();
-	await expect(dialog.getByText('1 transaction, $3')).toBeVisible(); // transaction3
+	// Category shows mixed values placeholder — click to open dropdown
+	await dialog.getByRole('button', { name: 'Select category' }).click();
+	await page.getByRole('listbox').getByRole('button', { name: 'Utilities' }).click();
 
-	// Confirm the update
-	const confirmButton = page.getByRole('button', { name: 'Update 3 transactions' });
-	await confirmButton.click();
+	// Save the changes
+	await dialog.getByRole('button', { name: 'Update 3 Transactions' }).click();
+
 	// Wait for database updates to complete
 	await waitFor(async () => {
 		const [transactions] = await surreal.query<[{ category?: RecordId }[]]>(
@@ -465,26 +455,22 @@ test('bulk category editing with filtered transactions', async ({
 	await expect(page.getByText('Other Coffee Shop')).toBeVisible();
 	await expect(page.getByText('Electric Bill')).not.toBeVisible();
 
-	// Click on the bulk edit button
-	const bulkEditButton = page.getByRole('button', { name: /Edit category for all/ });
+	// Click Bulk Edit button
+	const bulkEditButton = page.getByRole('button', { name: 'Bulk edit filtered transactions' });
 	await expect(bulkEditButton).toBeVisible();
-
-	// Perform bulk edit
 	await bulkEditButton.click();
-	const categoryList = page.getByRole('listbox');
-	await categoryList.waitFor({ state: 'visible' });
-	await categoryList.getByRole('button', { name: 'Food' }).click();
 
-	// Should show confirmation for 2 transactions
-	const dialog = page.getByRole('dialog');
+	// Bulk edit modal opens showing 2 transactions
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
 	await expect(dialog).toBeVisible();
+	await expect(dialog.getByRole('button', { name: 'Update 2 Transactions' })).toBeDisabled();
 
-	await expect(
-		dialog.getByText('You are about to change the category of 2 transactions to 🍕 Food.')
-	).toBeVisible();
+	// Category shows the common Unknown category — click to open dropdown
+	await dialog.getByRole('button', { name: 'Select category' }).click();
+	await page.getByRole('listbox').getByRole('button', { name: 'Food' }).click();
 
-	const confirmButton = page.getByRole('button', { name: 'Update 2 transactions' });
-	await confirmButton.click();
+	// Save the changes
+	await dialog.getByRole('button', { name: 'Update 2 Transactions' }).click();
 
 	// Wait for updates
 	await waitFor(async () => {
@@ -511,21 +497,16 @@ test('bulk category editing with filtered transactions', async ({
 	await expect(page.getByText('Electric Bill')).toBeVisible();
 });
 
-test('bulk category editing disabled when no transactions', async ({ page }) => {
+test('bulk edit button disabled when no transactions', async ({ page }) => {
 	await page.goto('/');
 
-	// Bulk edit button should be disabled
-	const bulkEditButton = page.getByRole('button', { name: /Edit category for all/ });
+	// Bulk Edit button should be visible but disabled when there are no transactions
+	const bulkEditButton = page.getByRole('button', { name: 'Bulk edit filtered transactions' });
 	await expect(bulkEditButton).toBeVisible();
 	await expect(bulkEditButton).toBeDisabled();
 });
 
-test('bulk category editing modal cancel', async ({
-	page,
-	createCategory,
-	createTransaction,
-	surreal
-}) => {
+test('bulk edit modal cancel', async ({ page, createCategory, createTransaction, surreal }) => {
 	const generalCategory = await createCategory({
 		name: 'General',
 		emoji: '🛍️'
@@ -540,21 +521,17 @@ test('bulk category editing modal cancel', async ({
 
 	await page.goto('/');
 
-	// Open bulk edit and select category
-	const bulkEditButton = page.getByRole('button', { name: /Edit category for all/ });
-	await bulkEditButton.click();
+	// Open bulk edit modal
+	await page.getByRole('button', { name: 'Bulk edit filtered transactions' }).click();
 
-	const listbox = page.getByRole('listbox');
-	await listbox.getByRole('button', { name: 'General' }).click();
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
+	await expect(dialog).toBeVisible();
 
-	// Modal should be visible
-	await expect(page.getByText('Update Category')).toBeVisible();
-
-	// Cancel the operation
-	await page.getByRole('button', { name: 'Cancel' }).click();
+	// Cancel without making changes
+	await dialog.getByRole('button', { name: 'Cancel' }).click();
 
 	// Modal should be closed
-	await expect(page.getByText('Update Category')).not.toBeVisible();
+	await expect(dialog).not.toBeVisible();
 
 	// Transaction should still have original category
 	await waitFor(async () => {
@@ -566,7 +543,7 @@ test('bulk category editing modal cancel', async ({
 	});
 });
 
-test('actions row visibility', async ({ page, createTransaction }) => {
+test('bulk edit button in filter row', async ({ page, createTransaction }) => {
 	await createTransaction({
 		statementDescription: 'Test Transaction',
 		date: new Date(2025, 0, 1),
@@ -575,16 +552,15 @@ test('actions row visibility', async ({ page, createTransaction }) => {
 
 	await page.goto('/');
 
-	// Should see both Filters and Actions rows
-	await expect(page.getByText('Filters:')).toBeVisible();
-	await expect(page.getByText('Actions:')).toBeVisible();
+	// No separate "Filters:" or "Actions:" labels — all controls are in one row
+	await expect(page.getByText('Filters:')).not.toBeVisible();
+	await expect(page.getByText('Actions:')).not.toBeVisible();
 
-	// Actions row should contain the bulk edit button
-	const actionsSection = page.locator('text=Actions:').locator('..');
-	await expect(actionsSection.getByRole('button', { name: /Edit category for all/ })).toBeVisible();
+	// Bulk Edit button is present alongside the filter controls
+	await expect(page.getByRole('button', { name: 'Bulk edit filtered transactions' })).toBeVisible();
 });
 
-test('bulk category editing modal keyboard accessibility', async ({
+test('bulk edit modal keyboard accessibility', async ({
 	page,
 	createCategory,
 	createTransaction,
@@ -608,21 +584,17 @@ test('bulk category editing modal keyboard accessibility', async ({
 
 	await page.goto('/');
 
-	// Open bulk edit modal
-	const bulkEditButton = page.getByRole('button', { name: /Edit category for all/ });
+	const bulkEditButton = page.getByRole('button', { name: 'Bulk edit filtered transactions' });
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
+
+	// Open modal — description input should be focused
 	await bulkEditButton.click();
-	await page.getByRole('button', { name: 'Utilities' }).click();
+	await expect(dialog).toBeVisible();
+	await expect(dialog.getByRole('textbox', { name: 'Description' })).toBeFocused();
 
-	// Modal should be visible with focused confirmation button
-	const modal = page.getByText('Update Category').locator('..');
-	await expect(modal).toBeVisible();
-
-	const confirmButton = page.getByRole('button', { name: 'Update 1 transaction' });
-	await expect(confirmButton).toBeFocused();
-
-	// Test Escape key dismisses modal
+	// Escape key should dismiss the modal without saving
 	await page.keyboard.press('Escape');
-	await expect(modal).not.toBeVisible();
+	await expect(dialog).not.toBeVisible();
 
 	// Transaction should still have original category
 	await waitFor(async () => {
@@ -633,14 +605,14 @@ test('bulk category editing modal keyboard accessibility', async ({
 		expect(refreshedTransaction.category).toEqual(generalCategory.id);
 	});
 
-	// Test Enter key on focused button confirms action
+	// Open modal again, change category, then confirm via keyboard
 	await bulkEditButton.click();
-	await page.getByRole('button', { name: 'Utilities' }).click();
+	await dialog.getByRole('button', { name: 'Select category' }).click();
+	await page.getByRole('listbox').getByRole('button', { name: 'Utilities' }).click();
 
-	// Confirm button should be focused again
-	await expect(confirmButton).toBeFocused();
-
-	// Press Enter to confirm
+	// Tab to the Update button and press Enter
+	const updateButton = dialog.getByRole('button', { name: 'Update 1 Transaction' });
+	await updateButton.focus();
 	await page.keyboard.press('Enter');
 
 	// Wait for database updates to complete
@@ -651,6 +623,174 @@ test('bulk category editing modal keyboard accessibility', async ({
 		);
 		expect(refreshedTransaction.category).toEqual(utilitiesCategory.id);
 	});
+});
+
+test('bulk edit description - multiple placeholder and save', async ({
+	page,
+	createTransaction,
+	surreal
+}) => {
+	const t1 = await createTransaction({
+		statementDescription: 'TX 1',
+		description: 'First description',
+		date: new Date(2025, 0, 1),
+		amount: -100
+	});
+	const t2 = await createTransaction({
+		statementDescription: 'TX 2',
+		description: 'Second description',
+		date: new Date(2025, 0, 2),
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	await page.getByRole('button', { name: 'Bulk edit filtered transactions' }).click();
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
+	await expect(dialog).toBeVisible();
+
+	// Description input should show "Multiple Descriptions" placeholder since values differ
+	const descInput = dialog.getByRole('textbox', { name: 'Description' });
+	await expect(descInput).toHaveAttribute('placeholder', 'Multiple Descriptions');
+	await expect(descInput).toHaveValue('');
+
+	// Type a new description
+	await descInput.fill('Unified description');
+
+	// Save button enables and reflects count
+	const updateBtn = dialog.getByRole('button', { name: 'Update 2 Transactions' });
+	await expect(updateBtn).toBeEnabled();
+	await updateBtn.click();
+
+	// Verify both transactions updated in DB
+	await waitFor(async () => {
+		const [transactions] = await surreal.query<[{ description: string }[]]>(
+			'SELECT description FROM transaction WHERE id IN [$id1, $id2]',
+			{ id1: t1.id, id2: t2.id }
+		);
+		return transactions.every((t) => t.description === 'Unified description');
+	});
+});
+
+test('bulk edit description - common value pre-populated', async ({ page, createTransaction }) => {
+	await createTransaction({
+		statementDescription: 'TX 1',
+		description: 'Shared description',
+		date: new Date(2025, 0, 1),
+		amount: -100
+	});
+	await createTransaction({
+		statementDescription: 'TX 2',
+		description: 'Shared description',
+		date: new Date(2025, 0, 2),
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	await page.getByRole('button', { name: 'Bulk edit filtered transactions' }).click();
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
+	await expect(dialog).toBeVisible();
+
+	// Description input should be pre-populated with the common value
+	const descInput = dialog.getByRole('textbox', { name: 'Description' });
+	await expect(descInput).toHaveValue('Shared description');
+	await expect(descInput).toHaveAttribute('placeholder', '');
+});
+
+test('bulk edit tags', async ({ page, pageHelpers, createTransaction }) => {
+	const t1 = await createTransaction({
+		statementDescription: 'TX 1',
+		date: new Date(2025, 0, 1),
+		amount: -100
+	});
+	const t2 = await createTransaction({
+		statementDescription: 'TX 2',
+		date: new Date(2025, 0, 2),
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	await page.getByRole('button', { name: 'Bulk edit filtered transactions' }).click();
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
+	await expect(dialog).toBeVisible();
+
+	// Add a tag via the tag input
+	const tagInput = dialog.getByRole('textbox', { name: 'Tag input' });
+	await tagInput.fill('Vacation');
+	await tagInput.press('Enter');
+
+	// Tag chip should appear in the dialog
+	await expect(dialog.getByText('Vacation')).toBeVisible();
+
+	// Save
+	await dialog.getByRole('button', { name: 'Update 2 Transactions' }).click();
+
+	// Verify both transactions have the tag
+	await pageHelpers.waitForTaggedTransaction(t1.id, ['Vacation']);
+	await pageHelpers.waitForTaggedTransaction(t2.id, ['Vacation']);
+});
+
+test('bulk edit effective date', async ({ page, createTransaction, surreal }) => {
+	const t1 = await createTransaction({
+		statementDescription: 'TX 1',
+		date: new Date(2025, 0, 1),
+		amount: -100
+	});
+	const t2 = await createTransaction({
+		statementDescription: 'TX 2',
+		date: new Date(2025, 0, 2),
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	await page.getByRole('button', { name: 'Bulk edit filtered transactions' }).click();
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
+	await expect(dialog).toBeVisible();
+
+	// Both have no effective date — shows "Same as statement" (common value)
+	await dialog.getByRole('button', { name: 'Same as statement' }).click();
+
+	// Month-year picker appears
+	const picker = page.getByTestId('month-year-picker');
+	await expect(picker).toBeVisible();
+
+	// Navigate to 2025 and select March
+	await picker.getByLabel('Previous year').click();
+	await picker.getByTestId('month-option-3').click();
+
+	// Save
+	await dialog.getByRole('button', { name: 'Update 2 Transactions' }).click();
+
+	// Verify both transactions have an effective date set in DB
+	await waitFor(async () => {
+		const [transactions] = await surreal.query<[{ effectiveDate?: string }[]]>(
+			'SELECT effectiveDate FROM transaction WHERE id IN [$id1, $id2]',
+			{ id1: t1.id, id2: t2.id }
+		);
+		return transactions.every((t) => t.effectiveDate !== undefined && t.effectiveDate !== null);
+	});
+});
+
+test('bulk edit × button closes modal', async ({ page, createTransaction }) => {
+	await createTransaction({
+		statementDescription: 'TX 1',
+		date: new Date(2025, 0, 1),
+		amount: -100
+	});
+
+	await page.goto('/');
+
+	await page.getByRole('button', { name: 'Bulk edit filtered transactions' }).click();
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
+	await expect(dialog).toBeVisible();
+
+	// Click the × button
+	await dialog.getByRole('button', { name: 'Close' }).click();
+
+	await expect(dialog).not.toBeVisible();
 });
 
 test('clear all filters', async ({ page, createCategory, createTransaction }) => {

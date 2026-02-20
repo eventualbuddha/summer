@@ -1,5 +1,5 @@
 <script lang="ts">
-	import BulkTransactionActions from '$lib/components/BulkTransactionActions.svelte';
+	import BulkEditModal from '$lib/components/BulkEditModal.svelte';
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
 	import Filters from '$lib/components/Filters.svelte';
 	import ImportButton from '$lib/components/ImportButton.svelte';
@@ -191,6 +191,8 @@
 
 	// Show per-year breakdown for tags only when more than 1 year is selected
 	const selectedYearCount = $derived(s.filters?.years.filter((y) => y.selected).length ?? 0);
+
+	let showBulkEditModal = $state(false);
 </script>
 
 <title>Transactions – Summer</title>
@@ -220,8 +222,17 @@
 		bind:searchTags={s.filters.searchTags}
 		availableTags={s.tags}
 		onclear={() => s.clearFilters()}
+		onbulkedit={() => (showBulkEditModal = true)}
+		bulkEditDisabled={!s.transactions || s.transactions.count === 0}
 	/>
-	<BulkTransactionActions />
+{/if}
+
+{#if showBulkEditModal && s.transactions}
+	<BulkEditModal
+		transactions={s.transactions.list}
+		categories={s.filters?.categories.map(({ value }) => value) ?? []}
+		onclose={() => (showBulkEditModal = false)}
+	/>
 {/if}
 
 <div class="flex min-h-0 flex-1 flex-row gap-6">

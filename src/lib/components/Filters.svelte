@@ -16,7 +16,9 @@
 		searchText = $bindable(),
 		searchTags = $bindable(),
 		availableTags,
-		onclear
+		onclear,
+		onbulkedit,
+		bulkEditDisabled = false
 	}: {
 		yearSelections: Selection<number>[];
 		monthSelections: Selection<number>[];
@@ -26,6 +28,8 @@
 		searchTags: string[];
 		availableTags: Tag[];
 		onclear?: () => void;
+		onbulkedit?: () => void;
+		bulkEditDisabled?: boolean;
 	} = $props();
 
 	let searchInput: SearchInput;
@@ -56,7 +60,6 @@
 
 <div class="flex flex-col gap-2">
 	<div class="flex flex-row items-center gap-1">
-		<span class="font-bold">Filters:</span>
 		<YearMultiSelect aria-label="Year Filter" bind:selections={yearSelections} />
 		<MonthMultiSelect aria-label="Month Filter" bind:selections={monthSelections} />
 		<CategoryMultiSelect aria-label="Category Filter" bind:selections={categorySelections} />
@@ -70,6 +73,18 @@
 				aria-label="Clear all filters"
 			>
 				Clear
+			</button>
+		{/if}
+		{#if onbulkedit}
+			<span class="mx-1 h-5 w-px bg-gray-300 dark:bg-gray-600" aria-hidden="true"></span>
+			<button
+				type="button"
+				onclick={onbulkedit}
+				disabled={bulkEditDisabled}
+				class="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+				aria-label="Bulk edit filtered transactions"
+			>
+				Bulk Edit
 			</button>
 		{/if}
 	</div>
