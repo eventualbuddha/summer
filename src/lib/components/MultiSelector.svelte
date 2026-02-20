@@ -15,7 +15,7 @@
 <div class="multi-selector">
 	<div class="mt-2 flex flex-col gap-1">
 		{#if allToggle}
-			<label class="mb-2 cursor-pointer font-bold">
+			<label class="mb-2 flex cursor-pointer items-center gap-1.5 font-bold">
 				<input
 					type="checkbox"
 					checked={selections.every((selection) => selection.selected)}
@@ -30,7 +30,7 @@
 		{/if}
 
 		{#each selections as selection (selection.key)}
-			<label class="cursor-pointer">
+			<label class="flex cursor-pointer items-center gap-1.5">
 				<input
 					type="checkbox"
 					bind:checked={selection.selected}
