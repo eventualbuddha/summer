@@ -59,7 +59,5 @@ export class Filters {
 			value: category,
 			selected: true
 		}));
-		this.searchText = '';
-		this.searchFilters = [];
 	}
 }

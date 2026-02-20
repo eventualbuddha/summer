@@ -129,3 +129,43 @@ test('searching by tag', async ({ page, createTransaction, tagTransaction }) => 
 	await expect(page.getByText(taggedTransaction.statementDescription)).not.toBeVisible();
 	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
 });
+
+test('tag filter chip persists in URL and survives refresh', async ({
+	page,
+	createTransaction,
+	tagTransaction
+}) => {
+	const taggedTransaction = await createTransaction({
+		statementDescription: 'ONO Gelato',
+		date: new Date(2025, 0, 1),
+		amount: -123
+	});
+	const untaggedTransaction = await createTransaction({
+		statementDescription: 'PARKING',
+		date: new Date(2025, 0, 1),
+		amount: -1800
+	});
+
+	await tagTransaction(taggedTransaction.id, 'Hawaii');
+
+	await page.goto('/');
+
+	// Select the tag chip via autocomplete
+	const $search = page.getByRole('textbox', { name: 'Search input' });
+	await $search.fill('Hawaii');
+	await page.getByRole('option', { name: 'Hawaii', exact: true }).click();
+
+	// URL should now contain the filter
+	await expect(page).toHaveURL(/filters=tag%3AHawaii/);
+
+	// Only tagged transaction visible
+	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
+	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
+
+	// Reload the page — chip should be restored from URL
+	await page.reload();
+
+	await expect(page.getByRole('button', { name: 'Remove tag Hawaii' })).toBeVisible();
+	await expect(page.getByText(taggedTransaction.statementDescription)).toBeVisible();
+	await expect(page.getByText(untaggedTransaction.statementDescription)).not.toBeVisible();
+});
