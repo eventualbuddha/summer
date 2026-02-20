@@ -185,11 +185,18 @@ export async function setTransactionCategory(
 	});
 }
 
-export async function setBulkTransactionCategory(
+export interface BulkEditUpdates {
+	description?: string;
+	categoryId?: string | null;
+	effectiveDate?: string | null;
+	tags?: string[];
+}
+
+export async function bulkEditTransactions(
 	transactionIds: string[],
-	categoryId: string | null
+	updates: BulkEditUpdates
 ): Promise<void> {
-	await patchJson('/api/transactions/bulk-category', { transactionIds, categoryId });
+	await patchJson('/api/transactions/bulk', { transactionIds, ...updates });
 }
 
 // Transaction detail

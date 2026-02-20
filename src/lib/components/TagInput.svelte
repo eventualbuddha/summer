@@ -5,11 +5,13 @@
 	let {
 		tags,
 		availableTags,
-		onchange
+		onchange,
+		placeholder = 'Add tags...'
 	}: {
 		tags: string[];
 		availableTags: Tag[];
 		onchange: (tags: string[]) => void;
+		placeholder?: string;
 	} = $props();
 
 	let inputValue = $state('');
@@ -123,7 +125,7 @@
 			bind:this={inputElement}
 			type="text"
 			class="min-w-[4rem] flex-1 border-none bg-transparent p-0 text-sm outline-none focus:ring-0"
-			placeholder={tags.length === 0 ? 'Add tags...' : ''}
+			placeholder={tags.length === 0 ? placeholder : ''}
 			value={inputValue}
 			oninput={handleInput}
 			onkeydown={handleKeydown}
