@@ -13,7 +13,7 @@ import {
 } from './db';
 import type { ImportedTransaction } from './import/ImportedTransaction';
 import type { StatementMetadata } from './import/StatementMetadata';
-import type { Selection } from './types';
+import type { SearchFilter, Selection } from './types';
 import { Fetcher } from './utils/Fetcher';
 import { Filters } from './utils/Filters.svelte';
 import { NEVER_PROMISE } from './utils/promises';
@@ -24,7 +24,7 @@ export interface FilterState {
 	categories: Selection<Category>[];
 	accounts: Selection<Account>[];
 	searchText: string;
-	searchTags: string[];
+	searchFilters: SearchFilter[];
 }
 
 export type SortingField = 'date' | 'amount' | 'statementDescription';
@@ -176,7 +176,7 @@ export class State {
 				.filter((selection) => selection.selected)
 				.map((selection) => selection.value.id),
 			searchText: this.filters.searchText,
-			searchTags: this.filters.searchTags,
+			searchFilters: this.filters.searchFilters,
 			stickyTransactionIds: [...stickyTransactionIds],
 			sort: { columns: [...sort.columns] }
 		};
@@ -257,9 +257,9 @@ export class State {
 		});
 	}
 
-	updateSearchTags(searchTags: string[]): void {
+	updateSearchFilters(searchFilters: SearchFilter[]): void {
 		this.#updateFiltersWith((filters) => {
-			filters.searchTags = searchTags;
+			filters.searchFilters = searchFilters;
 		});
 	}
 
@@ -279,7 +279,7 @@ export class State {
 				accountFilter.selected = true;
 			}
 			filters.searchText = '';
-			filters.searchTags = [];
+			filters.searchFilters = [];
 		});
 	}
 
@@ -569,7 +569,7 @@ export class State {
 				accountFilter.selected = true;
 			}
 			filters.searchText = '';
-			filters.searchTags = [tagName];
+			filters.searchFilters = [{ type: 'tag', value: tagName }];
 		});
 	}
 }

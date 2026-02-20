@@ -8,6 +8,7 @@ import type {
 	TagReportData,
 	Transaction
 } from './db';
+import type { SearchFilter } from './types';
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
 	const res = await fetch(url, init);
@@ -37,13 +38,7 @@ function patchJson<T>(url: string, body: unknown): Promise<T> {
 
 // Filters
 export async function getFilterOptions(): Promise<FilterOptions> {
-	const data = await fetchJson<{
-		years: number[];
-		months: number[];
-		categories: Category[];
-		accounts: Account[];
-	}>('/api/filters');
-	return { ...data, searchText: '', searchTags: [] };
+	return fetchJson<FilterOptions>('/api/filters');
 }
 
 // Settings
@@ -152,7 +147,7 @@ export interface TransactionsQueryParams {
 	categories: string[];
 	accounts: string[];
 	searchText: string;
-	searchTags: string[];
+	searchFilters: SearchFilter[];
 	stickyTransactionIds: string[];
 	sort: {
 		columns: Array<{ field: string; direction: 'asc' | 'desc' }>;

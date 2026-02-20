@@ -33,7 +33,7 @@
 
 			// Clear search and account filters
 			s.filters.searchText = '';
-			s.filters.searchTags = [];
+			s.filters.searchFilters = [];
 			s.filters.accounts.forEach((a) => {
 				a.selected = true;
 			});
@@ -62,7 +62,7 @@
 
 			// Clear search and account filters
 			s.filters.searchText = '';
-			s.filters.searchTags = [];
+			s.filters.searchFilters = [];
 			s.filters.accounts.forEach((a) => {
 				a.selected = true;
 			});

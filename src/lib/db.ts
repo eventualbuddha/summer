@@ -76,9 +76,7 @@ export const FilterOptionsSchema = z.object({
 	years: z.array(z.number().min(0)),
 	months: z.array(z.number().min(0)),
 	categories: z.array(CategorySchema),
-	accounts: z.array(AccountSchema),
-	searchText: z.string(),
-	searchTags: z.array(z.string())
+	accounts: z.array(AccountSchema)
 });
 
 export interface FilterOptions extends z.infer<typeof FilterOptionsSchema> {}

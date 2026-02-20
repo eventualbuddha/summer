@@ -1,11 +1,27 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { z } from 'zod';
+import type { AmountFilter } from '$lib/types';
 
 interface SortColumn {
 	field: string;
 	direction: 'asc' | 'desc';
 }
+
+const AmountFilterSchema = z.discriminatedUnion('op', [
+	z.object({ op: z.literal('exact'), value: z.number().int() }),
+	z.object({ op: z.literal('approx'), value: z.number().int() }),
+	z.object({ op: z.literal('lt'), value: z.number().int() }),
+	z.object({ op: z.literal('gt'), value: z.number().int() }),
+	z.object({ op: z.literal('range'), min: z.number().int(), max: z.number().int() })
+]);
+
+const SearchFilterSchema = z.discriminatedUnion('type', [
+	z.object({ type: z.literal('tag'), value: z.string() }),
+	z.object({ type: z.literal('amount'), filter: AmountFilterSchema }),
+	z.object({ type: z.literal('desc'), value: z.string() }),
+	z.object({ type: z.literal('bank'), value: z.string() })
+]);
 
 const BODY = z.object({
 	years: z.array(z.number()),
@@ -13,7 +29,7 @@ const BODY = z.object({
 	categories: z.array(z.string()),
 	accounts: z.array(z.string()),
 	searchText: z.string(),
-	searchTags: z.array(z.string()),
+	searchFilters: z.array(SearchFilterSchema),
 	stickyTransactionIds: z.array(z.string()),
 	sort: z.object({
 		columns: z.array(
@@ -25,16 +41,52 @@ const BODY = z.object({
 	})
 });
 
-function amountsToMatchForSearchTerm(searchText: string): number[] {
-	const match = searchText.match(/^([-+])?(\d{1,10}\.\d{2})$/);
-	if (!match) return [];
-	const [, sign, amount] = match;
-	const amountNumber = parseFloat(amount as string) * 100;
-	return sign === '-'
-		? [-amountNumber]
-		: sign === '+'
-			? [amountNumber]
-			: [-amountNumber, amountNumber];
+function buildAmountCondition(f: AmountFilter, i: number): string {
+	switch (f.op) {
+		case 'exact':
+			return `(amount == $amtVal${i} OR amount == -$amtVal${i})`;
+		case 'approx':
+			return `((amount >= $amtMin${i} AND amount <= $amtMax${i}) OR (amount >= -$amtMax${i} AND amount <= -$amtMin${i}))`;
+		case 'lt':
+			return `(math::abs(amount) < $amtVal${i})`;
+		case 'gt':
+			return `(math::abs(amount) > $amtVal${i})`;
+		case 'range':
+			return `(math::abs(amount) >= $amtMin${i} AND math::abs(amount) <= $amtMax${i})`;
+	}
+}
+
+function buildSearchCondition(
+	searchText: string,
+	tagFilters: string[],
+	descFilter: string | null,
+	bankFilter: string | null,
+	amountFilters: AmountFilter[]
+): string {
+	if (!searchText && !tagFilters.length && !descFilter && !bankFilter && !amountFilters.length) {
+		return 'true';
+	}
+	const parts: string[] = [];
+	if (searchText) {
+		parts.push(
+			`((description AND description.lowercase().contains($searchText.lowercase())) OR (statementDescription AND statementDescription.lowercase().contains($searchText.lowercase())) OR string::contains(string::lowercase(array::join(->tagged->tag.name ?? [], " ")), string::lowercase($searchText)))`
+		);
+	}
+	if (tagFilters.length) {
+		parts.push(`$tagFilters ALLINSIDE ->tagged->tag.name`);
+	}
+	if (descFilter) {
+		parts.push(`(description AND description.lowercase().contains($descFilter.lowercase()))`);
+	}
+	if (bankFilter) {
+		parts.push(
+			`(statementDescription AND statementDescription.lowercase().contains($bankFilter.lowercase()))`
+		);
+	}
+	for (let i = 0; i < amountFilters.length; i++) {
+		parts.push(buildAmountCondition(amountFilters[i]!, i));
+	}
+	return parts.join(' AND ');
 }
 
 function buildOrderByFields(columns: readonly SortColumn[]): string {
@@ -69,9 +121,37 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const body = parsedBody.data;
 
-	const descriptionFilter = body.searchText.trim();
-	const tagsFilter = body.searchTags;
-	const amounts = amountsToMatchForSearchTerm(body.searchText);
+	// Separate search filters by type
+	const tagFilters: string[] = [];
+	let descFilter: string | null = null;
+	let bankFilter: string | null = null;
+	const amountFilters: AmountFilter[] = [];
+
+	for (const f of body.searchFilters) {
+		switch (f.type) {
+			case 'tag':
+				tagFilters.push(f.value);
+				break;
+			case 'desc':
+				if (!descFilter) descFilter = f.value;
+				break;
+			case 'bank':
+				if (!bankFilter) bankFilter = f.value;
+				break;
+			case 'amount':
+				amountFilters.push(f.filter);
+				break;
+		}
+	}
+
+	const searchText = body.searchText.trim();
+	const searchCondition = buildSearchCondition(
+		searchText,
+		tagFilters,
+		descFilter,
+		bankFilter,
+		amountFilters
+	);
 
 	const columns = body.sort.columns;
 	if (columns.length === 0) {
@@ -80,6 +160,37 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const orderByFields = buildOrderByFields(columns);
 	const orderByClause = buildOrderByClause(columns);
+
+	// Build query params
+	const queryParams: Record<string, unknown> = {
+		stickyTransactionIds: body.stickyTransactionIds,
+		years: body.years,
+		months: body.months,
+		categories: body.categories,
+		accounts: body.accounts,
+		searchText,
+		tagFilters,
+		descFilter,
+		bankFilter
+	};
+
+	// Add amount filter parameters
+	for (let i = 0; i < amountFilters.length; i++) {
+		const f = amountFilters[i]!;
+		if (f.op === 'exact') {
+			queryParams[`amtVal${i}`] = f.value;
+		} else if (f.op === 'approx') {
+			queryParams[`amtMin${i}`] = f.value - 100;
+			queryParams[`amtMax${i}`] = f.value + 100;
+		} else if (f.op === 'lt') {
+			queryParams[`amtVal${i}`] = f.value;
+		} else if (f.op === 'gt') {
+			queryParams[`amtVal${i}`] = f.value;
+		} else if (f.op === 'range') {
+			queryParams[`amtMin${i}`] = f.min;
+			queryParams[`amtMax${i}`] = f.max;
+		}
+	}
 
 	const db = await getDb();
 	const query = `
@@ -104,13 +215,7 @@ export const POST: RequestHandler = async ({ request }) => {
 					AND (effectiveDate ?? statement.date).month() IN $months
 					AND category AND category.id() IN $categories
 					AND statement.account AND statement.account.id() IN $accounts
-					AND (
-						(!$descriptionFilter AND $tagsFilter.len() == 0 AND !$amounts)
-						OR (description AND $descriptionFilter AND description.lowercase().contains($descriptionFilter.lowercase()))
-						OR (statementDescription AND $descriptionFilter AND statementDescription.lowercase().contains($descriptionFilter.lowercase()))
-						OR (amount IN $amounts)
-						OR ($tagsFilter.len() > 0 AND $tagsFilter ALLINSIDE ->tagged->tag.name)
-					)
+					AND (${searchCondition})
 				)
 			ORDER BY ${orderByClause}
 		);
@@ -125,16 +230,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		SELECT accountId, math::sum(amount) as total FROM $countable GROUP BY accountId;
 	`;
 
-	const data = await db.query(query, {
-		stickyTransactionIds: body.stickyTransactionIds,
-		years: body.years,
-		months: body.months,
-		categories: body.categories,
-		accounts: body.accounts,
-		descriptionFilter,
-		tagsFilter: tagsFilter as string[],
-		amounts
-	});
+	const data = await db.query(query, queryParams);
 
 	const [, , total, transactions, totalByYear, totalByCategoryId, totalByAccountId] = data as [
 		unknown,

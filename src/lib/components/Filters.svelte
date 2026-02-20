@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Account, Category, Tag } from '$lib/db';
-	import type { Selection } from '$lib/types';
+	import type { SearchFilter, Selection } from '$lib/types';
 	import AccountMultiSelect from './AccountMultiSelect.svelte';
 	import CategoryMultiSelect from './CategoryMultiSelect.svelte';
 	import MonthMultiSelect from './MonthMultiSelect.svelte';
@@ -14,7 +14,7 @@
 		categorySelections = $bindable(),
 		accountSelections = $bindable(),
 		searchText = $bindable(),
-		searchTags = $bindable(),
+		searchFilters = $bindable(),
 		availableTags,
 		onclear,
 		onbulkedit,
@@ -25,7 +25,7 @@
 		categorySelections: Selection<Category>[];
 		accountSelections: Selection<Account>[];
 		searchText: string;
-		searchTags: string[];
+		searchFilters: SearchFilter[];
 		availableTags: Tag[];
 		onclear?: () => void;
 		onbulkedit?: () => void;
@@ -64,7 +64,7 @@
 		<MonthMultiSelect aria-label="Month Filter" bind:selections={monthSelections} />
 		<CategoryMultiSelect aria-label="Category Filter" bind:selections={categorySelections} />
 		<AccountMultiSelect aria-label="Account Filter" bind:selections={accountSelections} />
-		<SearchInput bind:this={searchInput} bind:searchText bind:searchTags {availableTags} />
+		<SearchInput bind:this={searchInput} bind:searchText bind:searchFilters {availableTags} />
 		{#if onclear}
 			<button
 				type="button"

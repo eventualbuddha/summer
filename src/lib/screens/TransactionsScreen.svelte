@@ -15,8 +15,87 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { untrack } from 'svelte';
+	import type { SearchFilter } from '$lib/types';
 
 	let s: State = getContext('state');
+
+	function encodeSearchFilter(f: SearchFilter): string {
+		switch (f.type) {
+			case 'tag':
+				return `tag:${encodeURIComponent(f.value)}`;
+			case 'desc':
+				return `desc:${encodeURIComponent(f.value)}`;
+			case 'bank':
+				return `bank:${encodeURIComponent(f.value)}`;
+			case 'amount': {
+				const af = f.filter;
+				switch (af.op) {
+					case 'exact':
+						return `amount:exact:${af.value}`;
+					case 'approx':
+						return `amount:approx:${af.value}`;
+					case 'lt':
+						return `amount:lt:${af.value}`;
+					case 'gt':
+						return `amount:gt:${af.value}`;
+					case 'range':
+						return `amount:range:${af.min}:${af.max}`;
+				}
+			}
+		}
+	}
+
+	function decodeSearchFilter(token: string): SearchFilter | null {
+		const colonIdx = token.indexOf(':');
+		if (colonIdx < 0) return null;
+		const type = token.slice(0, colonIdx);
+		const rest = token.slice(colonIdx + 1);
+
+		switch (type) {
+			case 'tag':
+				return { type: 'tag', value: decodeURIComponent(rest) };
+			case 'desc':
+				return { type: 'desc', value: decodeURIComponent(rest) };
+			case 'bank':
+				return { type: 'bank', value: decodeURIComponent(rest) };
+			case 'amount': {
+				const parts = rest.split(':');
+				const op = parts[0];
+				switch (op) {
+					case 'exact': {
+						const v = parseInt(parts[1] ?? '', 10);
+						if (isNaN(v)) return null;
+						return { type: 'amount', filter: { op: 'exact', value: v } };
+					}
+					case 'approx': {
+						const v = parseInt(parts[1] ?? '', 10);
+						if (isNaN(v)) return null;
+						return { type: 'amount', filter: { op: 'approx', value: v } };
+					}
+					case 'lt': {
+						const v = parseInt(parts[1] ?? '', 10);
+						if (isNaN(v)) return null;
+						return { type: 'amount', filter: { op: 'lt', value: v } };
+					}
+					case 'gt': {
+						const v = parseInt(parts[1] ?? '', 10);
+						if (isNaN(v)) return null;
+						return { type: 'amount', filter: { op: 'gt', value: v } };
+					}
+					case 'range': {
+						const min = parseInt(parts[1] ?? '', 10);
+						const max = parseInt(parts[2] ?? '', 10);
+						if (isNaN(min) || isNaN(max)) return null;
+						return { type: 'amount', filter: { op: 'range', min, max } };
+					}
+					default:
+						return null;
+				}
+			}
+			default:
+				return null;
+		}
+	}
 
 	// Flag to prevent circular updates between URL and state
 	let hasInitializedFromUrl = $state(false);
@@ -72,10 +151,22 @@
 			s.filters.searchText = qParam;
 		}
 
-		// Read search tags from URL
-		const tagsParam = params.get('tags');
-		if (tagsParam) {
-			s.filters.searchTags = tagsParam.split(',').filter(Boolean);
+		// Read search filters from URL
+		const filtersParam = params.get('filters');
+		if (filtersParam) {
+			s.filters.searchFilters = filtersParam
+				.split(',')
+				.map(decodeSearchFilter)
+				.filter((f): f is SearchFilter => f !== null);
+		} else {
+			// Backward compat: read old tags param
+			const tagsParam = params.get('tags');
+			if (tagsParam) {
+				s.filters.searchFilters = tagsParam
+					.split(',')
+					.filter(Boolean)
+					.map((tag) => ({ type: 'tag' as const, value: tag }));
+			}
 		}
 
 		hasInitializedFromUrl = true;
@@ -91,7 +182,7 @@
 		const categories = s.filters.categories.map((c) => ({ key: c.key, selected: c.selected }));
 		const accounts = s.filters.accounts.map((a) => ({ key: a.key, selected: a.selected }));
 		const searchText = s.filters.searchText;
-		const searchTags = [...s.filters.searchTags];
+		const searchFilters = [...s.filters.searchFilters];
 		// Use untrack to read current URL without creating a dependency
 		untrack(() => {
 			// eslint-disable-next-line svelte/prefer-svelte-reactivity
@@ -140,11 +231,12 @@
 				params.delete('q');
 			}
 
-			// Update search tags parameter
-			if (searchTags.length > 0) {
-				params.set('tags', searchTags.join(','));
+			// Update search filters parameter
+			params.delete('tags'); // remove legacy param
+			if (searchFilters.length > 0) {
+				params.set('filters', searchFilters.map(encodeSearchFilter).join(','));
 			} else {
-				params.delete('tags');
+				params.delete('filters');
 			}
 
 			const newUrl = `${$page.url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
@@ -219,7 +311,7 @@
 		bind:categorySelections={s.filters.categories}
 		bind:accountSelections={s.filters.accounts}
 		bind:searchText={s.filters.searchText}
-		bind:searchTags={s.filters.searchTags}
+		bind:searchFilters={s.filters.searchFilters}
 		availableTags={s.tags}
 		onclear={() => s.clearFilters()}
 		onbulkedit={() => (showBulkEditModal = true)}
