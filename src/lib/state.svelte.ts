@@ -421,11 +421,11 @@ export class State {
 		transaction.effectiveDate = effectiveDate ?? undefined;
 
 		try {
-			this.filters.addStickyTransactionId(transaction.id);
 			await api.updateTransactionEffectiveDate(
 				transaction.id,
 				effectiveDate ? effectiveDate.toISOString() : null
 			);
+			this.filters.addStickyTransactionId(transaction.id);
 			return Result.ok(undefined);
 		} catch (error) {
 			transaction.effectiveDate = original;
