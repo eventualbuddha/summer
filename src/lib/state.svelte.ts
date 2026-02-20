@@ -323,20 +323,12 @@ export class State {
 			throw new Error('No filters have been loaded');
 		}
 
-		type Snapshot = {
-			description: string | undefined;
-			categoryId: string | undefined;
-			effectiveDate: Date | undefined;
-			tags: string[];
-		};
-		const originals = transactions.map(
-			(t): Snapshot => ({
-				description: t.description,
-				categoryId: t.categoryId,
-				effectiveDate: t.effectiveDate,
-				tags: [...t.tags]
-			})
-		);
+		const originals = transactions.map((t) => ({
+			description: t.description,
+			categoryId: t.categoryId,
+			effectiveDate: t.effectiveDate,
+			tags: [...t.tags]
+		}));
 
 		for (const t of transactions) {
 			if ('description' in updates) t.description = updates.description ?? '';
