@@ -152,6 +152,45 @@
 			goto(newUrl, { replaceState: true, noScroll: true, keepFocus: true });
 		});
 	});
+
+	// Collapsible sidebar sections with localStorage persistence
+	const COLLAPSE_KEYS = {
+		year: 'tx-sidebar-year-collapsed',
+		category: 'tx-sidebar-category-collapsed',
+		account: 'tx-sidebar-account-collapsed',
+		tag: 'tx-sidebar-tag-collapsed'
+	} as const;
+
+	function readCollapsed(key: string): boolean {
+		try {
+			return localStorage.getItem(key) === 'true';
+		} catch {
+			return false;
+		}
+	}
+
+	function writeCollapsed(key: string, value: boolean): void {
+		try {
+			localStorage.setItem(key, String(value));
+		} catch {
+			/* ignore */
+		}
+	}
+
+	let yearCollapsed = $state(false);
+	let categoryCollapsed = $state(false);
+	let accountCollapsed = $state(false);
+	let tagCollapsed = $state(false);
+
+	$effect(() => {
+		yearCollapsed = readCollapsed(COLLAPSE_KEYS.year);
+		categoryCollapsed = readCollapsed(COLLAPSE_KEYS.category);
+		accountCollapsed = readCollapsed(COLLAPSE_KEYS.account);
+		tagCollapsed = readCollapsed(COLLAPSE_KEYS.tag);
+	});
+
+	// Show per-year breakdown for tags only when more than 1 year is selected
+	const selectedYearCount = $derived(s.filters?.years.filter((y) => y.selected).length ?? 0);
 </script>
 
 <title>Transactions – Summer</title>
@@ -211,72 +250,149 @@
 				<span class="grow-1 text-right" data-testid={valueTestId}>{value}</span>
 			</div>
 		{/snippet}
-		<h3 class="font-bold">Total by Year</h3>
-		{#if !s.transactions}
-			{#if s.filters}
-				{#each s.filters.years as { value: year, selected } (year)}
-					{#if selected}
-						{#snippet label()}{year}{/snippet}
-						{@render summaryRow(label, '$-')}
-					{/if}
+
+		{#snippet sectionHeader(label: string, collapsed: boolean, onToggle: () => void)}
+			<button
+				class="mt-4 flex w-full items-center justify-between font-bold first:mt-0"
+				onclick={onToggle}
+				aria-expanded={!collapsed}
+				aria-label="{label} totals section"
+			>
+				<span>{label}</span>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-4 w-4 flex-shrink-0 transition-transform {collapsed ? '' : 'rotate-90'}"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<polyline points="9 18 15 12 9 6" />
+				</svg>
+			</button>
+		{/snippet}
+
+		{@render sectionHeader('Total by Year', yearCollapsed, () => {
+			yearCollapsed = !yearCollapsed;
+			writeCollapsed(COLLAPSE_KEYS.year, yearCollapsed);
+		})}
+		{#if !yearCollapsed}
+			{#if !s.transactions}
+				{#if s.filters}
+					{#each s.filters.years as { value: year, selected } (year)}
+						{#if selected}
+							{#snippet label()}{year}{/snippet}
+							{@render summaryRow(label, '$-')}
+						{/if}
+					{/each}
+				{/if}
+			{:else}
+				{#each s.transactions.totalByYear as { year, total } (year)}
+					{#snippet label()}{year}{/snippet}
+					{@render summaryRow(label, formatWholeDollarAmount(total))}
 				{/each}
 			{/if}
-		{:else}
-			{#each s.transactions.totalByYear as { year, total } (year)}
-				{#snippet label()}{year}{/snippet}
-				{@render summaryRow(label, formatWholeDollarAmount(total))}
-			{/each}
 		{/if}
 
-		<h3 class="mt-4 font-bold">Total by Category</h3>
-		{#if !s.transactions}
-			{#if s.filters}
-				{#each s.filters.categories as { value: category, selected } (category.id)}
-					{#if selected}
-						{#snippet label()}
-							<CategoryPill
-								{category}
-								style="full"
-								class="overflow-hidden overflow-ellipsis whitespace-nowrap"
-							/>
-						{/snippet}
-						{@render summaryRow(label, '$–')}
-					{/if}
+		{@render sectionHeader('Total by Category', categoryCollapsed, () => {
+			categoryCollapsed = !categoryCollapsed;
+			writeCollapsed(COLLAPSE_KEYS.category, categoryCollapsed);
+		})}
+		{#if !categoryCollapsed}
+			{#if !s.transactions}
+				{#if s.filters}
+					{#each s.filters.categories as { value: category, selected } (category.id)}
+						{#if selected}
+							{#snippet label()}
+								<CategoryPill
+									{category}
+									style="full"
+									class="overflow-hidden overflow-ellipsis whitespace-nowrap"
+								/>
+							{/snippet}
+							{@render summaryRow(label, '$–')}
+						{/if}
+					{/each}
+				{/if}
+			{:else}
+				{#each s.transactions.totalByCategory as { category, total } (category.id)}
+					{#snippet label()}
+						<CategoryPill
+							{category}
+							style="full"
+							class="overflow-hidden overflow-ellipsis whitespace-nowrap"
+						/>
+					{/snippet}
+
+					{@render summaryRow(
+						label,
+						formatWholeDollarAmount(total),
+						`category:${category.id}-summary-value`
+					)}
 				{/each}
 			{/if}
-		{:else}
-			{#each s.transactions.totalByCategory as { category, total } (category.id)}
-				{#snippet label()}
-					<CategoryPill
-						{category}
-						style="full"
-						class="overflow-hidden overflow-ellipsis whitespace-nowrap"
-					/>
-				{/snippet}
-
-				{@render summaryRow(
-					label,
-					formatWholeDollarAmount(total),
-					`category:${category.id}-summary-value`
-				)}
-			{/each}
 		{/if}
 
-		<h3 class="mt-4 font-bold">Total by Account</h3>
-		{#if !s.transactions}
-			{#if s.filters}
-				{#each s.filters.accounts as { value: account, selected } (account.id)}
-					{#if selected}
-						{#snippet label()}{account.name}{/snippet}
-						{@render summaryRow(label, '$–')}
-					{/if}
+		{@render sectionHeader('Total by Account', accountCollapsed, () => {
+			accountCollapsed = !accountCollapsed;
+			writeCollapsed(COLLAPSE_KEYS.account, accountCollapsed);
+		})}
+		{#if !accountCollapsed}
+			{#if !s.transactions}
+				{#if s.filters}
+					{#each s.filters.accounts as { value: account, selected } (account.id)}
+						{#if selected}
+							{#snippet label()}{account.name}{/snippet}
+							{@render summaryRow(label, '$–')}
+						{/if}
+					{/each}
+				{/if}
+			{:else}
+				{#each s.transactions.totalByAccount as { account, total } (account.id)}
+					{#snippet label()}{account.name}{/snippet}
+					{@render summaryRow(label, formatWholeDollarAmount(total))}
 				{/each}
 			{/if}
-		{:else}
-			{#each s.transactions.totalByAccount as { account, total } (account.id)}
-				{#snippet label()}{account.name}{/snippet}
-				{@render summaryRow(label, formatWholeDollarAmount(total))}
-			{/each}
+		{/if}
+
+		{@render sectionHeader('Total by Tag', tagCollapsed, () => {
+			tagCollapsed = !tagCollapsed;
+			writeCollapsed(COLLAPSE_KEYS.tag, tagCollapsed);
+		})}
+		{#if !tagCollapsed}
+			{#if s.transactions && s.transactions.totalByTag.length > 0}
+				{#each s.transactions.totalByTag as { tagName, total, totalByYear }, i (tagName)}
+					<div
+						class={selectedYearCount !== 1 && i > 0
+							? 'mt-1.5 border-t border-gray-600/40 pt-1.5'
+							: ''}
+					>
+						{#snippet tagLabel()}{tagName}{/snippet}
+						{@render summaryRow(
+							tagLabel,
+							selectedYearCount !== 1 && totalByYear.length === 1
+								? '–'
+								: formatWholeDollarAmount(total),
+							`tag:${tagName}-summary-value`
+						)}
+						{#if selectedYearCount !== 1}
+							{#each totalByYear as { year, total: yearTotal } (year)}
+								{#snippet yearLabel()}<span class="pl-2 text-sm text-gray-400">{year}</span
+									>{/snippet}
+								{@render summaryRow(
+									yearLabel,
+									formatWholeDollarAmount(yearTotal),
+									`tag:${tagName}-year-${year}-value`
+								)}
+							{/each}
+						{/if}
+					</div>
+				{/each}
+			{:else if s.transactions}
+				<p class="text-sm text-gray-400">No tagged transactions</p>
+			{/if}
 		{/if}
 	</div>
 </div>

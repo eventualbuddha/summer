@@ -941,6 +941,183 @@ test('regular click resets to single column sort', async ({
 	await expect(amountButton.getByText('1')).not.toBeVisible();
 });
 
+test('tag totals appear for tagged transactions', async ({
+	page,
+	createCategory,
+	createTransaction,
+	tagTransaction
+}) => {
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+	const t1 = await createTransaction({
+		category: category.id,
+		statementDescription: 'Tagged transaction A',
+		date: new Date(2025, 0, 1),
+		amount: -500
+	});
+	const t2 = await createTransaction({
+		category: category.id,
+		statementDescription: 'Tagged transaction B',
+		date: new Date(2025, 0, 2),
+		amount: -300
+	});
+
+	await tagTransaction(t1.id, 'food');
+	await tagTransaction(t2.id, 'transport');
+
+	await page.goto('/');
+
+	// Each tag should appear with its correct total
+	await expect(page.getByTestId('tag:food-summary-value')).toHaveText('$5');
+	await expect(page.getByTestId('tag:transport-summary-value')).toHaveText('$3');
+});
+
+test('tag shows per-year breakdown when multiple years selected', async ({
+	page,
+	createCategory,
+	createTransaction,
+	tagTransaction
+}) => {
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+	const t2024 = await createTransaction({
+		category: category.id,
+		statementDescription: 'Transaction 2024',
+		date: new Date(2024, 0, 1),
+		amount: -1000
+	});
+	const t2025 = await createTransaction({
+		category: category.id,
+		statementDescription: 'Transaction 2025',
+		date: new Date(2025, 0, 1),
+		amount: -2000
+	});
+
+	await tagTransaction(t2024.id, 'vacation');
+	await tagTransaction(t2025.id, 'vacation');
+
+	// Navigate with both years selected
+	await page.goto('/?years=2024,2025');
+
+	// Tag total should show
+	await expect(page.getByTestId('tag:vacation-summary-value')).toBeVisible();
+
+	// Per-year sub-rows should appear
+	await expect(page.getByTestId('tag:vacation-year-2024-value')).toBeVisible();
+	await expect(page.getByTestId('tag:vacation-year-2025-value')).toBeVisible();
+});
+
+test('tag shows no per-year breakdown when single year selected', async ({
+	page,
+	createCategory,
+	createTransaction,
+	tagTransaction
+}) => {
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+	const t2024 = await createTransaction({
+		category: category.id,
+		statementDescription: 'Transaction 2024',
+		date: new Date(2024, 0, 1),
+		amount: -1000
+	});
+	const t2025 = await createTransaction({
+		category: category.id,
+		statementDescription: 'Transaction 2025',
+		date: new Date(2025, 0, 1),
+		amount: -2000
+	});
+
+	await tagTransaction(t2024.id, 'vacation');
+	await tagTransaction(t2025.id, 'vacation');
+
+	// Navigate with only 2025 selected (default: most recent year)
+	await page.goto('/');
+
+	// Tag total should show (only 2025 data)
+	await expect(page.getByTestId('tag:vacation-summary-value')).toBeVisible();
+
+	// Per-year sub-rows should NOT appear when only one year is selected
+	await expect(page.getByTestId('tag:vacation-year-2025-value')).not.toBeVisible();
+	await expect(page.getByTestId('tag:vacation-year-2024-value')).not.toBeVisible();
+});
+
+test('only tags with spending in filtered year appear', async ({
+	page,
+	createCategory,
+	createTransaction,
+	tagTransaction
+}) => {
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+	const t2024 = await createTransaction({
+		category: category.id,
+		statementDescription: 'Transaction 2024',
+		date: new Date(2024, 0, 1),
+		amount: -1000
+	});
+	const t2025 = await createTransaction({
+		category: category.id,
+		statementDescription: 'Transaction 2025',
+		date: new Date(2025, 0, 1),
+		amount: -2000
+	});
+
+	// tag 'yearold' only appears in 2024
+	await tagTransaction(t2024.id, 'yearold');
+	// tag 'recent' only appears in 2025
+	await tagTransaction(t2025.id, 'recent');
+
+	// Filter to only 2025
+	await page.goto('/');
+
+	// 'recent' tag should appear (has spending in 2025)
+	await expect(page.getByTestId('tag:recent-summary-value')).toBeVisible();
+
+	// 'yearold' tag should NOT appear (no spending in 2025)
+	await expect(page.getByTestId('tag:yearold-summary-value')).not.toBeVisible();
+});
+
+test('sidebar sections collapse and persist across reload', async ({
+	page,
+	createCategory,
+	createTransaction
+}) => {
+	const category = await createCategory({ name: 'General', emoji: '🛍️' });
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'Test transaction',
+		date: new Date(2025, 0, 1),
+		amount: -100
+	});
+
+	await page.goto('/');
+
+	// Sidebar year section should be visible initially
+	const yearSectionButton = page.getByRole('button', { name: 'Total by Year totals section' });
+	await expect(yearSectionButton).toBeVisible();
+	await expect(yearSectionButton).toHaveAttribute('aria-expanded', 'true');
+
+	// Verify year totals content is visible
+	await expect(page.getByText('2025').first()).toBeVisible();
+
+	// Click to collapse the year section
+	await yearSectionButton.click();
+
+	// Section should now be collapsed
+	await expect(yearSectionButton).toHaveAttribute('aria-expanded', 'false');
+
+	// Reload page
+	await page.reload();
+	await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible();
+
+	// Section should still be collapsed after reload (localStorage persisted)
+	const yearSectionButtonAfterReload = page.getByRole('button', {
+		name: 'Total by Year totals section'
+	});
+	await expect(yearSectionButtonAfterReload).toHaveAttribute('aria-expanded', 'false');
+
+	// Click to expand again
+	await yearSectionButtonAfterReload.click();
+	await expect(yearSectionButtonAfterReload).toHaveAttribute('aria-expanded', 'true');
+});
+
 test('sort tooltip shows full sort order', async ({ page, createTransaction, createCategory }) => {
 	const category = await createCategory({ name: 'General', emoji: '🛍️' });
 
