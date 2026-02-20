@@ -210,6 +210,11 @@ export class State {
 				account,
 				total: result.totalByAccountId.find((item) => item.accountId === account.id)?.total ?? 0
 			})),
+			totalByTag: result.totalByTag.map(({ name, total, totalByYear }) => ({
+				tagName: name,
+				total,
+				totalByYear
+			})),
 			list: transactions
 		};
 	}

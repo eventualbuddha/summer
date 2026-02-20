@@ -140,7 +140,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		unknown,
 		unknown,
 		number,
-		Array<{ tags?: string[] }>,
+		Array<{ tags?: string[]; year?: number; categoryId?: string; amount: number }>,
 		Array<{ year: number; total: number }>,
 		Array<{ categoryId: string; categoryOrdinal: number; total: number }>,
 		Array<{ accountId: string; total: number }>
@@ -151,11 +151,34 @@ export const POST: RequestHandler = async ({ request }) => {
 		t.tags?.sort((a, b) => a.localeCompare(b));
 	}
 
+	// Compute tag totals from countable transactions (those with a categoryId)
+	const tagTotalsMap = new Map<string, { total: number; byYear: Map<number, number> }>();
+	for (const t of transactions) {
+		if (!t.categoryId) continue;
+		for (const tag of t.tags ?? []) {
+			if (!tagTotalsMap.has(tag)) tagTotalsMap.set(tag, { total: 0, byYear: new Map() });
+			const entry = tagTotalsMap.get(tag)!;
+			entry.total += t.amount;
+			const year = t.year ?? 0;
+			entry.byYear.set(year, (entry.byYear.get(year) ?? 0) + t.amount);
+		}
+	}
+	const totalByTag = Array.from(tagTotalsMap.entries())
+		.map(([name, tagData]) => ({
+			name,
+			total: tagData.total,
+			totalByYear: Array.from(tagData.byYear.entries())
+				.map(([year, total]) => ({ year, total }))
+				.sort((a, b) => b.year - a.year)
+		}))
+		.sort((a, b) => a.name.localeCompare(b.name));
+
 	return json({
 		total,
 		transactions,
 		totalByYear,
 		totalByCategoryId,
-		totalByAccountId
+		totalByAccountId,
+		totalByTag
 	});
 };

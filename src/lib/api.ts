@@ -139,6 +139,11 @@ export interface TransactionsQueryResult {
 	totalByYear: Array<{ year: number; total: number }>;
 	totalByCategoryId: Array<{ categoryId: string; categoryOrdinal: number; total: number }>;
 	totalByAccountId: Array<{ accountId: string; total: number }>;
+	totalByTag: Array<{
+		name: string;
+		total: number;
+		totalByYear: Array<{ year: number; total: number }>;
+	}>;
 }
 
 export interface TransactionsQueryParams {

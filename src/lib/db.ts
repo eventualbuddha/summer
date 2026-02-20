@@ -6,6 +6,11 @@ export interface Transactions {
 	totalByYear: Array<{ year: number; total: number }>;
 	totalByCategory: Array<{ category: Category; total: number }>;
 	totalByAccount: Array<{ account: Account; total: number }>;
+	totalByTag: Array<{
+		tagName: string;
+		total: number;
+		totalByYear: Array<{ year: number; total: number }>;
+	}>;
 	list: Transaction[];
 }
 
