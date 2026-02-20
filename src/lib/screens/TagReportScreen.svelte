@@ -29,9 +29,9 @@
 				a.selected = true;
 			});
 
-			// Set search tags to the tag
+			// Set search filters to the tag
 			s.filters.searchText = '';
-			s.filters.searchTags = [tagName];
+			s.filters.searchFilters = [{ type: 'tag', value: tagName }];
 		}
 
 		goto(resolve('/'));

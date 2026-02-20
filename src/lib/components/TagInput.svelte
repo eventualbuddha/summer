@@ -18,6 +18,7 @@
 	let inputElement = $state<HTMLInputElement>();
 	let showAutocomplete = $state(false);
 	let hoverIndex = $state(-1);
+	let focusedChipIndex = $state(-1);
 
 	let filteredSuggestions = $derived.by(() => {
 		if (!inputValue.trim()) return [];
@@ -36,13 +37,60 @@
 		inputValue = '';
 		showAutocomplete = false;
 		hoverIndex = -1;
+		focusedChipIndex = -1;
 	}
 
 	function removeTag(name: string) {
 		onchange(tags.filter((tag) => tag !== name));
 	}
 
+	function removeTagByIndex(index: number) {
+		onchange(tags.filter((_, i) => i !== index));
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
+		// Chip-nav mode
+		if (focusedChipIndex >= 0) {
+			switch (e.key) {
+				case 'ArrowLeft': {
+					e.preventDefault();
+					focusedChipIndex = Math.max(0, focusedChipIndex - 1);
+					return;
+				}
+				case 'ArrowRight': {
+					e.preventDefault();
+					focusedChipIndex = focusedChipIndex + 1;
+					if (focusedChipIndex >= tags.length) {
+						focusedChipIndex = -1;
+					}
+					return;
+				}
+				case 'Backspace': {
+					e.preventDefault();
+					const idx = focusedChipIndex;
+					removeTagByIndex(idx);
+					if (tags.length <= 1) {
+						focusedChipIndex = -1;
+					} else {
+						focusedChipIndex = Math.max(0, idx - 1);
+					}
+					return;
+				}
+				case 'Escape': {
+					focusedChipIndex = -1;
+					return;
+				}
+				default: {
+					// Printable key: exit chip-nav, let it type normally into input
+					if (e.key.length === 1) {
+						focusedChipIndex = -1;
+					}
+					return;
+				}
+			}
+		}
+
+		// Text mode
 		switch (e.key) {
 			case 'Enter': {
 				e.preventDefault();
@@ -56,9 +104,19 @@
 				break;
 			}
 			case 'Backspace': {
-				const lastTag = tags[tags.length - 1];
-				if (inputValue === '' && lastTag) {
-					removeTag(lastTag);
+				if (inputValue === '' && tags.length > 0) {
+					focusedChipIndex = tags.length - 1;
+				}
+				break;
+			}
+			case 'ArrowLeft': {
+				if (
+					inputElement?.selectionStart === 0 &&
+					inputElement?.selectionEnd === 0 &&
+					tags.length > 0
+				) {
+					e.preventDefault();
+					focusedChipIndex = tags.length - 1;
 				}
 				break;
 			}
@@ -92,6 +150,7 @@
 		inputValue = (e.target as HTMLInputElement).value;
 		showAutocomplete = filteredSuggestions.length > 0;
 		hoverIndex = -1;
+		focusedChipIndex = -1;
 	}
 
 	function handleFocus() {
@@ -104,6 +163,7 @@
 		// Delay to allow click on autocomplete options
 		setTimeout(() => {
 			showAutocomplete = false;
+			focusedChipIndex = -1;
 		}, 150);
 	}
 
@@ -118,8 +178,15 @@
 		onclick={() => inputElement?.focus()}
 		role="presentation"
 	>
-		{#each tags as tag (tag)}
-			<TagChip name={tag} onremove={() => removeTag(tag)} />
+		{#each tags as tag, i (tag)}
+			<TagChip
+				name={tag}
+				focused={focusedChipIndex === i}
+				onremove={() => removeTag(tag)}
+				onclick={() => {
+					focusedChipIndex = i;
+				}}
+			/>
 		{/each}
 		<input
 			bind:this={inputElement}

@@ -106,7 +106,7 @@ test('searching by tag', async ({ page, createTransaction, tagTransaction }) => 
 
 	// Type a tag name — autocomplete should appear, select it
 	await $search.fill('Hawaii');
-	const hawaiiOption = page.getByRole('option', { name: 'Hawaii' });
+	const hawaiiOption = page.getByRole('option', { name: 'Hawaii', exact: true });
 	await expect(hawaiiOption).toBeVisible();
 	await hawaiiOption.click();
 
