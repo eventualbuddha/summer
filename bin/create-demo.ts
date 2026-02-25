@@ -427,14 +427,12 @@ async function addTransactionsToSurrealDB(
 		const date = startOfMonth.endOf('month').toJSDate();
 		const monthLabel = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-		const [creditFile] = z
-			.tuple([CreatedFileSchema])
-			.parse(
-				await surreal.create('file', {
-					name: `Credit Statement ${monthLabel}`,
-					data: Uint8Array.of()
-				})
-			);
+		const [creditFile] = z.tuple([CreatedFileSchema]).parse(
+			await surreal.create('file', {
+				name: `Credit Statement ${monthLabel}`,
+				data: Uint8Array.of()
+			})
+		);
 		const [creditStatement] = z.tuple([CreatedStatementSchema]).parse(
 			await surreal.create('statement', {
 				account: creditAccountRecord.id,
