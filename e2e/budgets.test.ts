@@ -1,5 +1,6 @@
 import { waitFor } from './utils/helpers';
 import { expect, test } from './utils/surrealdb-test';
+import { Table } from 'surrealdb';
 
 test('view, create, edit, and delete budgets', async ({
 	page,
@@ -47,7 +48,7 @@ test('view, create, edit, and delete budgets', async ({
 
 	// Verify in database (stored as negative cents)
 	await waitFor(async () => {
-		const budgets = await surreal.select('budget');
+		const budgets = await surreal.select(new Table('budget'));
 		return budgets.some((b) => b.name === 'Monthly Food Budget' && b.amount === -80000);
 	});
 

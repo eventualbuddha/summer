@@ -10,7 +10,7 @@ const BODY = z.object({
 export const GET: RequestHandler = async () => {
 	const db = await getDb();
 	const [settings] = await db.query<[{ defaultCategoryId?: string }]>(
-		'SELECT defaultCategory?.id() as defaultCategoryId FROM ONLY settings:global'
+		'SELECT defaultCategory.?.id() as defaultCategoryId FROM ONLY settings:global'
 	);
 	return json({ defaultCategoryId: settings?.defaultCategoryId ?? null });
 };

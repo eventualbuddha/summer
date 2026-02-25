@@ -15,7 +15,7 @@ jobs:
       - name: Start SurrealDB
         uses: surrealdb/setup-surreal@v2
         with:
-          surrealdb_version: v2.6.2
+          surrealdb_version: v3.0.1
       - uses: actions/setup-node@v4
         with:
           node-version: '25'

@@ -6,11 +6,11 @@ DATA_DIR="${SURREALDB_DATA_DIR:-.surrealdb}"
 
 mkdir -p "$DATA_DIR"
 
-# Ensure SurrealDB v2 is installed
+# Ensure SurrealDB v3 is installed
 SURREAL_VER=$(surreal version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
 SURREAL_MAJOR=${SURREAL_VER%%.*}
-if [ "$SURREAL_MAJOR" != "2" ]; then
-  echo "Error: SurrealDB v2 is required (found: ${SURREAL_VER:-not found}). Please install SurrealDB v2." >&2
+if [ "$SURREAL_MAJOR" != "3" ]; then
+  echo "Error: SurrealDB v3 is required (found: ${SURREAL_VER:-not found}). Please install SurrealDB v3." >&2
   exit 1
 fi
 

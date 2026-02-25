@@ -1,5 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
+import { QueryError, type QueryResponse, type QueryResponseFailure } from 'surrealdb';
 import { z } from 'zod';
 
 const BODY = z.object({
@@ -37,8 +38,9 @@ export const POST: RequestHandler = async ({ request }) => {
 	// Decode base64 PDF data to Uint8Array
 	const pdfBytes = Uint8Array.from(atob(body.pdfData), (c) => c.charCodeAt(0));
 
-	const results = await db.queryRaw(
-		`
+	const results: QueryResponse[] = await db
+		.query(
+			`
 BEGIN TRANSACTION;
 
 LET $account = (
@@ -107,35 +109,29 @@ FOR $t IN $transactions {
 
 COMMIT TRANSACTION;
 		`,
-		{
-			source: body.source,
-			accountNumber: body.accountNumber,
-			accountName: body.accountName,
-			accountType: body.accountType,
-			filename: body.filename,
-			pdfData: pdfBytes,
-			statementDate: new Date(body.statementDate),
-			transactions: body.transactions.map((t) => ({
-				...t,
-				date: new Date(t.date)
-			}))
-		}
+			{
+				source: body.source,
+				accountNumber: body.accountNumber,
+				accountName: body.accountName,
+				accountType: body.accountType,
+				filename: body.filename,
+				pdfData: pdfBytes,
+				statementDate: new Date(body.statementDate),
+				transactions: body.transactions.map((t) => ({
+					...t,
+					date: new Date(t.date)
+				}))
+			}
+		)
+		.responses();
+
+	const errors = results.filter((r): r is QueryResponseFailure => !r.success);
+	const primaryError = errors.find(
+		(r) => !(r.error instanceof QueryError && r.error.isNotExecuted)
 	);
 
-	const errors = results.filter((r) => r.status === 'ERR');
-	const errorMessage = errors.find(
-		({ status, result }) => status === 'ERR' && !/failed transaction/.test(result as string)
-	)?.result;
-
 	if (errors.length > 0) {
-		return json(
-			{
-				error:
-					((errorMessage as string)?.replace(/^An error occurred:\s*/, '') as string) ??
-					'Import failed'
-			},
-			{ status: 400 }
-		);
+		return json({ error: primaryError?.error.message ?? 'Import failed' }, { status: 400 });
 	}
 
 	const AccountSchema = z.object({
@@ -148,28 +144,30 @@ COMMIT TRANSACTION;
 	const StatementSchema = z.object({
 		id: z.string().nonempty(),
 		account: z.string().nonempty(),
-		date: z.instanceof(Date),
+		date: z.coerce.date(),
 		file: z.string().nonempty()
 	});
 
-	const [, accountResult, , , , , statementResult] = z
+	const [, , accountResult, , , , , statementResult] = z
 		.tuple([
-			z.unknown(),
+			z.unknown(), // BEGIN TRANSACTION
+			z.unknown(), // LET $account
 			z.object({
-				status: z.union([z.literal('OK'), z.literal('ERR')]),
+				success: z.literal(true),
 				result: AccountSchema
 			}),
-			z.unknown(),
-			z.unknown(),
-			z.unknown(),
-			z.unknown(),
+			z.unknown(), // LET $file
+			z.unknown(), // LET $existingStatements
+			z.unknown(), // IF $existingStatements
+			z.unknown(), // LET $statement
 			z.object({
-				status: z.union([z.literal('OK'), z.literal('ERR')]),
+				success: z.literal(true),
 				result: StatementSchema
 			}),
-			z.unknown(),
-			z.unknown(),
-			z.unknown()
+			z.unknown(), // LET $defaultCategory
+			z.unknown(), // IF !$defaultCategory
+			z.unknown(), // FOR $t
+			z.unknown() // COMMIT TRANSACTION
 		])
 		.parse(results);
 
