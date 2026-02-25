@@ -38,7 +38,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				color: body.color
 			}
 		: { name: body.name, emoji: body.emoji, color: body.color };
-	await db.create(new Table('category'), record);
+	await db.create(new Table('category')).content(record);
 	// Re-fetch to get the ordinal and normalized id
 	const [categories] = await db.query(
 		'SELECT id.id() AS id, name, emoji, color, ordinal FROM category ORDER BY ordinal DESC LIMIT 1'

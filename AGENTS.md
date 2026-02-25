@@ -6,7 +6,7 @@ Summer is a personal finance application for tracking transactions, managing bud
 
 - **Frontend**: SvelteKit + Svelte 5 (TypeScript, Tailwind CSS 4)
 - **Backend**: SvelteKit API routes + Express server (`server.js`)
-- **Database**: SurrealDB v2 (graph database)
+- **Database**: SurrealDB v3 (graph database)
 - **Testing**: Playwright (e2e), Vitest (unit)
 - **Linting**: Prettier + ESLint, enforced via pre-commit hooks (husky + lint-staged)
 

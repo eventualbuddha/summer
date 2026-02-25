@@ -13,7 +13,7 @@ export const GET: RequestHandler = async ({ params }) => {
 			statement.account.name as accountName,
 			statement.date as statementDate,
 			statement.file.id() as fileId
-		FROM ONLY type::thing('transaction', $id)`,
+		FROM ONLY type::record('transaction', $id)`,
 		{ id: transactionId.id }
 	);
 

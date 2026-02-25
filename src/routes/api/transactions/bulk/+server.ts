@@ -1,6 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
-import { RecordId } from 'surrealdb';
+import { QueryError, RecordId, type QueryResponse, type QueryResponseFailure } from 'surrealdb';
 import { z } from 'zod';
 
 const BODY = z.object({
@@ -59,28 +59,31 @@ export const PATCH: RequestHandler = async ({ request }) => {
 	}
 
 	if ('tags' in body && body.tags !== undefined) {
-		const results = await db.queryRaw(
-			`
+		const results: QueryResponse[] = await db
+			.query(
+				`
       BEGIN TRANSACTION;
 
       DELETE tagged WHERE in IN $transactions;
 
       FOR $transaction IN $transactions {
         FOR $name IN $tags {
-          LET $tag = (UPSERT tag SET name = $name WHERE name = $name RETURN VALUE id)[0];
-          RELATE $transaction->tagged->$tag;
+          LET $existing = (SELECT * FROM tag WHERE name = $name LIMIT 1)[0];
+          LET $tag = IF $existing { $existing } ELSE { (CREATE ONLY tag SET name = $name) };
+          RELATE $transaction->tagged->$tag.id;
         };
       };
 
       COMMIT TRANSACTION;
     `,
-			{ transactions: transactionRecordIds, tags: body.tags }
-		);
+				{ transactions: transactionRecordIds, tags: body.tags }
+			)
+			.responses();
 
-		const errors = results.filter(
-			(r) => r.status === 'ERR' && !/failed transaction/.test(r.result as string)
-		);
-		if (errors.length > 0) {
+		const hasErrors = results
+			.filter((r): r is QueryResponseFailure => !r.success)
+			.some((r) => !(r.error instanceof QueryError && r.error.isNotExecuted));
+		if (hasErrors) {
 			return json({ error: 'Failed to update tags' }, { status: 500 });
 		}
 	}

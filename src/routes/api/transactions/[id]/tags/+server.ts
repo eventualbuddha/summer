@@ -1,6 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
-import { RecordId } from 'surrealdb';
+import { QueryError, RecordId, type QueryResponse, type QueryResponseFailure } from 'surrealdb';
 import { z } from 'zod';
 
 const BODY = z.object({
@@ -21,38 +21,38 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 	const db = await getDb();
 	const transaction = new RecordId('transaction', params.id!);
 
-	const results = await db.queryRaw(
-		`
+	const results: QueryResponse[] = await db
+		.query(
+			`
       BEGIN TRANSACTION;
 
       DELETE $transaction->tagged;
 
       FOR $name IN $tags {
-          LET $tag = (UPSERT tag SET name = $name WHERE name = $name RETURN VALUE id)[0];
-          RELATE $transaction->tagged->$tag;
+          LET $existing = (SELECT * FROM tag WHERE name = $name LIMIT 1)[0];
+          LET $tag = IF $existing { $existing } ELSE { (CREATE ONLY tag SET name = $name) };
+          RELATE $transaction->tagged->$tag.id;
       };
 
       SELECT ->tagged->tag.name AS tags FROM ONLY $transaction;
 
       COMMIT TRANSACTION;
     `,
-		{ transaction, tags }
+			{ transaction, tags }
+		)
+		.responses();
+
+	const errors = results.filter((r): r is QueryResponseFailure => !r.success);
+	const primaryError = errors.find(
+		(r) => !(r.error instanceof QueryError && r.error.isNotExecuted)
 	);
 
-	const errors = results.filter((r) => r.status === 'ERR');
-	const errorMessage = errors.find(
-		({ status, result }) => status === 'ERR' && !/failed transaction/.test(result as string)
-	)?.result;
-
 	if (errors.length > 0) {
-		return json(
-			{ error: (errorMessage as string)?.replace(/^An error occurred:\s*/, '') ?? 'Unknown error' },
-			{ status: 400 }
-		);
+		return json({ error: primaryError?.error.message ?? 'Unknown error' }, { status: 400 });
 	}
 
 	const resultSchema = z.object({
-		status: z.literal('OK'),
+		success: z.literal(true),
 		result: z.object({ tags: z.array(z.string()) })
 	});
 
@@ -64,6 +64,6 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 		}
 	}
 
-	const errorResult = results.find((result) => result.status === 'ERR');
+	const errorResult = results.find((result) => !result.success);
 	return json({ error: errorResult }, { status: 500 });
 };

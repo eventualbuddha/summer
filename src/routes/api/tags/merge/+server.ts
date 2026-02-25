@@ -27,12 +27,12 @@ export const POST: RequestHandler = async ({ request }) => {
 	await db.query(
 		`BEGIN TRANSACTION;
 		FOR $source IN $sources {
-			FOR $rel IN (SELECT * FROM tagged WHERE out = $source) {
+			LET $rels = (SELECT * FROM tagged WHERE out = $source);
+			FOR $rel IN $rels {
 				LET $txn = $rel.in;
-				LET $yr = $rel.year;
 				LET $alreadyTagged = (SELECT count() FROM tagged WHERE in = $txn AND out = $targetTag GROUP ALL)[0].count ?? 0;
 				IF $alreadyTagged = 0 {
-					RELATE $txn->tagged->$targetTag SET year = $yr;
+					RELATE $txn->tagged->$targetTag;
 				};
 			};
 			DELETE tagged WHERE out = $source;

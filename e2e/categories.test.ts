@@ -1,4 +1,4 @@
-import Surreal, { RecordId } from 'surrealdb';
+import { Surreal, RecordId } from 'surrealdb';
 import { waitFor } from './utils/helpers';
 import { type Category, expect, test } from './utils/surrealdb-test';
 

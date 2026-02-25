@@ -4,7 +4,7 @@
 
 DEFINE TABLE category SCHEMAFULL;
 DEFINE FIELD name ON TABLE category TYPE string;
-DEFINE FIELD ordinal ON TABLE category TYPE number DEFAULT ((SELECT ordinal FROM category).ordinal.max() ?? 0) + 1;
+DEFINE FIELD ordinal ON TABLE category TYPE number DEFAULT (array::max((SELECT VALUE ordinal FROM category)) ?? 0) + 1;
 DEFINE FIELD color ON TABLE category TYPE string;
 DEFINE FIELD emoji ON TABLE category TYPE string;
 DEFINE INDEX categoryOrdinalIndex ON TABLE category COLUMNS ordinal UNIQUE;
@@ -40,8 +40,6 @@ DEFINE FIELD type ON TABLE transaction TYPE string;
 DEFINE INDEX transactionDateIndex ON TABLE transaction COLUMNS date;
 DEFINE INDEX transactionCategoryIndex ON TABLE transaction COLUMNS category;
 DEFINE INDEX transactionDateCategoryIndex ON TABLE transaction COLUMNS date, category;
-DEFINE INDEX transactionStatementDateIndex ON TABLE transaction COLUMNS statement.date;
-DEFINE INDEX transactionStatementDateCategoryIndex ON TABLE transaction COLUMNS statement.date, category;
 
 DEFINE TABLE tagged SCHEMAFULL TYPE RELATION IN transaction OUT tag;
 DEFINE FIELD year ON TABLE tagged TYPE option<number>;

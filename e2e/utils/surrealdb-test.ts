@@ -1,5 +1,5 @@
 import { test as base, expect } from '@playwright/test';
-import Surreal, { RecordId } from 'surrealdb';
+import { Surreal, Table, RecordId } from 'surrealdb';
 import { waitFor } from './helpers';
 import { applyMigrations } from '../../src/lib/server/migrations';
 import assert from 'node:assert';
@@ -8,6 +8,12 @@ export { expect };
 
 const SURREALDB_URL = process.env.SURREALDB_URL;
 assert(SURREALDB_URL, 'SURREALDB_URL is not set');
+
+async function clearAllData(surreal: Surreal) {
+	await surreal.query(
+		'DELETE account; DELETE statement; DELETE file; DELETE category; DELETE transaction; DELETE tag; DELETE tagged; DELETE budget; DELETE settings;'
+	);
+}
 
 export interface Account {
 	id: RecordId<'account'>;
@@ -79,104 +85,110 @@ export const test = base.extend<{
 	surreal: async ({}, use) => {
 		const surreal = new Surreal();
 		await surreal.connect(SURREALDB_URL);
-		await surreal.query('REMOVE NAMESPACE IF EXISTS e2e');
+		await surreal.query('DEFINE NAMESPACE IF NOT EXISTS e2e');
+		await surreal.use({ namespace: 'e2e' });
+		await surreal.query('DEFINE DATABASE IF NOT EXISTS e2e');
 		await surreal.use({ namespace: 'e2e', database: 'e2e' });
 
-		// Apply migrations to set up schema
+		// Apply migrations to set up schema (idempotent)
 		await applyMigrations(surreal);
+
+		// Clear all data for a clean test start
+		await clearAllData(surreal);
 
 		await use(surreal);
 
-		await surreal.query('REMOVE NAMESPACE IF EXISTS e2e');
+		// Clear data after test (leave namespace/schema intact for tests without surreal fixture)
+		await clearAllData(surreal);
 		await surreal.close();
 	},
 
 	createAccount: async ({ surreal }, use) => {
-		await use(
-			async (data = {}) =>
-				(
-					await surreal.create('account', {
-						id: data.id,
-						name: data.name ?? 'Credit Card',
-						number: data.number ?? '0123456789',
-						type: data.type ?? 'credit'
-					})
-				)[0] as unknown as Account
-		);
+		await use(async (data = {}) => {
+			const record: Record<string, unknown> = {
+				name: data.name ?? 'Credit Card',
+				number: data.number ?? '0123456789',
+				type: data.type ?? 'credit'
+			};
+			if (data.id !== undefined) record.id = data.id;
+			return (
+				(await surreal.create(new Table('account')).content(record)) as unknown as Account[]
+			)[0];
+		});
 	},
 
 	createStatement: async ({ surreal, createAccount, createFile }, use) => {
-		await use(
-			async (data = {}) =>
-				(
-					await surreal.create('statement', {
-						id: data.id,
-						account: data.account ?? (await createAccount({})).id,
-						date: data.date ?? new Date(),
-						file: data.file ?? (await createFile({})).id
-					})
-				)[0] as unknown as Statement
-		);
+		await use(async (data = {}) => {
+			const record: Record<string, unknown> = {
+				account: data.account ?? (await createAccount({})).id,
+				date: data.date ?? new Date(),
+				file: data.file ?? (await createFile({})).id
+			};
+			if (data.id !== undefined) record.id = data.id;
+			return (
+				(await surreal.create(new Table('statement')).content(record)) as unknown as Statement[]
+			)[0];
+		});
 	},
 
 	createFile: async ({ surreal }, use) => {
-		await use(
-			async (data = {}) =>
-				(
-					await surreal.create('file', {
-						id: data.id,
-						name: data.name ?? 'file.pdf',
-						data: data.data ?? Uint8Array.of().buffer
-					})
-				)[0] as unknown as File
-		);
+		await use(async (data = {}) => {
+			const record: Record<string, unknown> = {
+				name: data.name ?? 'file.pdf',
+				data: data.data ?? Uint8Array.of().buffer
+			};
+			if (data.id !== undefined) record.id = data.id;
+			return ((await surreal.create(new Table('file')).content(record)) as unknown as File[])[0];
+		});
 	},
 
 	createCategory: async ({ surreal }, use) => {
-		await use(
-			async (data = {}) =>
-				(
-					await surreal.create('category', {
-						id: data.id,
-						name: data.name ?? 'General',
-						color: data.color ?? 'red-200',
-						emoji: data.emoji ?? '🛍️',
-						ordinal: data.ordinal
-					})
-				)[0] as unknown as Category
-		);
+		await use(async (data = {}) => {
+			const record: Record<string, unknown> = {
+				name: data.name ?? 'General',
+				color: data.color ?? 'red-200',
+				emoji: data.emoji ?? '🛍️'
+			};
+			if (data.id !== undefined) record.id = data.id;
+			if (data.ordinal !== undefined) record.ordinal = data.ordinal;
+			return (
+				(await surreal.create(new Table('category')).content(record)) as unknown as Category[]
+			)[0];
+		});
 	},
 
 	createTransaction: async ({ surreal, createStatement, createCategory }, use) => {
 		await use(async (data = {}) => {
 			const date = data.date ?? new Date();
+			const record: Record<string, unknown> = {
+				amount: data.amount ?? -100,
+				statement: data.statement ?? (await createStatement({ date })).id,
+				category: data.category ?? (await createCategory()).id,
+				date,
+				statementDescription: data.statementDescription ?? 'STATEMENT DESCRIPTION',
+				type: data.type ?? 'unknown'
+			};
+			if (data.id !== undefined) record.id = data.id;
+			if (data.description !== undefined) record.description = data.description;
 			return (
-				await surreal.create('transaction', {
-					id: data.id,
-					amount: data.amount ?? -100,
-					statement: data.statement ?? (await createStatement({ date })).id,
-					category: data.category ?? (await createCategory()).id,
-					date,
-					description: data.description,
-					statementDescription: data.statementDescription ?? 'STATEMENT DESCRIPTION',
-					type: data.type ?? 'unknown'
-				})
-			)[0] as unknown as Transaction;
+				(await surreal.create(new Table('transaction')).content(record)) as unknown as Transaction[]
+			)[0];
 		});
 	},
 
 	createBudget: async ({ surreal, createCategory }, use) => {
 		await use(async (data = {}) => {
 			const categories = data.categories ?? [(await createCategory()).id];
+			const record: Record<string, unknown> = {
+				name: data.name ?? '2025 Budget',
+				year: data.year ?? 2025,
+				amount: data.amount ?? 1000,
+				categories
+			};
+			if (data.id !== undefined) record.id = data.id;
 			return (
-				await surreal.create('budget', {
-					id: data.id,
-					name: data.name ?? '2025 Budget',
-					year: data.year ?? 2025,
-					amount: data.amount ?? 1000,
-					categories
-				})
-			)[0] as unknown as Budget;
+				(await surreal.create(new Table('budget')).content(record)) as unknown as Budget[]
+			)[0];
 		});
 	},
 
@@ -184,8 +196,8 @@ export const test = base.extend<{
 		await use(async (transactionId, name) => {
 			const tag =
 				(await surreal.query<[[Tag]]>('SELECT * FROM tag WHERE name = $name', { name }))[0]?.[0] ??
-				((await surreal.create('tag', { name }))?.[0] as unknown as Tag);
-			await surreal.relate(transactionId, 'tagged', tag.id);
+				((await surreal.create(new Table('tag')).content({ name })) as unknown as Tag[])[0];
+			await surreal.relate(transactionId, new Table('tagged'), tag.id);
 			const result = await surreal.query<[[{ tags: string[] }]]>(
 				'SELECT ->tagged->tag.name as tags FROM $transactionId',
 				{ transactionId }
