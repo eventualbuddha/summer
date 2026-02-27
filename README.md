@@ -1,8 +1,43 @@
 # <img src="static/icon-transparent.png" alt="Summer Logo" width="36"> Summer
 
-Summer is a terrible pun, and also the app I use to track my spending. You probably should not use it. In case you're curious, here's what it looks like:
+Summer is the app I use to track spending, manage budgets, and review trends over time.
 
-<img src="static/screenshot.png" alt="Screenshot of Summer app interface with demo data" width="800">
+Here are a few views from the app (click any image to open the full-size version):
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="static/screenshots/transactions-filtered-with-category-dropdown.png">
+        <img src="static/screenshots/transactions-filtered-with-category-dropdown.png" alt="Transactions screen with filters applied and category dropdown open" width="380">
+      </a>
+      <br>
+      <sub>Transactions: filtered + category dropdown</sub>
+    </td>
+    <td align="center">
+      <a href="static/screenshots/transactions-dark-mode.png">
+        <img src="static/screenshots/transactions-dark-mode.png" alt="Transactions screen in dark mode" width="380">
+      </a>
+      <br>
+      <sub>Transactions: dark mode</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="static/screenshots/budget-reports-monthly.png">
+        <img src="static/screenshots/budget-reports-monthly.png" alt="Budget reports monthly chart view" width="380">
+      </a>
+      <br>
+      <sub>Budget reports: monthly chart</sub>
+    </td>
+    <td align="center">
+      <a href="static/screenshots/transactions-bulk-edit-modal.png">
+        <img src="static/screenshots/transactions-bulk-edit-modal.png" alt="Bulk transaction edit modal" width="380">
+      </a>
+      <br>
+      <sub>Transactions: bulk edit modal</sub>
+    </td>
+  </tr>
+</table>
 
 ## Setup
 
@@ -49,6 +84,26 @@ npm run dev
 ```
 
 This automatically starts a local SurrealDB instance and the Vite dev server.
+
+## Screenshot Generation
+
+README screenshots are generated with Playwright using the `create-demo` dataset.
+
+- Generate local screenshots into `static/screenshots/`:
+  ```bash
+  npm run screenshots:readme
+  ```
+- Generate screenshots in CI artifact format:
+  ```bash
+  npm run test:screenshots
+  ```
+
+The screenshot suite captures:
+
+- Transactions (filtered view with Categories dropdown open)
+- Transactions (dark mode)
+- Budget Reports (monthly chart view for the previous complete year)
+- Bulk Edit modal
 
 ## License
 
