@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { argv, exit, stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
-import { RecordId, Surreal } from 'surrealdb';
+import { RecordId, Surreal, Table } from 'surrealdb';
 import { serializeRecord } from '../src/lib/serialization.ts';
 
 process.env.TZ = 'UTC';
@@ -78,7 +78,7 @@ export async function backup({
 	for (const table of Object.keys(tables)) {
 		const file = createWriteStream(join(backupPath, `${table}.jsonl`));
 
-		for (const record of await db.select(table)) {
+		for (const record of await db.select(new Table(table))) {
 			if (record.in instanceof RecordId && record.out instanceof RecordId) {
 				await new Promise((resolve) => file.write('RELATE: ', resolve));
 			}
@@ -87,7 +87,9 @@ export async function backup({
 			progress?.(table);
 		}
 
-		file.end();
+		await new Promise<void>((resolve, reject) =>
+			file.end((err) => (err ? reject(err) : resolve()))
+		);
 	}
 
 	await db.close();

@@ -1,6 +1,6 @@
 services:
   surrealdb:
-    image: surrealdb/surrealdb:v2.6.2
+    image: surrealdb/surrealdb:v3.0.1
     container_name: summer-surrealdb
     restart: unless-stopped
     user: '1000:1000'
@@ -8,7 +8,7 @@ services:
       - '8001:8000'
     volumes:
       - /home/brian/summer-data:/data
-    command: start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all file:/data
+    command: start --log info --bind 0.0.0.0:8000 --unauthenticated --allow-all surrealkv:/data
     healthcheck:
       test: [CMD, /surreal, isready]
       interval: 2s
