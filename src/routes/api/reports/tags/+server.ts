@@ -26,44 +26,31 @@ export const GET: RequestHandler = async () => {
 		)
 		.parse(tagSpending);
 
-	interface TagYearAmount {
-		tagName: string;
-		year: number;
-		amount: number;
-	}
+	const spendingByTagAndYear: Record<string, Record<number, number>> = {};
+	const tagNameSet = new Set<string>();
+	const yearSet = new Set<number>();
 
-	const flatData: TagYearAmount[] = [];
 	rawData.forEach((item) => {
 		const tagNames = Array.isArray(item.tagNames) ? item.tagNames : [item.tagNames];
+		yearSet.add(item.year);
+
 		tagNames.forEach((tagName) => {
-			if (tagName) {
-				flatData.push({ tagName, year: item.year, amount: item.amount });
-			}
+			if (!tagName) return;
+			tagNameSet.add(tagName);
+			spendingByTagAndYear[tagName] ??= {};
+			spendingByTagAndYear[tagName]![item.year] =
+				(spendingByTagAndYear[tagName]![item.year] ?? 0) + item.amount;
 		});
 	});
 
-	const aggregated = new Map<string, number>();
-	flatData.forEach((item) => {
-		const key = `${item.tagName}|${item.year}`;
-		aggregated.set(key, (aggregated.get(key) || 0) + item.amount);
-	});
-
-	const parsedSpending = Array.from(aggregated.entries()).map(([key, total]) => {
-		const [tagName, yearStr] = key.split('|');
-		return { tagName: tagName!, year: parseInt(yearStr!), total };
-	});
-
-	const tagNames = Array.from(new Set(parsedSpending.map((s) => s.tagName))).sort();
-	const years = Array.from(new Set(parsedSpending.map((s) => s.year))).sort((a, b) => b - a);
-
-	const spendingByTagAndYear: Record<string, Record<number, number>> = {};
-	tagNames.forEach((tagName) => {
-		spendingByTagAndYear[tagName] = {};
-		years.forEach((year) => {
-			const spending = parsedSpending.find((s) => s.tagName === tagName && s.year === year);
-			spendingByTagAndYear[tagName]![year] = spending?.total || 0;
-		});
-	});
+	const tagNames = Array.from(tagNameSet).sort();
+	const years = Array.from(yearSet).sort((a, b) => b - a);
+	for (const tagName of tagNames) {
+		spendingByTagAndYear[tagName] ??= {};
+		for (const year of years) {
+			spendingByTagAndYear[tagName]![year] ??= 0;
+		}
+	}
 
 	return json({ tagNames, years, spendingByTagAndYear });
 };

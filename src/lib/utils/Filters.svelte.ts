@@ -11,8 +11,10 @@ export class Filters {
 	searchFilters: SearchFilter[] = $state([]);
 	#stickyTransactionIds: string[] = $state([]);
 
-	constructor() {
-		this.#enableResetStickyTransactionsEffect();
+	constructor({ enableStickyResetEffect = true }: { enableStickyResetEffect?: boolean } = {}) {
+		if (enableStickyResetEffect) {
+			this.#enableResetStickyTransactionsEffect();
+		}
 	}
 
 	#enableResetStickyTransactionsEffect() {
@@ -31,6 +33,10 @@ export class Filters {
 
 	addStickyTransactionId(id: string): void {
 		this.#stickyTransactionIds.push(id);
+	}
+
+	clearStickyTransactionIds(): void {
+		this.#stickyTransactionIds = [];
 	}
 
 	get stickyTransactionIds(): Set<string> {

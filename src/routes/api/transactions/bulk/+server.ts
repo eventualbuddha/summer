@@ -3,11 +3,19 @@ import { getDb } from '$lib/server/db';
 import { QueryError, RecordId, type QueryResponse, type QueryResponseFailure } from 'surrealdb';
 import { z } from 'zod';
 
+function isValidDateTimeString(value: string): boolean {
+	return !Number.isNaN(new Date(value).getTime());
+}
+
 const BODY = z.object({
 	transactionIds: z.array(z.string()),
 	description: z.string().optional(),
 	categoryId: z.string().nullable().optional(),
-	effectiveDate: z.string().nullable().optional(),
+	effectiveDate: z
+		.string()
+		.refine(isValidDateTimeString, { message: 'effectiveDate must be a valid datetime string' })
+		.nullable()
+		.optional(),
 	tags: z.array(z.string()).optional()
 });
 
@@ -24,68 +32,68 @@ export const PATCH: RequestHandler = async ({ request }) => {
 	const body = parsedBody.data;
 	const db = await getDb();
 	const transactionRecordIds = body.transactionIds.map((id) => new RecordId('transaction', id));
-
-	if ('description' in body) {
-		await db.query('UPDATE $transactions SET description = $description', {
-			transactions: transactionRecordIds,
-			description: body.description ?? ''
-		});
-	}
-
-	if ('categoryId' in body) {
-		if (body.categoryId) {
-			await db.query('UPDATE $transactions SET category = $category', {
-				transactions: transactionRecordIds,
-				category: new RecordId('category', body.categoryId)
-			});
-		} else {
-			await db.query('UPDATE $transactions SET category = none', {
-				transactions: transactionRecordIds
-			});
-		}
-	}
-
-	if ('effectiveDate' in body) {
-		if (body.effectiveDate) {
-			await db.query('UPDATE $transactions SET effectiveDate = <datetime>$effectiveDate', {
-				transactions: transactionRecordIds,
-				effectiveDate: body.effectiveDate
-			});
-		} else {
-			await db.query('UPDATE $transactions SET effectiveDate = none', {
-				transactions: transactionRecordIds
-			});
-		}
-	}
-
-	if ('tags' in body && body.tags !== undefined) {
-		const results: QueryResponse[] = await db
-			.query(
-				`
+	// Keep this as a single query transaction: the app uses SurrealDB over HTTP,
+	// so transaction state is not safe to spread across multiple separate requests.
+	const results: QueryResponse[] = await db
+		.query(
+			`
       BEGIN TRANSACTION;
 
-      DELETE tagged WHERE in IN $transactions;
+      IF $updateDescription {
+        UPDATE $transactions SET description = $description;
+      };
 
-      FOR $transaction IN $transactions {
-        FOR $name IN $tags {
-          LET $existing = (SELECT * FROM tag WHERE name = $name LIMIT 1)[0];
-          LET $tag = IF $existing { $existing } ELSE { (CREATE ONLY tag SET name = $name) };
-          RELATE $transaction->tagged->$tag.id;
+      IF $updateCategory {
+        IF $setCategoryValue {
+          UPDATE $transactions SET category = $category;
+        } ELSE {
+          UPDATE $transactions SET category = NONE;
+        };
+      };
+
+      IF $updateEffectiveDate {
+        IF $setEffectiveDateValue {
+          UPDATE $transactions SET effectiveDate = <datetime>$effectiveDate;
+        } ELSE {
+          UPDATE $transactions SET effectiveDate = NONE;
+        };
+      };
+
+      IF $updateTags {
+        DELETE tagged WHERE in IN $transactions;
+
+        FOR $transaction IN $transactions {
+          FOR $name IN $tags {
+            LET $existing = (SELECT * FROM tag WHERE name = $name LIMIT 1)[0];
+            LET $tag = IF $existing { $existing } ELSE { (CREATE ONLY tag SET name = $name) };
+            RELATE $transaction->tagged->$tag.id;
+          };
         };
       };
 
       COMMIT TRANSACTION;
     `,
-				{ transactions: transactionRecordIds, tags: body.tags }
-			)
-			.responses();
+			{
+				transactions: transactionRecordIds,
+				updateDescription: 'description' in body,
+				description: body.description ?? '',
+				updateCategory: 'categoryId' in body,
+				setCategoryValue: Boolean(body.categoryId),
+				category: body.categoryId ? new RecordId('category', body.categoryId) : null,
+				updateEffectiveDate: 'effectiveDate' in body,
+				setEffectiveDateValue: Boolean(body.effectiveDate),
+				effectiveDate: body.effectiveDate ?? null,
+				updateTags: 'tags' in body && body.tags !== undefined,
+				tags: body.tags ?? []
+			}
+		)
+		.responses();
 
-		const hasErrors = results
-			.filter((r): r is QueryResponseFailure => !r.success)
-			.some((r) => !(r.error instanceof QueryError && r.error.isNotExecuted));
-		if (hasErrors) {
-			return json({ error: 'Failed to update tags' }, { status: 500 });
-		}
+	const hasErrors = results
+		.filter((r): r is QueryResponseFailure => !r.success)
+		.some((r) => !(r.error instanceof QueryError && r.error.isNotExecuted));
+	if (hasErrors) {
+		return json({ error: 'Failed to update transactions' }, { status: 500 });
 	}
 
 	return json({ ok: true });

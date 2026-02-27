@@ -194,21 +194,21 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const db = await getDb();
 	const query = `
-		let $transactions = (
-			SELECT id.id(),
-				date,
-				effectiveDate,
-				amount,
-				category AND category.id() as categoryId,
-				category AND category.ordinal as categoryOrdinal,
-				statement.account.id() as accountId,
-				description,
-				statementDescription,
-				statement.id() as statementId,
-				(effectiveDate ?? statement.date).year() as year,
-        ->tagged->tag.name as tags,
-				${orderByFields}
-			FROM transaction
+			let $transactions = (
+				SELECT id.id(),
+					date,
+					effectiveDate,
+					amount,
+					category AND category.id() as categoryId,
+					category AND category.ordinal as categoryOrdinal,
+					statement AND statement.account AND statement.account.id() as accountId,
+					description,
+					statementDescription,
+					statement AND statement.id() as statementId,
+					(effectiveDate ?? statement.date) AND (effectiveDate ?? statement.date).year() as year,
+	        ->tagged->tag.name as tags,
+					${orderByFields}
+				FROM transaction
 			WHERE id.id() IN $stickyTransactionIds
 				OR (
 					(effectiveDate ?? statement.date).year() IN $years

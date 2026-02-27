@@ -142,12 +142,16 @@ export function createBudgetLookupMap(
 	budgetNames: string[],
 	years: number[]
 ): Record<string, Record<number, Budget | null>> {
+	const budgetsByNameYear = new Map<string, Budget>();
+	for (const budget of budgets) {
+		budgetsByNameYear.set(`${budget.name}\0${budget.year}`, budget);
+	}
+
 	const lookup: Record<string, Record<number, Budget | null>> = {};
 	budgetNames.forEach((name) => {
 		lookup[name] = {};
 		years.forEach((year) => {
-			const budget = budgets.find((b) => b.name === name && b.year === year);
-			lookup[name]![year] = budget || null;
+			lookup[name]![year] = budgetsByNameYear.get(`${name}\0${year}`) ?? null;
 		});
 	});
 	return lookup;
@@ -158,12 +162,16 @@ export function createActualSpendingLookupMap(
 	budgetNames: string[],
 	years: number[]
 ): Record<string, Record<number, number>> {
+	const spendingByNameYear = new Map<string, number>();
+	for (const spending of actualSpending) {
+		spendingByNameYear.set(`${spending.budgetName}\0${spending.budgetYear}`, spending.actualAmount);
+	}
+
 	const lookup: Record<string, Record<number, number>> = {};
 	budgetNames.forEach((name) => {
 		lookup[name] = {};
 		years.forEach((year) => {
-			const spending = actualSpending.find((s) => s.budgetName === name && s.budgetYear === year);
-			lookup[name]![year] = spending?.actualAmount || 0;
+			lookup[name]![year] = spendingByNameYear.get(`${name}\0${year}`) ?? 0;
 		});
 	});
 	return lookup;
@@ -174,16 +182,22 @@ export function createMonthlySpendingLookupMap(
 	budgetNames: string[],
 	years: number[]
 ): Record<string, Record<number, Record<number, number>>> {
+	const spendingByNameYearMonth = new Map<string, number>();
+	for (const spending of monthlySpending) {
+		spendingByNameYearMonth.set(
+			`${spending.budgetName}\0${spending.budgetYear}\0${spending.month}`,
+			spending.monthlyAmount
+		);
+	}
+
 	const lookup: Record<string, Record<number, Record<number, number>>> = {};
 	budgetNames.forEach((name) => {
 		lookup[name] = {};
 		years.forEach((year) => {
 			lookup[name]![year] = {};
 			for (let month = 1; month <= 12; month++) {
-				const spending = monthlySpending.find(
-					(s) => s.budgetName === name && s.budgetYear === year && s.month === month
-				);
-				lookup[name]![year]![month] = spending?.monthlyAmount || 0;
+				lookup[name]![year]![month] =
+					spendingByNameYearMonth.get(`${name}\0${year}\0${month}`) ?? 0;
 			}
 		});
 	});

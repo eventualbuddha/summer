@@ -285,7 +285,7 @@ export class State {
 
 	#updateFiltersWith(callback: (filters: FilterState) => void): void {
 		if (!this.filters) return;
-		this.filters.stickyTransactionIds.clear();
+		this.filters.clearStickyTransactionIds();
 		callback(this.filters);
 	}
 
