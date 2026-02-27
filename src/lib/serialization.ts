@@ -30,7 +30,8 @@ export function parseRecord(raw: string): {
 		}
 
 		if (value.type === 'ArrayBuffer' && value.encoding === 'base64') {
-			return Buffer.from(value.value, 'base64').buffer;
+			const buf = Buffer.from(value.value, 'base64');
+			return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 		}
 
 		if (value.type === 'Date' && value.encoding === 'ISO') {

@@ -87,7 +87,9 @@ export async function backup({
 			progress?.(table);
 		}
 
-		file.end();
+		await new Promise<void>((resolve, reject) =>
+			file.end((err) => (err ? reject(err) : resolve()))
+		);
 	}
 
 	await db.close();
