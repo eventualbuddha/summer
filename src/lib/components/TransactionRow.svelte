@@ -25,6 +25,9 @@
 	let isModalOpen = $state(false);
 	let isSelectingCategory = $state(false);
 	let rowElement = $state<HTMLDivElement>();
+	const currentCategory = $derived(
+		categories.find((category) => category.id === transaction.categoryId) ?? NONE_CATEGORY
+	);
 
 	function focusAdjacentRow(direction: 1 | -1) {
 		if (!rowElement) return;
@@ -139,6 +142,7 @@
 	async function setCategory(category: Category | undefined) {
 		await s.setCategory(transaction, category);
 		isSelectingCategory = false;
+		requestAnimationFrame(() => rowElement?.focus());
 	}
 
 	function handleRowClick() {
@@ -235,7 +239,7 @@
 		<CategorySelect
 			bind:isOpen={isSelectingCategory}
 			bind:value={
-				() => categories.find((c) => c.id === transaction.categoryId),
+				() => categories.find((category) => category.id === transaction.categoryId),
 				(newCategory) => setCategory(newCategory)
 			}
 			{categories}
@@ -244,12 +248,9 @@
 				<button
 					data-transaction-category-trigger
 					onclick={() => setIsOpen(!isOpen)}
-					aria-label="Category"
+					aria-label={currentCategory.name}
 				>
-					<CategoryPill
-						category={categories.find((c) => c.id === transaction.categoryId) ?? NONE_CATEGORY}
-						style="short"
-					/>
+					<CategoryPill category={currentCategory} style="short" />
 				</button>
 			{/snippet}
 		</CategorySelect>

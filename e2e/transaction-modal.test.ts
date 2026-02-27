@@ -383,6 +383,44 @@ test('c does not typeahead-select category when opening picker', async ({
 	await expect(page.getByRole('dialog')).not.toBeVisible();
 });
 
+test('keyboard category selection returns focus to edited row', async ({
+	page,
+	createCategory,
+	createTransaction,
+	surreal
+}) => {
+	const food = await createCategory({ name: 'Food', emoji: '🍕' });
+	const utilities = await createCategory({ name: 'Utilities', emoji: '⚡' });
+	const transaction = await createTransaction({
+		category: food.id,
+		statementDescription: 'CATEGORY KEYBOARD FOCUS RETURN',
+		date: new Date(),
+		amount: -300
+	});
+
+	await page.goto('/');
+
+	const row = page.locator('[data-transaction]').first();
+	await row.focus();
+	await expect(row).toBeFocused();
+
+	await page.keyboard.press('c');
+	await expect(page.getByRole('listbox')).toBeVisible();
+
+	await page.keyboard.press('u');
+	await page.keyboard.press('Enter');
+	await expect(page.getByRole('listbox')).not.toBeVisible();
+	await expect(row).toBeFocused();
+
+	await waitFor(async () => {
+		const [[refreshedTransaction]] = await surreal.query<[[{ category?: RecordId }]]>(
+			'select category from transaction where id = $id',
+			{ id: transaction.id }
+		);
+		expect(refreshedTransaction.category).toEqual(utilities.id);
+	});
+});
+
 test('j is ignored by global row bootstrap while category picker is open', async ({
 	page,
 	createTransaction
