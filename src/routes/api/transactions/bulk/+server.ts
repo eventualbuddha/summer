@@ -32,6 +32,8 @@ export const PATCH: RequestHandler = async ({ request }) => {
 	const body = parsedBody.data;
 	const db = await getDb();
 	const transactionRecordIds = body.transactionIds.map((id) => new RecordId('transaction', id));
+	// Keep this as a single query transaction: the app uses SurrealDB over HTTP,
+	// so transaction state is not safe to spread across multiple separate requests.
 	const results: QueryResponse[] = await db
 		.query(
 			`

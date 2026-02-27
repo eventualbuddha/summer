@@ -52,7 +52,6 @@ describe('PATCH /api/transactions/bulk', () => {
 
 		expect(response.status).toBe(200);
 		expect(query).toHaveBeenCalledTimes(1);
-
 		const [surrealql] = query.mock.calls[0]!;
 		expect(String(surrealql)).toContain('BEGIN TRANSACTION');
 		expect(String(surrealql)).toContain('UPDATE $transactions SET description = $description');
