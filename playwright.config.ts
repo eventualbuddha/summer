@@ -3,6 +3,8 @@ import z from 'zod';
 
 const SURREALDB_PORT =
 	z.number().min(1000).int().safeParse(Number(process.env.SURREALDB_PORT)).data ?? 18000;
+const E2E_APP_PORT =
+	z.number().min(1000).int().safeParse(Number(process.env.E2E_APP_PORT)).data ?? 3100;
 const SURREALDB_URL = `http://127.0.0.1:${SURREALDB_PORT}`;
 const SURREALDB_NAMESPACE = process.env.SURREALDB_NAMESPACE ?? 'e2e';
 const SURREALDB_DATABASE = process.env.SURREALDB_DATABASE ?? 'e2e';
@@ -17,9 +19,9 @@ export default defineConfig({
 
 	webServer: [
 		{
-			command: 'npx vite dev --port 3000',
-			port: 3000,
-			reuseExistingServer: true,
+			command: `npx vite dev --host 127.0.0.1 --port ${E2E_APP_PORT} --strictPort`,
+			port: E2E_APP_PORT,
+			reuseExistingServer: false,
 			timeout: 5_000
 		},
 		{
@@ -33,7 +35,7 @@ export default defineConfig({
 	testDir: 'e2e',
 
 	use: {
-		baseURL: 'http://localhost:3000',
+		baseURL: `http://127.0.0.1:${E2E_APP_PORT}`,
 		video: 'retain-on-failure'
 	},
 

@@ -47,7 +47,7 @@ test('category icon does not open modal', async ({ page, createCategory, createT
 	await createTransaction({
 		category: category.id,
 		statementDescription: 'RESTAURANT',
-		date: new Date(2025, 0, 1),
+		date: new Date(),
 		amount: -2000
 	});
 
@@ -58,6 +58,31 @@ test('category icon does not open modal', async ({ page, createCategory, createT
 	await page.getByRole('button', { name: category.name, exact: true }).click();
 
 	// Category dropdown should be visible, but modal should NOT be visible
+	await expect(page.getByRole('listbox')).toBeVisible();
+	await expect(page.getByRole('dialog')).not.toBeVisible();
+});
+
+test('space on focused category button opens category picker, not modal', async ({
+	page,
+	createCategory,
+	createTransaction
+}) => {
+	const category = await createCategory({ name: 'Keyboard Food', emoji: '🍔' });
+	await createTransaction({
+		category: category.id,
+		statementDescription: 'KEYBOARD CATEGORY',
+		date: new Date(),
+		amount: -1200
+	});
+
+	await page.goto('/');
+
+	const categoryButton = page.getByRole('button', { name: category.name, exact: true });
+	await expect(categoryButton).toBeVisible();
+	await categoryButton.focus();
+	await expect(categoryButton).toBeFocused();
+	await categoryButton.press('Space');
+
 	await expect(page.getByRole('listbox')).toBeVisible();
 	await expect(page.getByRole('dialog')).not.toBeVisible();
 });
