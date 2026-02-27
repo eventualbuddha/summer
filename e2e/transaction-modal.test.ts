@@ -282,50 +282,47 @@ test('u from initial load focuses last transaction row', async ({ page, createTr
 	await expect(lastRow).toBeFocused();
 });
 
-test('g from initial load focuses first transaction row', async ({ page, createTransaction }) => {
-	const newerDate = new Date();
-	const olderDate = new Date(newerDate.getTime() - 24 * 60 * 60 * 1000);
-
-	await createTransaction({
-		statementDescription: 'ROW A',
-		date: olderDate,
-		amount: -100
-	});
-	await createTransaction({
-		statementDescription: 'ROW B',
-		date: newerDate,
-		amount: -200
-	});
+test('g from initial load focuses first transaction row in full list', async ({
+	page,
+	createTransaction
+}) => {
+	const baseDate = new Date();
+	for (let i = 0; i < 120; i += 1) {
+		await createTransaction({
+			statementDescription: `INITIAL G ${String(i).padStart(3, '0')}`,
+			date: new Date(baseDate.getTime() - i * 60 * 1000),
+			amount: -(100 + i)
+		});
+	}
 
 	await page.goto('/');
 
-	const firstRow = page.locator('[data-transaction]').first();
+	const firstRow = page.locator('[data-is-first-transaction="true"]');
 	await page.getByRole('heading', { name: 'Transactions' }).click();
 	await page.keyboard.press('g');
+	await expect(firstRow).toBeVisible();
 	await expect(firstRow).toBeFocused();
 });
 
-test('G from initial load focuses last transaction row', async ({ page, createTransaction }) => {
-	const newerDate = new Date();
-	const olderDate = new Date(newerDate.getTime() - 24 * 60 * 60 * 1000);
-
-	await createTransaction({
-		statementDescription: 'ROW A',
-		date: olderDate,
-		amount: -100
-	});
-	await createTransaction({
-		statementDescription: 'ROW B',
-		date: newerDate,
-		amount: -200
-	});
+test('G from initial load focuses last transaction row in full list', async ({
+	page,
+	createTransaction
+}) => {
+	const baseDate = new Date();
+	for (let i = 0; i < 120; i += 1) {
+		await createTransaction({
+			statementDescription: `INITIAL SHIFT G ${String(i).padStart(3, '0')}`,
+			date: new Date(baseDate.getTime() - i * 60 * 1000),
+			amount: -(100 + i)
+		});
+	}
 
 	await page.goto('/');
 
-	const rows = page.locator('[data-transaction]');
-	const lastRow = rows.nth(1);
+	const lastRow = page.locator('[data-is-last-transaction="true"]');
 	await page.getByRole('heading', { name: 'Transactions' }).click();
 	await page.keyboard.press('Shift+G');
+	await expect(lastRow).toBeVisible();
 	await expect(lastRow).toBeFocused();
 });
 
@@ -355,7 +352,7 @@ test('c does not typeahead-select category when opening picker', async ({
 	surreal
 }) => {
 	const food = await createCategory({ name: 'Food', emoji: '🍕' });
-	const childcare = await createCategory({ name: 'Childcare', emoji: '👶' });
+	await createCategory({ name: 'Childcare', emoji: '👶' });
 	const transaction = await createTransaction({
 		category: food.id,
 		statementDescription: 'C SHORTCUT TYPEAHEAD',

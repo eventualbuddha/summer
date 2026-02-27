@@ -294,13 +294,63 @@
 			return canScroll && element.scrollHeight > element.clientHeight + 1;
 		}
 
-		function getScrollParent(element: HTMLElement): HTMLElement {
-			let parent = element.parentElement;
+		function scrollAncestorsToBoundary(element: HTMLElement, edge: 'top' | 'bottom') {
+			const targetTopValue = edge === 'top' ? 0 : Number.MAX_SAFE_INTEGER;
+			let parent: HTMLElement | null = element;
 			while (parent) {
-				if (isScrollable(parent)) return parent;
+				if (isScrollable(parent)) {
+					parent.scrollTop = targetTopValue;
+				}
 				parent = parent.parentElement;
 			}
-			return (document.scrollingElement as HTMLElement) ?? document.documentElement;
+
+			const scrollingElement = document.scrollingElement as HTMLElement | null;
+			if (scrollingElement) {
+				scrollingElement.scrollTop = targetTopValue;
+			}
+		}
+
+		function focusBoundary(edge: 'top' | 'bottom', attempt = 0) {
+			const list = s.transactions?.list ?? [];
+			const targetId = edge === 'top' ? list[0]?.id : list[list.length - 1]?.id;
+
+			const activeId =
+				document.activeElement instanceof HTMLElement
+					? document.activeElement.getAttribute('data-transaction-id')
+					: null;
+			if (targetId && activeId === targetId) {
+				return;
+			}
+
+			if (targetId) {
+				const targetRow = document.querySelector<HTMLElement>(
+					`[data-transaction-id="${CSS.escape(targetId)}"]`
+				);
+				if (targetRow) {
+					targetRow.focus();
+					targetRow.scrollIntoView({ block: 'nearest' });
+				}
+			}
+
+			const refreshedActiveId =
+				document.activeElement instanceof HTMLElement
+					? document.activeElement.getAttribute('data-transaction-id')
+					: null;
+			if (targetId && refreshedActiveId === targetId) {
+				return;
+			}
+
+			const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-transaction]'));
+			if (rows.length > 0 && attempt >= 20) {
+				const row = edge === 'top' ? rows[0] : rows[rows.length - 1];
+				row?.focus();
+				row?.scrollIntoView({ block: 'nearest' });
+				return;
+			}
+
+			if (attempt < 20) {
+				requestAnimationFrame(() => focusBoundary(edge, attempt + 1));
+			}
 		}
 
 		function handleGlobalKeydown(event: KeyboardEvent) {
@@ -343,26 +393,13 @@
 
 			event.preventDefault();
 			if (key === 'g' || isShiftG) {
-				const scrollParent = getScrollParent(rows[0]!);
-				const targetTop = isShiftG
-					? Math.max(0, scrollParent.scrollHeight - scrollParent.clientHeight)
-					: 0;
-				scrollParent.scrollTo({ top: targetTop });
-
-				requestAnimationFrame(() => {
-					requestAnimationFrame(() => {
-						const boundaryRows = Array.from(
-							document.querySelectorAll<HTMLElement>('[data-transaction]')
-						);
-						if (boundaryRows.length === 0) return;
-						const boundaryRow = isShiftG ? boundaryRows[boundaryRows.length - 1] : boundaryRows[0];
-						boundaryRow?.focus();
-					});
-				});
+				const edge = isShiftG ? 'bottom' : 'top';
+				scrollAncestorsToBoundary(rows[0]!, edge);
+				requestAnimationFrame(() => focusBoundary(edge, 0));
 				return;
 			}
 
-			if (key === 'k' || key === 'u' || isShiftG) {
+			if (key === 'k' || key === 'u') {
 				rows[rows.length - 1]?.focus();
 				return;
 			}

@@ -1,8 +1,10 @@
 <script lang="ts">
 	import type { Category, Transaction } from '$lib/db';
 	import type { State } from '$lib/state.svelte';
+	import { NONE_CATEGORY } from '$lib/utils/categories';
 	import { formatTransactionAmount } from '$lib/utils/formatting';
 	import { getContext } from 'svelte';
+	import CategoryPill from './CategoryPill.svelte';
 	import CategorySelect from './CategorySelect.svelte';
 	import TransactionDescription from './TransactionDescription.svelte';
 	import TransactionDetailModal from './TransactionDetailModal.svelte';
@@ -83,18 +85,17 @@
 		}
 
 		function focusBoundary(attempt: number) {
-			if (targetId) {
-				const activeId =
-					document.activeElement instanceof HTMLElement
-						? document.activeElement.getAttribute('data-transaction-id')
-						: null;
-				if (activeId === targetId) {
-					return;
-				}
+			const activeId =
+				document.activeElement instanceof HTMLElement
+					? document.activeElement.getAttribute('data-transaction-id')
+					: null;
+			if (targetId && activeId === targetId) {
+				return;
+			}
 
-				const escapedId = CSS.escape(targetId);
+			if (targetId) {
 				const targetRowById = document.querySelector<HTMLElement>(
-					`[data-transaction-id="${escapedId}"]`
+					`[data-transaction-id="${CSS.escape(targetId)}"]`
 				);
 				if (targetRowById) {
 					targetRowById.focus();
@@ -102,15 +103,23 @@
 				}
 			}
 
+			const refreshedActiveId =
+				document.activeElement instanceof HTMLElement
+					? document.activeElement.getAttribute('data-transaction-id')
+					: null;
+			if (targetId && refreshedActiveId === targetId) {
+				return;
+			}
+
 			const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-transaction]'));
-			if (rows.length > 0 && attempt >= 12) {
+			if (rows.length > 0 && attempt >= 20) {
 				const targetRow = edge === 'top' ? rows[0] : rows[rows.length - 1];
 				targetRow?.focus();
 				targetRow?.scrollIntoView({ block: 'nearest' });
 				return;
 			}
 
-			if (attempt < 12) {
+			if (attempt < 20) {
 				requestAnimationFrame(() => focusBoundary(attempt + 1));
 			}
 		}
@@ -119,7 +128,9 @@
 	}
 
 	function openCategoryPicker() {
-		const categoryButton = rowElement?.querySelector<HTMLButtonElement>('button');
+		const categoryButton = rowElement?.querySelector<HTMLButtonElement>(
+			'[data-transaction-category-trigger]'
+		);
 		if (!categoryButton) return;
 		categoryButton.focus();
 		categoryButton.click();
@@ -228,7 +239,20 @@
 				(newCategory) => setCategory(newCategory)
 			}
 			{categories}
-		/>
+		>
+			{#snippet trigger(isOpen, setIsOpen)}
+				<button
+					data-transaction-category-trigger
+					onclick={() => setIsOpen(!isOpen)}
+					aria-label="Category"
+				>
+					<CategoryPill
+						category={categories.find((c) => c.id === transaction.categoryId) ?? NONE_CATEGORY}
+						style="short"
+					/>
+				</button>
+			{/snippet}
+		</CategorySelect>
 	</div>
 	<div class="flex-1 overflow-hidden text-lg overflow-ellipsis whitespace-nowrap">
 		<TransactionDescription {transaction} />
