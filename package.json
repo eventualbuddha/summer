@@ -16,7 +16,9 @@
 		"lint": "prettier --experimental-cli --check . && eslint .",
 		"test:unit": "TZ=UTC vitest run src",
 		"test": "npm run test:unit && npm run test:e2e",
-		"test:e2e": "TZ=UTC playwright test"
+		"test:e2e": "TZ=UTC playwright test --grep-invert @screenshots",
+		"test:screenshots": "TZ=UTC playwright test --grep @screenshots",
+		"screenshots:readme": "SUMMER_SCREENSHOT_DIR=static/screenshots TZ=UTC playwright test --grep @screenshots"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.4.1",
