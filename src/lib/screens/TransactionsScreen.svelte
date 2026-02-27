@@ -3,6 +3,7 @@
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
 	import Filters from '$lib/components/Filters.svelte';
 	import ImportButton from '$lib/components/ImportButton.svelte';
+	import KeyboardShortcutsModal from '$lib/components/KeyboardShortcutsModal.svelte';
 	import NavigationButton from '$lib/components/NavigationButton.svelte';
 	import SortHeader from '$lib/components/SortHeader.svelte';
 	import TransactionRow from '$lib/components/TransactionRow.svelte';
@@ -285,6 +286,7 @@
 	const selectedYearCount = $derived(s.filters?.years.filter((y) => y.selected).length ?? 0);
 
 	let showBulkEditModal = $state(false);
+	let showKeyboardShortcutsModal = $state(false);
 
 	onMount(() => {
 		function isScrollable(element: HTMLElement): boolean {
@@ -366,6 +368,12 @@
 
 			if (document.querySelector('[role="dialog"]')) return;
 			if (document.querySelector('[role="listbox"]')) return;
+
+			if (event.key === '?') {
+				event.preventDefault();
+				showKeyboardShortcutsModal = true;
+				return;
+			}
 
 			if (event.key.toLowerCase() === 'f') {
 				const filterRow = document.querySelector<HTMLElement>('[data-filters-row]');
@@ -451,6 +459,10 @@
 		categories={s.filters?.categories.map(({ value }) => value) ?? []}
 		onclose={() => (showBulkEditModal = false)}
 	/>
+{/if}
+
+{#if showKeyboardShortcutsModal}
+	<KeyboardShortcutsModal onclose={() => (showKeyboardShortcutsModal = false)} />
 {/if}
 
 <div class="flex min-h-0 flex-1 flex-row gap-6">

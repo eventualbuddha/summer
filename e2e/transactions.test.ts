@@ -572,6 +572,31 @@ test('f focuses the leftmost filter control', async ({ page }) => {
 	await expect(yearFilterButton).toBeFocused();
 });
 
+test('? opens keyboard shortcuts help modal and Escape closes it', async ({ page }) => {
+	await page.goto('/');
+
+	await page.getByRole('heading', { name: 'Transactions' }).click();
+	await page.keyboard.press('Shift+?');
+
+	const dialog = page.getByRole('dialog', { name: 'Keyboard shortcuts' });
+	await expect(dialog).toBeVisible();
+	await expect(dialog.getByText('Move row down/up')).toBeVisible();
+
+	await page.keyboard.press('Escape');
+	await expect(dialog).not.toBeVisible();
+});
+
+test('? does not open keyboard shortcuts while typing in search input', async ({ page }) => {
+	await page.goto('/');
+
+	const searchInput = page.getByRole('textbox', { name: 'Search input' });
+	await searchInput.focus();
+	await expect(searchInput).toBeFocused();
+
+	await page.keyboard.press('Shift+?');
+	await expect(page.getByRole('dialog', { name: 'Keyboard shortcuts' })).not.toBeVisible();
+});
+
 test('bulk edit modal keyboard accessibility', async ({
 	page,
 	createCategory,
