@@ -15,7 +15,7 @@ if [ "$SURREAL_MAJOR" != "3" ]; then
 fi
 
 # Start SurrealDB in the background
-surreal start --log info --bind 127.0.0.1:${SURREALDB_PORT} --unauthenticated --allow-all "file:${DATA_DIR}" &
+surreal start --log info --bind 127.0.0.1:${SURREALDB_PORT} --unauthenticated --allow-all "surrealkv:${DATA_DIR}" &
 SURREAL_PID=$!
 
 trap "kill $SURREAL_PID 2>/dev/null" EXIT
