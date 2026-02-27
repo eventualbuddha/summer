@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import { RecordId, StringRecordId } from 'surrealdb';
+import { DateTime, RecordId, StringRecordId } from 'surrealdb';
 
 export function parseRecord(raw: string): {
 	type: 'record' | 'relation';
@@ -77,7 +77,7 @@ export function toJSON(value: unknown): unknown {
 		};
 	}
 
-	if (value instanceof Date) {
+	if (value instanceof Date || value instanceof DateTime) {
 		return {
 			type: 'Date',
 			encoding: 'ISO',

@@ -7,7 +7,7 @@ import path, { join } from 'node:path';
 import { argv, exit, stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
-import { StringRecordId, Surreal } from 'surrealdb';
+import { StringRecordId, Surreal, Table } from 'surrealdb';
 import { parseRecord } from '../src/lib/serialization.ts';
 import { applyMigrations } from '../src/lib/server/migrations.ts';
 
@@ -139,12 +139,12 @@ export async function restore({
 
 			switch (parsed.type) {
 				case 'record': {
-					const record = parsed.value;
-					if ('id' in record && typeof record.id === 'string') {
-						record.id = new StringRecordId(record.id);
+					const { id, ...data } = parsed.value;
+					if (id instanceof StringRecordId) {
+						await db.create(id).content(data);
+					} else {
+						await db.create(new Table(table)).content(data);
 					}
-
-					await db.create(table, record);
 					break;
 				}
 
@@ -152,7 +152,7 @@ export async function restore({
 					const { in: inId, out: outId, ...data } = parsed.value;
 					assert(inId instanceof StringRecordId);
 					assert(outId instanceof StringRecordId);
-					await db.relate(inId, table, outId, data);
+					await db.relate(inId, new Table(table), outId, data);
 					break;
 				}
 
