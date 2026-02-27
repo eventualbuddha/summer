@@ -560,6 +560,18 @@ test('bulk edit button in filter row', async ({ page, createTransaction }) => {
 	await expect(page.getByRole('button', { name: 'Bulk edit filtered transactions' })).toBeVisible();
 });
 
+test('f focuses the leftmost filter control', async ({ page }) => {
+	await page.goto('/');
+
+	const yearFilterButton = page.getByRole('button', { name: 'Year Filter' });
+	await expect(yearFilterButton).toBeVisible();
+
+	await page.getByRole('heading', { name: 'Transactions' }).click();
+	await page.keyboard.press('f');
+
+	await expect(yearFilterButton).toBeFocused();
+});
+
 test('bulk edit modal keyboard accessibility', async ({
 	page,
 	createCategory,
@@ -623,6 +635,33 @@ test('bulk edit modal keyboard accessibility', async ({
 		);
 		expect(refreshedTransaction.category).toEqual(utilitiesCategory.id);
 	});
+});
+
+test('bulk edit modal q closes when not typing', async ({ page, createTransaction }) => {
+	await createTransaction({
+		statementDescription: 'BULK Q CLOSE',
+		date: new Date(),
+		amount: -100
+	});
+
+	await page.goto('/');
+
+	await page.getByRole('button', { name: 'Bulk edit filtered transactions' }).click();
+	const dialog = page.getByRole('dialog', { name: 'Bulk edit transactions' });
+	await expect(dialog).toBeVisible();
+
+	const descriptionInput = dialog.getByRole('textbox', { name: 'Description' });
+	await expect(descriptionInput).toBeFocused();
+
+	await page.keyboard.press('q');
+	await expect(dialog).toBeVisible();
+
+	const closeButton = dialog.getByRole('button', { name: 'Close' });
+	await closeButton.focus();
+	await expect(closeButton).toBeFocused();
+
+	await page.keyboard.press('q');
+	await expect(dialog).not.toBeVisible();
 });
 
 test('bulk edit description - multiple placeholder and save', async ({

@@ -87,6 +87,336 @@ test('space on focused category button opens category picker, not modal', async 
 	await expect(page.getByRole('dialog')).not.toBeVisible();
 });
 
+test('vim-style row navigation and open modal shortcut', async ({ page, createTransaction }) => {
+	const newerDate = new Date();
+	const olderDate = new Date(newerDate.getTime() - 24 * 60 * 60 * 1000);
+
+	await createTransaction({
+		statementDescription: 'OLDER ROW',
+		date: olderDate,
+		amount: -1200
+	});
+	await createTransaction({
+		statementDescription: 'NEWER ROW',
+		date: newerDate,
+		amount: -1300
+	});
+
+	await page.goto('/');
+
+	const rows = page.locator('[data-transaction]');
+	await expect(rows).toHaveCount(2);
+
+	const firstRow = rows.first();
+	const secondRow = rows.nth(1);
+
+	await firstRow.focus();
+	await expect(firstRow).toBeFocused();
+
+	await page.keyboard.press('j');
+	await expect(secondRow).toBeFocused();
+
+	await page.keyboard.press('k');
+	await expect(firstRow).toBeFocused();
+
+	await page.keyboard.press('o');
+	await expect(page.getByRole('dialog')).toBeVisible();
+});
+
+test('d/u page-jump focus through transaction rows', async ({ page, createTransaction }) => {
+	const baseDate = new Date();
+	for (let i = 0; i < 24; i += 1) {
+		await createTransaction({
+			statementDescription: `PAGE NAV ${i}`,
+			date: new Date(baseDate.getTime() - i * 24 * 60 * 60 * 1000),
+			amount: -(100 + i)
+		});
+	}
+
+	await page.goto('/');
+
+	const rows = page.locator('[data-transaction]');
+	const firstRow = rows.first();
+	await firstRow.focus();
+	await expect(firstRow).toBeFocused();
+
+	await page.keyboard.press('d');
+	await expect(firstRow).not.toBeFocused();
+
+	await page.keyboard.press('u');
+	await expect(firstRow).toBeFocused();
+});
+
+test('g/G jump focus to top and bottom rows', async ({ page, createTransaction }) => {
+	const baseDate = new Date();
+	for (let i = 0; i < 120; i += 1) {
+		await createTransaction({
+			statementDescription: `EDGE NAV ${String(i).padStart(3, '0')}`,
+			date: new Date(baseDate.getTime() - i * 60 * 1000),
+			amount: -(200 + i)
+		});
+	}
+
+	await page.goto('/');
+
+	const topRow = page.locator('[data-is-first-transaction="true"]');
+	const bottomRow = page.locator('[data-is-last-transaction="true"]');
+	const currentRow = page.locator('[data-transaction]').first();
+	await currentRow.focus();
+	await expect(currentRow).toBeFocused();
+
+	await page.keyboard.press('Shift+G');
+	await expect(bottomRow).toBeVisible();
+	await expect(bottomRow).toBeFocused();
+
+	// At true bottom, moving down should have no effect.
+	await page.keyboard.press('j');
+	await expect(bottomRow).toBeFocused();
+
+	await page.keyboard.press('g');
+	await expect(topRow).toBeVisible();
+	await expect(topRow).toBeFocused();
+
+	// At true top, moving up should have no effect.
+	await page.keyboard.press('k');
+	await expect(topRow).toBeFocused();
+
+	// Boundary shortcuts are no-ops when already at the boundary.
+	await page.keyboard.press('Shift+G');
+	await expect(bottomRow).toBeFocused();
+	await page.keyboard.press('g');
+	await expect(topRow).toBeFocused();
+});
+
+test('j from initial load focuses first transaction row', async ({ page, createTransaction }) => {
+	const newerDate = new Date();
+	const olderDate = new Date(newerDate.getTime() - 24 * 60 * 60 * 1000);
+
+	await createTransaction({
+		statementDescription: 'ROW A',
+		date: olderDate,
+		amount: -100
+	});
+	await createTransaction({
+		statementDescription: 'ROW B',
+		date: newerDate,
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	const firstRow = page.locator('[data-transaction]').first();
+	await page.getByRole('heading', { name: 'Transactions' }).click();
+	await page.keyboard.press('j');
+	await expect(firstRow).toBeFocused();
+});
+
+test('k from initial load focuses last transaction row', async ({ page, createTransaction }) => {
+	const newerDate = new Date();
+	const olderDate = new Date(newerDate.getTime() - 24 * 60 * 60 * 1000);
+
+	await createTransaction({
+		statementDescription: 'ROW A',
+		date: olderDate,
+		amount: -100
+	});
+	await createTransaction({
+		statementDescription: 'ROW B',
+		date: newerDate,
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	const rows = page.locator('[data-transaction]');
+	const lastRow = rows.nth(1);
+	await page.getByRole('heading', { name: 'Transactions' }).click();
+	await page.keyboard.press('k');
+	await expect(lastRow).toBeFocused();
+});
+
+test('d from initial load focuses first transaction row', async ({ page, createTransaction }) => {
+	const newerDate = new Date();
+	const olderDate = new Date(newerDate.getTime() - 24 * 60 * 60 * 1000);
+
+	await createTransaction({
+		statementDescription: 'ROW A',
+		date: olderDate,
+		amount: -100
+	});
+	await createTransaction({
+		statementDescription: 'ROW B',
+		date: newerDate,
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	const firstRow = page.locator('[data-transaction]').first();
+	await page.getByRole('heading', { name: 'Transactions' }).click();
+	await page.keyboard.press('d');
+	await expect(firstRow).toBeFocused();
+});
+
+test('u from initial load focuses last transaction row', async ({ page, createTransaction }) => {
+	const newerDate = new Date();
+	const olderDate = new Date(newerDate.getTime() - 24 * 60 * 60 * 1000);
+
+	await createTransaction({
+		statementDescription: 'ROW A',
+		date: olderDate,
+		amount: -100
+	});
+	await createTransaction({
+		statementDescription: 'ROW B',
+		date: newerDate,
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	const rows = page.locator('[data-transaction]');
+	const lastRow = rows.nth(1);
+	await page.getByRole('heading', { name: 'Transactions' }).click();
+	await page.keyboard.press('u');
+	await expect(lastRow).toBeFocused();
+});
+
+test('g from initial load focuses first transaction row', async ({ page, createTransaction }) => {
+	const newerDate = new Date();
+	const olderDate = new Date(newerDate.getTime() - 24 * 60 * 60 * 1000);
+
+	await createTransaction({
+		statementDescription: 'ROW A',
+		date: olderDate,
+		amount: -100
+	});
+	await createTransaction({
+		statementDescription: 'ROW B',
+		date: newerDate,
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	const firstRow = page.locator('[data-transaction]').first();
+	await page.getByRole('heading', { name: 'Transactions' }).click();
+	await page.keyboard.press('g');
+	await expect(firstRow).toBeFocused();
+});
+
+test('G from initial load focuses last transaction row', async ({ page, createTransaction }) => {
+	const newerDate = new Date();
+	const olderDate = new Date(newerDate.getTime() - 24 * 60 * 60 * 1000);
+
+	await createTransaction({
+		statementDescription: 'ROW A',
+		date: olderDate,
+		amount: -100
+	});
+	await createTransaction({
+		statementDescription: 'ROW B',
+		date: newerDate,
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	const rows = page.locator('[data-transaction]');
+	const lastRow = rows.nth(1);
+	await page.getByRole('heading', { name: 'Transactions' }).click();
+	await page.keyboard.press('Shift+G');
+	await expect(lastRow).toBeFocused();
+});
+
+test('c opens category picker from focused row', async ({ page, createTransaction }) => {
+	await createTransaction({
+		statementDescription: 'CATEGORY SHORTCUT ROW',
+		date: new Date(),
+		amount: -900
+	});
+
+	await page.goto('/');
+
+	const row = page.locator('[data-transaction]').first();
+	await row.focus();
+	await expect(row).toBeFocused();
+
+	await page.keyboard.press('c');
+
+	await expect(page.getByRole('listbox')).toBeVisible();
+	await expect(page.getByRole('dialog')).not.toBeVisible();
+});
+
+test('c does not typeahead-select category when opening picker', async ({
+	page,
+	createCategory,
+	createTransaction,
+	surreal
+}) => {
+	const food = await createCategory({ name: 'Food', emoji: '🍕' });
+	const childcare = await createCategory({ name: 'Childcare', emoji: '👶' });
+	const transaction = await createTransaction({
+		category: food.id,
+		statementDescription: 'C SHORTCUT TYPEAHEAD',
+		date: new Date(),
+		amount: -500
+	});
+
+	await page.goto('/');
+
+	const row = page.locator('[data-transaction]').first();
+	await row.focus();
+	await expect(row).toBeFocused();
+
+	await page.keyboard.press('c');
+	await expect(page.getByRole('listbox')).toBeVisible();
+
+	// Enter should not pick "Childcare" from the opening "c" keystroke.
+	await page.keyboard.press('Enter');
+
+	await waitFor(async () => {
+		const [[refreshedTransaction]] = await surreal.query<[[{ category?: RecordId }]]>(
+			'select category from transaction where id = $id',
+			{ id: transaction.id }
+		);
+		expect(refreshedTransaction.category).toEqual(food.id);
+	});
+
+	await expect(page.getByRole('dialog')).not.toBeVisible();
+});
+
+test('j is ignored by global row bootstrap while category picker is open', async ({
+	page,
+	createTransaction
+}) => {
+	await createTransaction({
+		statementDescription: 'ROW 1',
+		date: new Date(),
+		amount: -100
+	});
+	await createTransaction({
+		statementDescription: 'ROW 2',
+		date: new Date(Date.now() - 24 * 60 * 60 * 1000),
+		amount: -200
+	});
+
+	await page.goto('/');
+
+	const row = page.locator('[data-transaction]').first();
+	await row.focus();
+	await expect(row).toBeFocused();
+
+	await page.keyboard.press('c');
+	const listbox = page.getByRole('listbox');
+	await expect(listbox).toBeVisible();
+
+	await page.keyboard.press('j');
+
+	await expect(listbox).toBeVisible();
+	await expect(row).not.toBeFocused();
+});
+
 test('edit description in modal', async ({ page, createTransaction, surreal }) => {
 	const transaction = await createTransaction({
 		statementDescription: 'GROCERY STORE',
@@ -257,6 +587,33 @@ test('close modal with Escape', async ({ page, createTransaction }) => {
 
 	// Verify modal is closed
 	await expect(page.getByRole('dialog')).not.toBeVisible();
+});
+
+test('q closes modal when not typing', async ({ page, createTransaction }) => {
+	await createTransaction({
+		statementDescription: 'Q CLOSE MODAL',
+		date: new Date(),
+		amount: -100
+	});
+
+	await page.goto('/');
+
+	await page.locator('[data-transaction]').click();
+	const dialog = page.getByRole('dialog');
+	await expect(dialog).toBeVisible();
+
+	const descriptionInput = dialog.getByRole('textbox', { name: 'Transaction description' });
+	await expect(descriptionInput).toBeFocused();
+
+	await page.keyboard.press('q');
+	await expect(dialog).toBeVisible();
+
+	const closeButton = dialog.getByRole('button', { name: 'Close' });
+	await closeButton.focus();
+	await expect(closeButton).toBeFocused();
+
+	await page.keyboard.press('q');
+	await expect(dialog).not.toBeVisible();
 });
 
 test('close modal by clicking backdrop', async ({ page, createTransaction }) => {

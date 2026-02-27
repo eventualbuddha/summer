@@ -8,7 +8,7 @@
 	import TransactionRow from '$lib/components/TransactionRow.svelte';
 	import type { State } from '$lib/state.svelte';
 	import { formatWholeDollarAmount } from '$lib/utils/formatting';
-	import { getContext, type Snippet } from 'svelte';
+	import { getContext, onMount, type Snippet } from 'svelte';
 	import { VList } from 'virtua/svelte';
 	import IconTallyMark5 from '~icons/mdi/tally-mark-5';
 	import IconDollarCoinSolid from '~icons/streamline/dollar-coin-solid';
@@ -285,6 +285,95 @@
 	const selectedYearCount = $derived(s.filters?.years.filter((y) => y.selected).length ?? 0);
 
 	let showBulkEditModal = $state(false);
+
+	onMount(() => {
+		function isScrollable(element: HTMLElement): boolean {
+			const style = getComputedStyle(element);
+			const overflowY = style.overflowY;
+			const canScroll = overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay';
+			return canScroll && element.scrollHeight > element.clientHeight + 1;
+		}
+
+		function getScrollParent(element: HTMLElement): HTMLElement {
+			let parent = element.parentElement;
+			while (parent) {
+				if (isScrollable(parent)) return parent;
+				parent = parent.parentElement;
+			}
+			return (document.scrollingElement as HTMLElement) ?? document.documentElement;
+		}
+
+		function handleGlobalKeydown(event: KeyboardEvent) {
+			if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+			const activeElement = document.activeElement;
+			const isTypingElement =
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement ||
+				activeElement instanceof HTMLSelectElement ||
+				(activeElement instanceof HTMLElement && activeElement.isContentEditable);
+			if (isTypingElement) return;
+
+			if (document.querySelector('[role="dialog"]')) return;
+			if (document.querySelector('[role="listbox"]')) return;
+
+			if (event.key.toLowerCase() === 'f') {
+				const filterRow = document.querySelector<HTMLElement>('[data-filters-row]');
+				const firstControl = filterRow?.querySelector<HTMLElement>(
+					'button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+				);
+				if (firstControl) {
+					event.preventDefault();
+					firstControl.focus();
+				}
+				return;
+			}
+
+			const focusedRow = document.querySelector<HTMLElement>('[data-transaction]:focus');
+			if (focusedRow) return;
+
+			const key = event.key.toLowerCase();
+			const isShiftG = event.key === 'G';
+			const movementKey =
+				key === 'j' || key === 'k' || key === 'd' || key === 'u' || key === 'g' || isShiftG;
+			if (!movementKey) return;
+
+			const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-transaction]'));
+			if (rows.length === 0) return;
+
+			event.preventDefault();
+			if (key === 'g' || isShiftG) {
+				const scrollParent = getScrollParent(rows[0]!);
+				const targetTop = isShiftG
+					? Math.max(0, scrollParent.scrollHeight - scrollParent.clientHeight)
+					: 0;
+				scrollParent.scrollTo({ top: targetTop });
+
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => {
+						const boundaryRows = Array.from(
+							document.querySelectorAll<HTMLElement>('[data-transaction]')
+						);
+						if (boundaryRows.length === 0) return;
+						const boundaryRow = isShiftG ? boundaryRows[boundaryRows.length - 1] : boundaryRows[0];
+						boundaryRow?.focus();
+					});
+				});
+				return;
+			}
+
+			if (key === 'k' || key === 'u' || isShiftG) {
+				rows[rows.length - 1]?.focus();
+				return;
+			}
+			rows[0]?.focus();
+		}
+
+		window.addEventListener('keydown', handleGlobalKeydown);
+		return () => {
+			window.removeEventListener('keydown', handleGlobalKeydown);
+		};
+	});
 </script>
 
 <title>Transactions – Summer</title>
@@ -340,6 +429,8 @@
 					<TransactionRow
 						{transaction}
 						categories={s.filters?.categories.map(({ value }) => value) ?? []}
+						firstTransactionId={s.transactions.list[0]?.id}
+						lastTransactionId={s.transactions.list[s.transactions.list.length - 1]?.id}
 					/>
 				{/snippet}
 			</VList>

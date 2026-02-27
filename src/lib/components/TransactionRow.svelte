@@ -8,11 +8,122 @@
 	import TransactionDetailModal from './TransactionDetailModal.svelte';
 
 	let s: State = getContext('state');
-	let { transaction, categories }: { transaction: Transaction; categories: Category[] } = $props();
+	let {
+		transaction,
+		categories,
+		firstTransactionId,
+		lastTransactionId
+	}: {
+		transaction: Transaction;
+		categories: Category[];
+		firstTransactionId?: string;
+		lastTransactionId?: string;
+	} = $props();
 
 	let isModalOpen = $state(false);
 	let isSelectingCategory = $state(false);
 	let rowElement = $state<HTMLDivElement>();
+
+	function focusAdjacentRow(direction: 1 | -1) {
+		if (!rowElement) return;
+		const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-transaction]'));
+		const currentIndex = rows.indexOf(rowElement);
+		if (currentIndex === -1) return;
+		const nextRow = rows[currentIndex + direction];
+		nextRow?.focus();
+	}
+
+	function isScrollable(element: HTMLElement): boolean {
+		const style = getComputedStyle(element);
+		const overflowY = style.overflowY;
+		const canScroll = overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay';
+		return canScroll && element.scrollHeight > element.clientHeight + 1;
+	}
+
+	function getScrollParent(element: HTMLElement): HTMLElement {
+		let parent = element.parentElement;
+		while (parent) {
+			if (isScrollable(parent)) return parent;
+			parent = parent.parentElement;
+		}
+		return (document.scrollingElement as HTMLElement) ?? document.documentElement;
+	}
+
+	function focusPage(direction: 1 | -1) {
+		if (!rowElement) return;
+		const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-transaction]'));
+		const currentIndex = rows.indexOf(rowElement);
+		if (currentIndex === -1) return;
+
+		const scrollParent = getScrollParent(rowElement);
+		const rowHeight = Math.max(rowElement.getBoundingClientRect().height, 1);
+		const pageSize = Math.max(1, Math.floor(scrollParent.clientHeight / rowHeight) - 1);
+		const targetIndex = Math.min(rows.length - 1, Math.max(0, currentIndex + direction * pageSize));
+		const targetRow = rows[targetIndex];
+		targetRow?.focus();
+		targetRow?.scrollIntoView({ block: 'nearest' });
+	}
+
+	function focusEdge(edge: 'top' | 'bottom') {
+		if (!rowElement) return;
+		const targetId = edge === 'top' ? firstTransactionId : lastTransactionId;
+		const targetTopValue = edge === 'top' ? 0 : Number.MAX_SAFE_INTEGER;
+
+		// Scroll all scrollable ancestors to boundary to support virtualized containers.
+		let parent: HTMLElement | null = rowElement;
+		while (parent) {
+			if (parent.scrollHeight > parent.clientHeight + 1) {
+				parent.scrollTop = targetTopValue;
+			}
+			parent = parent.parentElement;
+		}
+		const scrollingElement = document.scrollingElement as HTMLElement | null;
+		if (scrollingElement) {
+			scrollingElement.scrollTop = targetTopValue;
+		}
+
+		function focusBoundary(attempt: number) {
+			if (targetId) {
+				const activeId =
+					document.activeElement instanceof HTMLElement
+						? document.activeElement.getAttribute('data-transaction-id')
+						: null;
+				if (activeId === targetId) {
+					return;
+				}
+
+				const escapedId = CSS.escape(targetId);
+				const targetRowById = document.querySelector<HTMLElement>(
+					`[data-transaction-id="${escapedId}"]`
+				);
+				if (targetRowById) {
+					targetRowById.focus();
+					targetRowById.scrollIntoView({ block: 'nearest' });
+				}
+			}
+
+			const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-transaction]'));
+			if (rows.length > 0 && attempt >= 12) {
+				const targetRow = edge === 'top' ? rows[0] : rows[rows.length - 1];
+				targetRow?.focus();
+				targetRow?.scrollIntoView({ block: 'nearest' });
+				return;
+			}
+
+			if (attempt < 12) {
+				requestAnimationFrame(() => focusBoundary(attempt + 1));
+			}
+		}
+
+		requestAnimationFrame(() => focusBoundary(0));
+	}
+
+	function openCategoryPicker() {
+		const categoryButton = rowElement?.querySelector<HTMLButtonElement>('button');
+		if (!categoryButton) return;
+		categoryButton.focus();
+		categoryButton.click();
+	}
 
 	async function setCategory(category: Category | undefined) {
 		await s.setCategory(transaction, category);
@@ -34,13 +145,59 @@
 <div
 	bind:this={rowElement}
 	data-transaction
-	class="-mx-1 flex grow-0 cursor-pointer flex-row items-center gap-2 rounded-md px-1 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+	data-transaction-id={transaction.id}
+	data-is-first-transaction={transaction.id === firstTransactionId ? 'true' : undefined}
+	data-is-last-transaction={transaction.id === lastTransactionId ? 'true' : undefined}
+	class="-mx-1 flex grow-0 cursor-pointer flex-row items-center gap-2 rounded-md px-1 transition-colors focus-within:bg-sky-50/70 hover:bg-gray-100 focus:outline-none focus-visible:bg-sky-50 dark:focus-within:bg-sky-900/20 dark:hover:bg-gray-800 dark:focus-visible:bg-sky-900/25"
 	onclick={handleRowClick}
 	onkeydown={(e) => {
 		if (e.target !== e.currentTarget) return;
+		if (e.ctrlKey || e.metaKey || e.altKey) return;
+		const key = e.key.toLowerCase();
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault();
 			handleRowClick();
+			return;
+		}
+		if (key === 'j') {
+			e.preventDefault();
+			focusAdjacentRow(1);
+			return;
+		}
+		if (key === 'k') {
+			e.preventDefault();
+			focusAdjacentRow(-1);
+			return;
+		}
+		if (key === 'e' || key === 'o') {
+			e.preventDefault();
+			handleRowClick();
+			return;
+		}
+		if (key === 'c') {
+			e.preventDefault();
+			e.stopPropagation();
+			openCategoryPicker();
+			return;
+		}
+		if (key === 'd') {
+			e.preventDefault();
+			focusPage(1);
+			return;
+		}
+		if (key === 'u') {
+			e.preventDefault();
+			focusPage(-1);
+			return;
+		}
+		if (key === 'g' && !e.shiftKey) {
+			e.preventDefault();
+			focusEdge('top');
+			return;
+		}
+		if (e.key === 'G') {
+			e.preventDefault();
+			focusEdge('bottom');
 		}
 	}}
 	role="button"

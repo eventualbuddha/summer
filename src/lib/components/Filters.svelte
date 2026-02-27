@@ -59,7 +59,7 @@
 </script>
 
 <div class="flex flex-col gap-2">
-	<div class="flex flex-row items-center gap-1">
+	<div class="flex flex-row items-center gap-1" data-filters-row>
 		<YearMultiSelect aria-label="Year Filter" bind:selections={yearSelections} />
 		<MonthMultiSelect aria-label="Month Filter" bind:selections={monthSelections} />
 		<CategoryMultiSelect aria-label="Category Filter" bind:selections={categorySelections} />
