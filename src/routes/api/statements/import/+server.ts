@@ -35,12 +35,19 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const db = await getDb();
 
-	// Decode base64 PDF data to Uint8Array
-	const pdfBytes = Uint8Array.from(atob(body.pdfData), (c) => c.charCodeAt(0));
+	let pdfBytes: Uint8Array;
+	try {
+		// Decode base64 PDF data to Uint8Array.
+		pdfBytes = Uint8Array.from(atob(body.pdfData), (c) => c.charCodeAt(0));
+	} catch {
+		return json({ error: 'Invalid PDF data payload' }, { status: 400 });
+	}
 
-	const results: QueryResponse[] = await db
-		.query(
-			`
+	let results: QueryResponse[];
+	try {
+		results = await db
+			.query(
+				`
 BEGIN TRANSACTION;
 
 LET $account = (
@@ -109,21 +116,25 @@ FOR $t IN $transactions {
 
 COMMIT TRANSACTION;
 		`,
-			{
-				source: body.source,
-				accountNumber: body.accountNumber,
-				accountName: body.accountName,
-				accountType: body.accountType,
-				filename: body.filename,
-				pdfData: pdfBytes,
-				statementDate: new Date(body.statementDate),
-				transactions: body.transactions.map((t) => ({
-					...t,
-					date: new Date(t.date)
-				}))
-			}
-		)
-		.responses();
+				{
+					source: body.source,
+					accountNumber: body.accountNumber,
+					accountName: body.accountName,
+					accountType: body.accountType,
+					filename: body.filename,
+					pdfData: pdfBytes,
+					statementDate: new Date(body.statementDate),
+					transactions: body.transactions.map((t) => ({
+						...t,
+						date: new Date(t.date)
+					}))
+				}
+			)
+			.responses();
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		return json({ error: `Import failed: ${message}` }, { status: 500 });
+	}
 
 	const errors = results.filter((r): r is QueryResponseFailure => !r.success);
 	const primaryError = errors.find(
@@ -148,34 +159,26 @@ COMMIT TRANSACTION;
 		file: z.string().nonempty()
 	});
 
-	const [, , accountResult, , , , , statementResult] = z
-		.tuple([
-			z.unknown(), // BEGIN TRANSACTION
-			z.unknown(), // LET $account
-			z.object({
-				success: z.literal(true),
-				result: AccountSchema
-			}),
-			z.unknown(), // LET $file
-			z.unknown(), // LET $existingStatements
-			z.unknown(), // IF $existingStatements
-			z.unknown(), // LET $statement
-			z.object({
-				success: z.literal(true),
-				result: StatementSchema
-			}),
-			z.unknown(), // LET $defaultCategory
-			z.unknown(), // IF !$defaultCategory
-			z.unknown(), // FOR $t
-			z.unknown() // COMMIT TRANSACTION
-		])
-		.parse(results);
+	const successfulResults = results
+		.filter((r): r is QueryResponse & { success: true } => r.success)
+		.map((r) => r.result);
+
+	const account = successfulResults
+		.map((result) => AccountSchema.safeParse(result))
+		.find((parsed) => parsed.success)?.data;
+	const statement = successfulResults
+		.map((result) => StatementSchema.safeParse(result))
+		.find((parsed) => parsed.success)?.data;
+
+	if (!account || !statement) {
+		return json({ error: 'Import completed, but response parsing failed' }, { status: 500 });
+	}
 
 	return json({
-		account: accountResult.result,
+		account,
 		statement: {
-			...statementResult.result,
-			date: statementResult.result.date.toISOString()
+			...statement,
+			date: statement.date.toISOString()
 		}
 	});
 };

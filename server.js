@@ -1,6 +1,11 @@
-import { handler } from './build/handler.js';
 import express from 'express';
 import { createServer } from 'http';
+
+// Statement import posts base64-encoded PDF bytes and can exceed adapter-node's
+// default 512K body limit. Allow override via env, but default to a safer limit.
+process.env.BODY_SIZE_LIMIT ??= '10M';
+
+const { handler } = await import('./build/handler.js');
 
 const app = express();
 const server = createServer(app);
