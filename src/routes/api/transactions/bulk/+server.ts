@@ -3,11 +3,19 @@ import { getDb } from '$lib/server/db';
 import { QueryError, RecordId, type QueryResponse, type QueryResponseFailure } from 'surrealdb';
 import { z } from 'zod';
 
+function isValidDateTimeString(value: string): boolean {
+	return !Number.isNaN(new Date(value).getTime());
+}
+
 const BODY = z.object({
 	transactionIds: z.array(z.string()),
 	description: z.string().optional(),
 	categoryId: z.string().nullable().optional(),
-	effectiveDate: z.string().nullable().optional(),
+	effectiveDate: z
+		.string()
+		.refine(isValidDateTimeString, { message: 'effectiveDate must be a valid datetime string' })
+		.nullable()
+		.optional(),
 	tags: z.array(z.string()).optional()
 });
 

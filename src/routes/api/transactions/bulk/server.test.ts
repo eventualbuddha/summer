@@ -12,6 +12,25 @@ describe('PATCH /api/transactions/bulk', () => {
 		vi.resetAllMocks();
 	});
 
+	it('rejects invalid effectiveDate with 400', async () => {
+		const query = vi.fn();
+		vi.mocked(getDb).mockResolvedValue({ query } as never);
+
+		const response = await PATCH({
+			request: new Request('http://localhost/api/transactions/bulk', {
+				method: 'PATCH',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					transactionIds: ['abc'],
+					effectiveDate: 'not-a-date'
+				})
+			})
+		} as never);
+
+		expect(response.status).toBe(400);
+		expect(query).not.toHaveBeenCalled();
+	});
+
 	it('executes a single transaction query for mixed updates', async () => {
 		const responses = vi.fn().mockResolvedValue([]);
 		const query = vi.fn().mockReturnValue({ responses });

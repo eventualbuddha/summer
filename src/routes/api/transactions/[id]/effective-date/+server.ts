@@ -3,8 +3,15 @@ import { getDb } from '$lib/server/db';
 import { RecordId } from 'surrealdb';
 import { z } from 'zod';
 
+function isValidDateTimeString(value: string): boolean {
+	return !Number.isNaN(new Date(value).getTime());
+}
+
 const BODY = z.object({
-	effectiveDate: z.string().nullable()
+	effectiveDate: z
+		.string()
+		.refine(isValidDateTimeString, { message: 'effectiveDate must be a valid datetime string' })
+		.nullable()
 });
 
 export const PATCH: RequestHandler = async ({ params, request }) => {
@@ -21,12 +28,10 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 	const db = await getDb();
 	const transactionId = new RecordId('transaction', params.id!);
 
-	const effectiveDate = body.effectiveDate ? new Date(body.effectiveDate) : null;
-
-	if (effectiveDate) {
-		await db.query('UPDATE $transaction SET effectiveDate = $effectiveDate', {
+	if (body.effectiveDate) {
+		await db.query('UPDATE $transaction SET effectiveDate = <datetime>$effectiveDate', {
 			transaction: transactionId,
-			effectiveDate
+			effectiveDate: body.effectiveDate
 		});
 	} else {
 		await db.query('UPDATE $transaction SET effectiveDate = NONE', {
