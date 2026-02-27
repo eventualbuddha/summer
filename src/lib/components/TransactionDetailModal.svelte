@@ -76,7 +76,20 @@
 		});
 
 		function handleKeydown(e: KeyboardEvent) {
+			const activeElement = document.activeElement;
+			const isTypingElement =
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement ||
+				activeElement instanceof HTMLSelectElement ||
+				(activeElement instanceof HTMLElement && activeElement.isContentEditable);
+
 			if (e.key === 'Escape') {
+				e.preventDefault();
+				onclose();
+				return;
+			}
+
+			if (e.key.toLowerCase() === 'q' && !isTypingElement && !isSelectingCategory) {
 				e.preventDefault();
 				onclose();
 			}

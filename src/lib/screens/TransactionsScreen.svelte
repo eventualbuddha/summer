@@ -3,12 +3,13 @@
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
 	import Filters from '$lib/components/Filters.svelte';
 	import ImportButton from '$lib/components/ImportButton.svelte';
+	import KeyboardShortcutsModal from '$lib/components/KeyboardShortcutsModal.svelte';
 	import NavigationButton from '$lib/components/NavigationButton.svelte';
 	import SortHeader from '$lib/components/SortHeader.svelte';
 	import TransactionRow from '$lib/components/TransactionRow.svelte';
 	import type { State } from '$lib/state.svelte';
 	import { formatWholeDollarAmount } from '$lib/utils/formatting';
-	import { getContext, type Snippet } from 'svelte';
+	import { getContext, onMount, type Snippet } from 'svelte';
 	import { VList } from 'virtua/svelte';
 	import IconTallyMark5 from '~icons/mdi/tally-mark-5';
 	import IconDollarCoinSolid from '~icons/streamline/dollar-coin-solid';
@@ -285,6 +286,139 @@
 	const selectedYearCount = $derived(s.filters?.years.filter((y) => y.selected).length ?? 0);
 
 	let showBulkEditModal = $state(false);
+	let showKeyboardShortcutsModal = $state(false);
+
+	onMount(() => {
+		function isScrollable(element: HTMLElement): boolean {
+			const style = getComputedStyle(element);
+			const overflowY = style.overflowY;
+			const canScroll = overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay';
+			return canScroll && element.scrollHeight > element.clientHeight + 1;
+		}
+
+		function scrollAncestorsToBoundary(element: HTMLElement, edge: 'top' | 'bottom') {
+			const targetTopValue = edge === 'top' ? 0 : Number.MAX_SAFE_INTEGER;
+			let parent: HTMLElement | null = element;
+			while (parent) {
+				if (isScrollable(parent)) {
+					parent.scrollTop = targetTopValue;
+				}
+				parent = parent.parentElement;
+			}
+
+			const scrollingElement = document.scrollingElement as HTMLElement | null;
+			if (scrollingElement) {
+				scrollingElement.scrollTop = targetTopValue;
+			}
+		}
+
+		function focusBoundary(edge: 'top' | 'bottom', attempt = 0) {
+			const list = s.transactions?.list ?? [];
+			const targetId = edge === 'top' ? list[0]?.id : list[list.length - 1]?.id;
+
+			const activeId =
+				document.activeElement instanceof HTMLElement
+					? document.activeElement.getAttribute('data-transaction-id')
+					: null;
+			if (targetId && activeId === targetId) {
+				return;
+			}
+
+			if (targetId) {
+				const targetRow = document.querySelector<HTMLElement>(
+					`[data-transaction-id="${CSS.escape(targetId)}"]`
+				);
+				if (targetRow) {
+					targetRow.focus();
+					targetRow.scrollIntoView({ block: 'nearest' });
+				}
+			}
+
+			const refreshedActiveId =
+				document.activeElement instanceof HTMLElement
+					? document.activeElement.getAttribute('data-transaction-id')
+					: null;
+			if (targetId && refreshedActiveId === targetId) {
+				return;
+			}
+
+			const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-transaction]'));
+			if (rows.length > 0 && attempt >= 20) {
+				const row = edge === 'top' ? rows[0] : rows[rows.length - 1];
+				row?.focus();
+				row?.scrollIntoView({ block: 'nearest' });
+				return;
+			}
+
+			if (attempt < 20) {
+				requestAnimationFrame(() => focusBoundary(edge, attempt + 1));
+			}
+		}
+
+		function handleGlobalKeydown(event: KeyboardEvent) {
+			if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+			const activeElement = document.activeElement;
+			const isTypingElement =
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement ||
+				activeElement instanceof HTMLSelectElement ||
+				(activeElement instanceof HTMLElement && activeElement.isContentEditable);
+			if (isTypingElement) return;
+
+			if (document.querySelector('[role="dialog"]')) return;
+			if (document.querySelector('[role="listbox"]')) return;
+
+			if (event.key === '?') {
+				event.preventDefault();
+				showKeyboardShortcutsModal = true;
+				return;
+			}
+
+			if (event.key.toLowerCase() === 'f') {
+				const filterRow = document.querySelector<HTMLElement>('[data-filters-row]');
+				const firstControl = filterRow?.querySelector<HTMLElement>(
+					'button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+				);
+				if (firstControl) {
+					event.preventDefault();
+					firstControl.focus();
+				}
+				return;
+			}
+
+			const focusedRow = document.querySelector<HTMLElement>('[data-transaction]:focus');
+			if (focusedRow) return;
+
+			const key = event.key.toLowerCase();
+			const isShiftG = event.key === 'G';
+			const movementKey =
+				key === 'j' || key === 'k' || key === 'd' || key === 'u' || key === 'g' || isShiftG;
+			if (!movementKey) return;
+
+			const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-transaction]'));
+			if (rows.length === 0) return;
+
+			event.preventDefault();
+			if (key === 'g' || isShiftG) {
+				const edge = isShiftG ? 'bottom' : 'top';
+				scrollAncestorsToBoundary(rows[0]!, edge);
+				requestAnimationFrame(() => focusBoundary(edge, 0));
+				return;
+			}
+
+			if (key === 'k' || key === 'u') {
+				rows[rows.length - 1]?.focus();
+				return;
+			}
+			rows[0]?.focus();
+		}
+
+		window.addEventListener('keydown', handleGlobalKeydown);
+		return () => {
+			window.removeEventListener('keydown', handleGlobalKeydown);
+		};
+	});
 </script>
 
 <title>Transactions – Summer</title>
@@ -327,6 +461,10 @@
 	/>
 {/if}
 
+{#if showKeyboardShortcutsModal}
+	<KeyboardShortcutsModal onclose={() => (showKeyboardShortcutsModal = false)} />
+{/if}
+
 <div class="flex min-h-0 flex-1 flex-row gap-6">
 	<div class="flex min-h-0 w-9/12 grow-1 flex-col gap-2">
 		{#if !s.transactions}
@@ -340,6 +478,8 @@
 					<TransactionRow
 						{transaction}
 						categories={s.filters?.categories.map(({ value }) => value) ?? []}
+						firstTransactionId={s.transactions.list[0]?.id}
+						lastTransactionId={s.transactions.list[s.transactions.list.length - 1]?.id}
 					/>
 				{/snippet}
 			</VList>
