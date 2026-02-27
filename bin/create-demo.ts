@@ -4,7 +4,7 @@ import { DateTime, Interval } from 'luxon';
 import { argv, exit, stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
-import { RecordId, Surreal } from 'surrealdb';
+import { RecordId, Surreal, Table } from 'surrealdb';
 import { z } from 'zod';
 import {
 	AccountSchema,
@@ -372,10 +372,25 @@ async function addTransactionsToSurrealDB(
 	//   - `data` on file records comes back as Uint8Array (SurrealDB bytes type)
 	const CreatedAccountSchema = AccountSchema.extend({ id: z.instanceof(RecordId) });
 	const CreatedCategorySchema = CategorySchema.extend({ id: z.instanceof(RecordId) });
+	const DateOrIsoString = z.preprocess((value) => {
+		if (value instanceof Date) return value;
+		if (typeof value === 'string' || typeof value === 'number') return new Date(value);
+		if (value && typeof value === 'object') {
+			const maybeValue = (value as { value?: unknown }).value;
+			if (typeof maybeValue === 'string' || typeof maybeValue === 'number') {
+				return new Date(maybeValue);
+			}
+			if (typeof (value as { toString?: () => string }).toString === 'function') {
+				return new Date((value as { toString: () => string }).toString());
+			}
+		}
+		return value;
+	}, z.date());
 	const CreatedStatementSchema = StatementSchema.extend({
 		id: z.instanceof(RecordId),
 		account: z.instanceof(RecordId),
-		file: z.instanceof(RecordId)
+		file: z.instanceof(RecordId),
+		date: DateOrIsoString
 	});
 	const CreatedTransactionSchema = TransactionRecordSchema.extend({
 		id: z.instanceof(RecordId),
@@ -383,6 +398,8 @@ async function addTransactionsToSurrealDB(
 		category: z.instanceof(RecordId).optional(),
 		categoryId: z.void(),
 		statementId: z.void(),
+		date: DateOrIsoString,
+		effectiveDate: DateOrIsoString.optional(),
 		tags: z.array(z.string()).default([])
 	});
 	const CreatedFileSchema = FileSchema.extend({
@@ -396,10 +413,16 @@ async function addTransactionsToSurrealDB(
 	// Create accounts
 	const [creditAccountRecord] = z
 		.tuple([CreatedAccountSchema])
-		.parse(await surreal.create('account', { name: 'Credit Card', type: 'credit' }));
+		.parse(
+			await surreal.create(new Table('account')).content({ name: 'Credit Card', type: 'credit' })
+		);
 	const [checkingAccountRecord] = z
 		.tuple([CreatedAccountSchema])
-		.parse(await surreal.create('account', { name: 'Checking Account', type: 'checking' }));
+		.parse(
+			await surreal
+				.create(new Table('account'))
+				.content({ name: 'Checking Account', type: 'checking' })
+		);
 
 	// Create categories (filter optional ones based on flags)
 	const categoriesToCreate = ALL_CATEGORIES.filter((cat) => {
@@ -411,7 +434,7 @@ async function addTransactionsToSurrealDB(
 	const categoryMap = new Map<string, CategoryRecord>();
 	for (const [index, category] of categoriesToCreate.entries()) {
 		const [record] = z.tuple([CreatedCategorySchema]).parse(
-			await surreal.create('category', {
+			await surreal.create(new Table('category')).content({
 				name: category.name,
 				color: category.color,
 				emoji: category.emoji,
@@ -428,13 +451,13 @@ async function addTransactionsToSurrealDB(
 		const monthLabel = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
 		const [creditFile] = z.tuple([CreatedFileSchema]).parse(
-			await surreal.create('file', {
+			await surreal.create(new Table('file')).content({
 				name: `Credit Statement ${monthLabel}`,
 				data: Uint8Array.of()
 			})
 		);
 		const [creditStatement] = z.tuple([CreatedStatementSchema]).parse(
-			await surreal.create('statement', {
+			await surreal.create(new Table('statement')).content({
 				account: creditAccountRecord.id,
 				date,
 				file: creditFile.id
@@ -442,13 +465,13 @@ async function addTransactionsToSurrealDB(
 		);
 
 		const [checkingFile] = z.tuple([CreatedFileSchema]).parse(
-			await surreal.create('file', {
+			await surreal.create(new Table('file')).content({
 				name: `Checking Statement ${monthLabel}`,
 				data: Uint8Array.of()
 			})
 		);
 		const [checkingStatement] = z.tuple([CreatedStatementSchema]).parse(
-			await surreal.create('statement', {
+			await surreal.create(new Table('statement')).content({
 				account: checkingAccountRecord.id,
 				date,
 				file: checkingFile.id
@@ -488,7 +511,7 @@ async function addTransactionsToSurrealDB(
 		const category = categoryMap.get(params.categoryName);
 		if (!category) throw new Error(`Unknown category: ${params.categoryName}`);
 		const [tx] = z.tuple([CreatedTransactionSchema]).parse(
-			await surreal.create('transaction', {
+			await surreal.create(new Table('transaction')).content({
 				statement: params.statement.id,
 				date: params.date.toJSDate(),
 				amount: Math.round(params.amount * 100),
@@ -611,7 +634,7 @@ async function addTransactionsToSurrealDB(
 
 	for (const [tagName, txIds] of tagTransactionMap) {
 		if (txIds.length === 0) continue;
-		await surreal.queryRaw(
+		await surreal.query(
 			`LET $tag = (UPSERT tag SET name = $name WHERE name = $name RETURN VALUE id)[0];
 			 FOR $transaction IN $transactions {
 			     RELATE $transaction->tagged->$tag;
@@ -746,6 +769,26 @@ export async function main(cliArgv: readonly string[]): Promise<number> {
 	stdout.write('Done!\n');
 	await db.close();
 	return 0;
+}
+
+export async function createDemoDataset(
+	surreal: Surreal,
+	options: {
+		startDate?: DateTime;
+		endDate?: DateTime;
+		transactions?: number;
+		includeIncome?: boolean;
+		includeChildcare?: boolean;
+	} = {}
+): Promise<void> {
+	const startDate = options.startDate ?? DateTime.now().minus({ years: 2 });
+	const endDate = options.endDate ?? DateTime.now();
+	const interval = Interval.fromDateTimes(startDate, endDate);
+
+	await addTransactionsToSurrealDB(surreal, interval, options.transactions ?? 600, {
+		includeIncome: options.includeIncome ?? false,
+		includeChildcare: options.includeChildcare ?? false
+	});
 }
 
 if (import.meta.main) {

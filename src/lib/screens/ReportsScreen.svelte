@@ -1054,7 +1054,9 @@
 
 										<div class="flex flex-col gap-1">
 											<!-- Budget name -->
-											<div class="text-center text-xs font-medium text-gray-600 dark:text-gray-400">
+											<div
+												class="min-h-8 px-1 text-center text-xs leading-tight font-medium break-words text-gray-600 dark:text-gray-400"
+											>
 												{budgetData.name}
 											</div>
 
