@@ -35,7 +35,7 @@
 	// Capture the value when picker opened, for the "old value" ring indicator
 	const initialValue = value;
 
-	// Keyboard cursor position (0–11 = Jan–Dec)
+	// Keyboard cursor position (0–11 = Jan–Dec, 12 = Clear button)
 	let focusedIndex = $state(
 		value !== null && value.year === displayYear
 			? value.month - 1
@@ -43,6 +43,8 @@
 				? initialFocus.month - 1
 				: 0
 	);
+	// Remembers which last-row index to return to when leaving the Clear button
+	let preClearIndex = $state(8);
 
 	// +1 = animating forward (next year), -1 = backward (prev year), 0 = initial
 	let direction = $state(0);
@@ -79,6 +81,7 @@
 		switch (e.key) {
 			case 'ArrowLeft':
 			case 'h': {
+				if (focusedIndex === 12) break; // no left/right from Clear
 				e.preventDefault();
 				e.stopPropagation();
 				// Row-based wrap: left edge → same row right edge of previous year
@@ -92,6 +95,7 @@
 			}
 			case 'ArrowRight':
 			case 'l': {
+				if (focusedIndex === 12) break; // no left/right from Clear
 				e.preventDefault();
 				e.stopPropagation();
 				// Row-based wrap: right edge → same row left edge of next year
@@ -107,19 +111,32 @@
 			case 'k':
 				e.preventDefault();
 				e.stopPropagation();
-				focusedIndex = Math.max(0, focusedIndex - 4);
+				if (focusedIndex === 12) {
+					focusedIndex = preClearIndex;
+				} else {
+					focusedIndex = Math.max(0, focusedIndex - 4);
+				}
 				break;
 			case 'ArrowDown':
 			case 'j':
 				e.preventDefault();
 				e.stopPropagation();
-				focusedIndex = Math.min(11, focusedIndex + 4);
+				if (value !== null && focusedIndex >= 8 && focusedIndex <= 11) {
+					preClearIndex = focusedIndex;
+					focusedIndex = 12;
+				} else if (focusedIndex !== 12) {
+					focusedIndex = Math.min(11, focusedIndex + 4);
+				}
 				break;
 			case 'Enter':
 			case ' ':
 				e.preventDefault();
 				e.stopPropagation();
-				handleMonthClick(focusedIndex);
+				if (focusedIndex === 12) {
+					handleClear();
+				} else {
+					handleMonthClick(focusedIndex);
+				}
 				break;
 			case 'q':
 			case 'Escape':
@@ -142,7 +159,7 @@
 		<div class="mb-3 flex items-center justify-between">
 			<button
 				type="button"
-				class="cursor-pointer rounded px-2 py-1 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+				class="cursor-pointer rounded px-2 py-1 text-gray-600 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-1 dark:text-gray-300 dark:hover:bg-gray-700"
 				onclick={prevYear}
 				aria-label="Previous year"
 			>
@@ -163,7 +180,7 @@
 			</div>
 			<button
 				type="button"
-				class="cursor-pointer rounded px-2 py-1 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+				class="cursor-pointer rounded px-2 py-1 text-gray-600 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-1 dark:text-gray-300 dark:hover:bg-gray-700"
 				onclick={nextYear}
 				aria-label="Next year"
 			>
@@ -191,11 +208,13 @@
 							!isFocused}
 						<button
 							type="button"
-							class="cursor-pointer rounded px-3 py-1.5 text-sm transition-colors
+							class="cursor-pointer rounded px-3 py-1.5 text-sm transition-colors focus:outline-none
 								{isSelected
 								? 'bg-blue-600 text-white'
 								: 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'}
-								{isFocused ? 'ring-2 ring-blue-400 ring-offset-1' : ''}
+								{isFocused
+								? 'ring-2 ring-blue-400 ring-offset-1'
+								: 'focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-1'}
 								{isInitial ? 'ring-1 ring-gray-300 dark:ring-gray-500' : ''}"
 							onclick={() => handleMonthClick(i)}
 							data-testid="month-option-{i + 1}"
@@ -210,7 +229,8 @@
 			<div class="mt-3 flex justify-center">
 				<button
 					type="button"
-					class="cursor-pointer rounded px-3 py-1 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+					class="cursor-pointer rounded px-3 py-1 text-sm text-red-600 hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-1 dark:text-red-400 dark:hover:bg-red-900/20
+						{focusedIndex === 12 ? 'ring-2 ring-blue-400 ring-offset-1' : ''}"
 					onclick={handleClear}
 					data-testid="clear-effective-date"
 				>
