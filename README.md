@@ -1,6 +1,6 @@
 # <img src="static/icon-transparent.png" alt="Summer Logo" width="36"> Summer
 
-Summer is the app I use to track spending, manage budgets, and review trends over time.
+Summer is a personal finance app for tracking spending, managing budgets, and reviewing trends over time. It imports bank statements in PDF format, automatically categorizes transactions based on past history, and supports vim-style keyboard navigation for efficient review.
 
 Here are a few views from the app (click any image to open the full-size version):
 
@@ -15,10 +15,10 @@ Here are a few views from the app (click any image to open the full-size version
     </td>
     <td align="center">
       <a href="static/screenshots/transactions-dark-mode.png">
-        <img src="static/screenshots/transactions-dark-mode.png" alt="Transactions screen in dark mode" width="380">
+        <img src="static/screenshots/transactions-dark-mode.png" alt="Suggest categories modal in dark mode" width="380">
       </a>
       <br>
-      <sub>Transactions: dark mode</sub>
+      <sub>Auto-categorize: suggest modal (dark mode)</sub>
     </td>
   </tr>
   <tr>
@@ -38,6 +38,14 @@ Here are a few views from the app (click any image to open the full-size version
     </td>
   </tr>
 </table>
+
+## Features
+
+- **Statement import**: Upload bank statement PDFs directly from the transactions view. Summer parses and stores them automatically, deduplicating transactions across statements.
+- **Filtering and search**: Filter the transaction list by year, month, category, account, or tag. Search by description, bank name, or amount using a structured query syntax (e.g. `desc:starbucks`, `amount:gt:50`, `tag:reimbursable`).
+- **Auto-categorization**: Click "Suggest" to analyze your transaction history and propose categories for uncategorized transactions, ranked by confidence. High-confidence matches (≥80%) are pre-checked so you can apply them in one click.
+- **Vim-style keyboard navigation**: Navigate transactions with `j`/`k`, jump to the top or bottom with `g`/`G`, focus the filters with `f`, and open the keyboard shortcuts reference with `?`.
+- **Budget reports**: Define budgets by category group and year, then track spending with monthly trend charts and per-category breakdowns.
 
 ## Setup
 
@@ -101,7 +109,7 @@ README screenshots are generated with Playwright using the `create-demo` dataset
 The screenshot suite captures:
 
 - Transactions (filtered view with Categories dropdown open)
-- Transactions (dark mode)
+- Auto-categorize: suggest categories modal (dark mode)
 - Budget Reports (monthly chart view for the previous complete year)
 - Bulk Edit modal
 

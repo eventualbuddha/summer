@@ -49,6 +49,45 @@ async function seedDemoData(): Promise<void> {
 		includeChildcare: true
 	});
 
+	// Create an "Uncategorized" default category and seed some uncategorized transactions
+	// using well-known merchants so the suggest-categories modal shows high-confidence matches.
+	const uncatResult = (await db.create(new Table('category')).content({
+		name: 'Uncategorized',
+		color: 'gray-300',
+		emoji: '❓',
+		ordinal: 100
+	})) as Array<{ id: unknown }>;
+	const uncatCategoryId = uncatResult[0]!.id;
+	await db.query('UPSERT settings:global SET defaultCategory = $cat', { cat: uncatCategoryId });
+
+	const [recentStatements] = await db.query<[Array<{ id: unknown }>]>(
+		'SELECT id, date FROM statement ORDER BY date DESC LIMIT 1;'
+	);
+	const recentStatementId = recentStatements[0]?.id;
+
+	if (recentStatementId) {
+		const uncatTransactions = [
+			{ desc: 'STARBUCKS #14392 PALO ALTO CA', amount: -725 },
+			{ desc: 'CHIPOTLE #2341 SAN JOSE CA', amount: -1250 },
+			{ desc: "TRADER JOE'S #194 SAN JOSE CA", amount: -8432 },
+			{ desc: 'AMAZON.COM*XY98ZZ12 AMZN.COM/BILL WA', amount: -5999 },
+			{ desc: 'TARGET T-2415 SAN JOSE CA', amount: -3247 },
+			{ desc: 'PANERA BREAD #204819 SAN JOSE CA', amount: -1876 },
+			{ desc: 'NETFLIX.COM', amount: -2299 },
+			{ desc: 'PANDA EXPRESS SUNNYVALE CA', amount: -1543 }
+		];
+		for (const tx of uncatTransactions) {
+			await db.create(new Table('transaction')).content({
+				statement: recentStatementId,
+				date: new Date(`${previousCompleteYear}-12-28`),
+				amount: tx.amount,
+				statementDescription: tx.desc,
+				category: uncatCategoryId,
+				type: 'debit'
+			});
+		}
+	}
+
 	const budgets = [
 		{
 			name: 'Core Living',
@@ -117,11 +156,20 @@ test.describe('README screenshots', () => {
 		await writeScreenshot(page, 'transactions-filtered-with-category-dropdown.png');
 		await page.keyboard.press('Escape');
 
-		// 2) Transactions in dark mode
+		// 2) Suggest categories modal in dark mode
 		await page.emulateMedia({ colorScheme: 'dark' });
 		await page.goto('/');
 		await expect(page.getByRole('heading', { name: 'Transactions' })).toBeVisible();
+		const suggestButton = page.getByRole('button', {
+			name: 'Suggest categories for uncategorized transactions'
+		});
+		await expect(suggestButton).toBeEnabled({ timeout: 10000 });
+		await suggestButton.click();
+		const suggestDialog = page.getByRole('dialog', { name: 'Suggest categories' });
+		await expect(suggestDialog).toBeVisible();
+		await expect(suggestDialog.getByText(/Found \d+/)).toBeVisible({ timeout: 10000 });
 		await writeScreenshot(page, 'transactions-dark-mode.png');
+		await page.keyboard.press('Escape');
 		await page.emulateMedia({ colorScheme: 'light' });
 
 		// 3) Bulk edit modal
