@@ -18,7 +18,9 @@
 		availableTags,
 		onclear,
 		onbulkedit,
-		bulkEditDisabled = false
+		bulkEditDisabled = false,
+		onsuggest,
+		suggestDisabled = false
 	}: {
 		yearSelections: Selection<number>[];
 		monthSelections: Selection<number>[];
@@ -30,6 +32,8 @@
 		onclear?: () => void;
 		onbulkedit?: () => void;
 		bulkEditDisabled?: boolean;
+		onsuggest?: () => void;
+		suggestDisabled?: boolean;
 	} = $props();
 
 	let searchInput: SearchInput;
@@ -75,17 +79,30 @@
 				Clear
 			</button>
 		{/if}
-		{#if onbulkedit}
+		{#if onbulkedit || onsuggest}
 			<span class="mx-1 h-5 w-px bg-gray-300 dark:bg-gray-600" aria-hidden="true"></span>
-			<button
-				type="button"
-				onclick={onbulkedit}
-				disabled={bulkEditDisabled}
-				class="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
-				aria-label="Bulk edit filtered transactions"
-			>
-				Bulk Edit
-			</button>
+			{#if onbulkedit}
+				<button
+					type="button"
+					onclick={onbulkedit}
+					disabled={bulkEditDisabled}
+					class="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+					aria-label="Bulk edit filtered transactions"
+				>
+					Bulk Edit
+				</button>
+			{/if}
+			{#if onsuggest}
+				<button
+					type="button"
+					onclick={onsuggest}
+					disabled={suggestDisabled}
+					class="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+					aria-label="Suggest categories for uncategorized transactions"
+				>
+					Suggest
+				</button>
+			{/if}
 		{/if}
 	</div>
 </div>
