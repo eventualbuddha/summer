@@ -268,6 +268,20 @@ export async function importStatement(
 	return postJson<ImportStatementResult>('/api/statements/import', params);
 }
 
+// Category suggestions
+export interface CategorySuggestion {
+	transactionId: string;
+	suggestedCategoryId: string;
+	confidence: number;
+	matchCount: number;
+}
+
+export async function suggestCategories(transactionIds: string[]): Promise<CategorySuggestion[]> {
+	return postJson<{ suggestions: CategorySuggestion[] }>('/api/transactions/suggest-categories', {
+		transactionIds
+	}).then((r) => r.suggestions);
+}
+
 // Reports
 export async function getBudgetReportData(year?: number): Promise<BudgetReportData> {
 	const url = year ? `/api/reports/budgets?year=${year}` : '/api/reports/budgets';

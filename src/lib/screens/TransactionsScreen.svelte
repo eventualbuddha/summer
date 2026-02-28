@@ -1,5 +1,6 @@
 <script lang="ts">
 	import BulkEditModal from '$lib/components/BulkEditModal.svelte';
+	import SuggestCategoriesModal from '$lib/components/SuggestCategoriesModal.svelte';
 	import CategoryPill from '$lib/components/CategoryPill.svelte';
 	import Filters from '$lib/components/Filters.svelte';
 	import ImportButton from '$lib/components/ImportButton.svelte';
@@ -286,6 +287,7 @@
 	const selectedYearCount = $derived(s.filters?.years.filter((y) => y.selected).length ?? 0);
 
 	let showBulkEditModal = $state(false);
+	let showSuggestModal = $state(false);
 	let showKeyboardShortcutsModal = $state(false);
 
 	onMount(() => {
@@ -450,6 +452,8 @@
 		onclear={() => s.clearFilters()}
 		onbulkedit={() => (showBulkEditModal = true)}
 		bulkEditDisabled={!s.transactions || s.transactions.count === 0}
+		onsuggest={() => (showSuggestModal = true)}
+		suggestDisabled={!s.transactions || s.transactions.count === 0}
 	/>
 {/if}
 
@@ -458,6 +462,14 @@
 		transactions={s.transactions.list}
 		categories={s.filters?.categories.map(({ value }) => value) ?? []}
 		onclose={() => (showBulkEditModal = false)}
+	/>
+{/if}
+
+{#if showSuggestModal && s.transactions}
+	<SuggestCategoriesModal
+		transactions={s.transactions.list}
+		categories={s.filters?.categories.map(({ value }) => value) ?? []}
+		onclose={() => (showSuggestModal = false)}
 	/>
 {/if}
 
@@ -473,13 +485,14 @@
 			</div>
 		{:else}
 			<SortHeader sort={s.sort} />
-			<VList data={s.transactions.list} getKey={(transaction) => transaction.id}>
+			{@const list = s.transactions.list}
+			<VList data={list} getKey={(transaction) => transaction.id}>
 				{#snippet children(transaction)}
 					<TransactionRow
 						{transaction}
 						categories={s.filters?.categories.map(({ value }) => value) ?? []}
-						firstTransactionId={s.transactions.list[0]?.id}
-						lastTransactionId={s.transactions.list[s.transactions.list.length - 1]?.id}
+						firstTransactionId={list[0]?.id}
+						lastTransactionId={list[list.length - 1]?.id}
 					/>
 				{/snippet}
 			</VList>
