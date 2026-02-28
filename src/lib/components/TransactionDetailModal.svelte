@@ -35,6 +35,7 @@
 	let portalTarget = $state<HTMLDivElement>();
 
 	let isPickingEffectiveDate = $state(false);
+	let categoryButton = $state<HTMLButtonElement>();
 
 	let effectiveDateLabel = $derived.by(() => {
 		if (!transaction.effectiveDate) return 'Same as statement';
@@ -75,6 +76,24 @@
 			detail = d;
 		});
 
+		// Type-ahead state for category selection
+		let typeAheadPrefix = '';
+		let typeAheadTimeout: ReturnType<typeof setTimeout> | undefined;
+
+		function handleCategoryTypeAhead(key: string) {
+			if (typeAheadTimeout) clearTimeout(typeAheadTimeout);
+			typeAheadPrefix += key;
+			typeAheadTimeout = setTimeout(() => {
+				typeAheadPrefix = '';
+			}, 500);
+			const prefixLower = typeAheadPrefix.toLowerCase();
+			const allOptions = [...categories, NONE_CATEGORY];
+			const match = allOptions.find((c) => c.name.toLowerCase().startsWith(prefixLower));
+			if (match) {
+				setCategory(match.id === NONE_CATEGORY.id ? undefined : match);
+			}
+		}
+
 		function handleKeydown(e: KeyboardEvent) {
 			const activeElement = document.activeElement;
 			const isTypingElement =
@@ -86,6 +105,14 @@
 			if (e.key === 'Escape') {
 				e.preventDefault();
 				onclose();
+				return;
+			}
+
+			// Type-ahead: when category button is focused but dropdown is closed, typing
+			// selects a matching category (takes precedence over 'q' to close modal)
+			if (!isSelectingCategory && activeElement === categoryButton && e.key.length === 1) {
+				e.preventDefault();
+				handleCategoryTypeAhead(e.key);
 				return;
 			}
 
@@ -329,7 +356,9 @@
 						>
 							{#snippet trigger(isOpen, setIsOpen)}
 								<button
+									bind:this={categoryButton}
 									type="button"
+									data-testid="category-trigger"
 									onclick={() => setIsOpen(!isOpen)}
 									class="flex w-full cursor-pointer items-center justify-between rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
 								>
