@@ -21,20 +21,28 @@
 	let {
 		value,
 		onchange,
-		onclose
+		onclose,
+		initialFocus
 	}: {
 		value: { month: number; year: number } | null;
 		onchange: (value: { month: number; year: number } | null) => void;
 		onclose: () => void;
+		initialFocus?: { month: number; year: number };
 	} = $props();
 
-	let displayYear = $state(value?.year ?? new Date().getFullYear());
+	let displayYear = $state(value?.year ?? initialFocus?.year ?? new Date().getFullYear());
 
 	// Capture the value when picker opened, for the "old value" ring indicator
 	const initialValue = value;
 
 	// Keyboard cursor position (0–11 = Jan–Dec)
-	let focusedIndex = $state(value !== null && value.year === displayYear ? value.month - 1 : 0);
+	let focusedIndex = $state(
+		value !== null && value.year === displayYear
+			? value.month - 1
+			: initialFocus?.year === displayYear
+				? initialFocus.month - 1
+				: 0
+	);
 
 	// +1 = animating forward (next year), -1 = backward (prev year), 0 = initial
 	let direction = $state(0);
