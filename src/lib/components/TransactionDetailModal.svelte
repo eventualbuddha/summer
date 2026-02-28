@@ -188,7 +188,7 @@
 					bind:this={closeButton}
 					type="button"
 					onclick={onclose}
-					class="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+					class="cursor-pointer rounded p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
 					aria-label="Close"
 				>
 					&times;
