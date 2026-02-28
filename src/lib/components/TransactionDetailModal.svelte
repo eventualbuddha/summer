@@ -6,6 +6,7 @@
 	import { formatTransactionAmount } from '$lib/utils/formatting';
 	import { tidyBankDescription } from '$lib/utils/tidyBankDescription';
 	import { NONE_CATEGORY } from '$lib/utils/categories';
+	import { createCategoryTypeAhead } from '$lib/utils/categoryTypeAhead';
 	import { getContext, onMount } from 'svelte';
 	import CategorySelect from './CategorySelect.svelte';
 	import CategoryPill from './CategoryPill.svelte';
@@ -76,23 +77,10 @@
 			detail = d;
 		});
 
-		// Type-ahead state for category selection
-		let typeAheadPrefix = '';
-		let typeAheadTimeout: ReturnType<typeof setTimeout> | undefined;
-
-		function handleCategoryTypeAhead(key: string) {
-			if (typeAheadTimeout) clearTimeout(typeAheadTimeout);
-			typeAheadPrefix += key;
-			typeAheadTimeout = setTimeout(() => {
-				typeAheadPrefix = '';
-			}, 500);
-			const prefixLower = typeAheadPrefix.toLowerCase();
-			const allOptions = [...categories, NONE_CATEGORY];
-			const match = allOptions.find((c) => c.name.toLowerCase().startsWith(prefixLower));
-			if (match) {
-				setCategory(match.id === NONE_CATEGORY.id ? undefined : match);
-			}
-		}
+		const handleCategoryTypeAhead = createCategoryTypeAhead(
+			() => categories,
+			(category) => setCategory(category)
+		);
 
 		function handleKeydown(e: KeyboardEvent) {
 			const activeElement = document.activeElement;
@@ -110,9 +98,12 @@
 
 			// Type-ahead: when category button is focused but dropdown is closed, typing
 			// selects a matching category (takes precedence over 'q' to close modal)
-			if (!isSelectingCategory && activeElement === categoryButton && e.key.length === 1) {
+			if (
+				!isSelectingCategory &&
+				activeElement === categoryButton &&
+				handleCategoryTypeAhead(e.key)
+			) {
 				e.preventDefault();
-				handleCategoryTypeAhead(e.key);
 				return;
 			}
 
