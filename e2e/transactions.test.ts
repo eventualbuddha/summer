@@ -817,12 +817,12 @@ test('bulk edit effective date', async ({ page, createTransaction, surreal }) =>
 	// Both have no effective date — shows "Same as statement" (common value)
 	await dialog.getByRole('button', { name: 'Same as statement' }).click();
 
-	// Month-year picker appears
+	// Month-year picker appears, defaulting to the most recent transaction month (Jan 2025)
 	const picker = page.getByTestId('month-year-picker');
 	await expect(picker).toBeVisible();
+	await expect(picker).toContainText('2025');
 
-	// Navigate to 2025 and select March
-	await picker.getByLabel('Previous year').click();
+	// Select March
 	await picker.getByTestId('month-option-3').click();
 
 	// Save

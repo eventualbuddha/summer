@@ -6,6 +6,7 @@
 	import { formatTransactionAmount } from '$lib/utils/formatting';
 	import { tidyBankDescription } from '$lib/utils/tidyBankDescription';
 	import { NONE_CATEGORY } from '$lib/utils/categories';
+	import { createCategoryTypeAhead } from '$lib/utils/categoryTypeAhead';
 	import { getContext, onMount } from 'svelte';
 	import CategorySelect from './CategorySelect.svelte';
 	import CategoryPill from './CategoryPill.svelte';
@@ -35,6 +36,7 @@
 	let portalTarget = $state<HTMLDivElement>();
 
 	let isPickingEffectiveDate = $state(false);
+	let categoryButton = $state<HTMLButtonElement>();
 
 	let effectiveDateLabel = $derived.by(() => {
 		if (!transaction.effectiveDate) return 'Same as statement';
@@ -75,6 +77,11 @@
 			detail = d;
 		});
 
+		const handleCategoryTypeAhead = createCategoryTypeAhead(
+			() => categories,
+			(category) => setCategory(category)
+		);
+
 		function handleKeydown(e: KeyboardEvent) {
 			const activeElement = document.activeElement;
 			const isTypingElement =
@@ -86,6 +93,17 @@
 			if (e.key === 'Escape') {
 				e.preventDefault();
 				onclose();
+				return;
+			}
+
+			// Type-ahead: when category button is focused but dropdown is closed, typing
+			// selects a matching category (takes precedence over 'q' to close modal)
+			if (
+				!isSelectingCategory &&
+				activeElement === categoryButton &&
+				handleCategoryTypeAhead(e.key)
+			) {
+				e.preventDefault();
 				return;
 			}
 
@@ -188,7 +206,7 @@
 					bind:this={closeButton}
 					type="button"
 					onclick={onclose}
-					class="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+					class="cursor-pointer rounded p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
 					aria-label="Close"
 				>
 					&times;
@@ -329,7 +347,9 @@
 						>
 							{#snippet trigger(isOpen, setIsOpen)}
 								<button
+									bind:this={categoryButton}
 									type="button"
+									data-testid="category-trigger"
 									onclick={() => setIsOpen(!isOpen)}
 									class="flex w-full cursor-pointer items-center justify-between rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
 								>

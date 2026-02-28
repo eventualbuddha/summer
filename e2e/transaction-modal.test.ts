@@ -697,3 +697,63 @@ test('keyboard navigation through modal fields', async ({ page, createTransactio
 	const tagInput = modal.getByRole('textbox', { name: 'Tag input' });
 	await expect(tagInput).toBeFocused();
 });
+
+test('type-ahead selects category when category button is focused', async ({
+	page,
+	createTransaction,
+	createAccount,
+	createStatement,
+	createFile,
+	createCategory
+}) => {
+	const account = await createAccount({ name: 'Test Card' });
+	const file = await createFile({ name: 'statement.pdf' });
+	const statement = await createStatement({
+		account: account.id,
+		file: file.id,
+		date: new Date(2025, 0, 15)
+	});
+	const foodCategory = await createCategory({ name: 'Food', emoji: '🍕' });
+	await createCategory({ name: 'Entertainment', emoji: '🎬' });
+	await createTransaction({
+		statement: statement.id,
+		statementDescription: 'SOME PURCHASE',
+		date: new Date(2025, 0, 10),
+		amount: -500,
+		category: foodCategory.id // start with Food selected
+	});
+
+	await page.goto('/');
+
+	// Open modal
+	await page.locator('[data-transaction]').click();
+	const modal = page.getByRole('dialog');
+	await expect(modal).toBeVisible();
+
+	// Focus the category trigger button directly
+	const categoryTrigger = modal.getByTestId('category-trigger');
+	await categoryTrigger.focus();
+	await expect(categoryTrigger).toBeFocused();
+
+	// Type 'e' — should select Entertainment (takes precedence over 'q' to close modal)
+	await page.keyboard.press('e');
+	await expect(modal).toBeVisible(); // modal still open
+	await expect(modal.getByTestId('category-trigger')).toContainText('Entertainment');
+
+	// Wait for type-ahead prefix to expire
+	await page.waitForTimeout(600);
+
+	// Type 'f' — should select Food
+	await page.keyboard.press('f');
+	await expect(modal).toBeVisible();
+	await expect(modal.getByTestId('category-trigger')).toContainText('Food');
+
+	// Wait for prefix to expire then type 'q' — no match, so category unchanged
+	await page.waitForTimeout(600);
+	await categoryTrigger.focus();
+	await page.keyboard.press('q');
+	// Modal must stay open ('q' was consumed by type-ahead, not by close handler)
+	await expect(modal).toBeVisible();
+	// No category starts with 'q', so Food remains
+	await expect(modal.getByTestId('category-trigger')).toContainText('Food');
+});

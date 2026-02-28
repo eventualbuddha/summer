@@ -3,6 +3,7 @@
 	import type { Category, Transaction } from '$lib/db';
 	import type { State } from '$lib/state.svelte';
 	import { NONE_CATEGORY } from '$lib/utils/categories';
+	import { createCategoryTypeAhead } from '$lib/utils/categoryTypeAhead';
 	import { pluralize } from '$lib/utils/formatting';
 	import { getContext, onMount } from 'svelte';
 	import CategorySelect from './CategorySelect.svelte';
@@ -89,11 +90,19 @@
 	let tagValues = $state<string[]>(initialTags.common ? [...commonTags] : []);
 	let tagsDirty = $state(false);
 
+	// Compute the most recent transaction date to use as initial picker focus
+	const transactionDefaultFocus = (() => {
+		const dates = transactions.map((t) => t.effectiveDate ?? t.date);
+		const mostRecent = dates.reduce((a, b) => (a > b ? a : b));
+		return { month: mostRecent.getMonth() + 1, year: mostRecent.getFullYear() };
+	})();
+
 	let isSelectingCategory = $state(false);
 	let isSaving = $state(false);
 	let modalContent = $state<HTMLDivElement>();
 	let portalTarget = $state<HTMLDivElement>();
 	let descriptionInput = $state<HTMLInputElement>();
+	let categoryButton = $state<HTMLButtonElement>();
 
 	const transactionCount = $derived(transactions.length);
 
@@ -141,6 +150,11 @@
 
 		setTimeout(() => descriptionInput?.focus(), 0);
 
+		const handleCategoryTypeAhead = createCategoryTypeAhead(
+			() => categories,
+			(category) => handleCategorySelect(category)
+		);
+
 		function handleKeydown(e: KeyboardEvent) {
 			const activeElement = document.activeElement;
 			const isTypingElement =
@@ -152,6 +166,15 @@
 			if (e.key === 'Escape') {
 				e.preventDefault();
 				onclose();
+				return;
+			}
+
+			if (
+				!isSelectingCategory &&
+				activeElement === categoryButton &&
+				handleCategoryTypeAhead(e.key)
+			) {
+				e.preventDefault();
 				return;
 			}
 
@@ -347,6 +370,7 @@
 						value={effectiveDateValue}
 						onchange={handleEffectiveDateChange}
 						onclose={() => (isPickingEffectiveDate = false)}
+						initialFocus={transactionDefaultFocus}
 					/>
 				{/if}
 
@@ -368,9 +392,11 @@
 						>
 							{#snippet trigger(isOpen, setIsOpen)}
 								<button
+									bind:this={categoryButton}
 									type="button"
 									onclick={() => setIsOpen(!isOpen)}
 									aria-label="Select category"
+									data-testid="category-trigger"
 									class="flex w-full cursor-pointer items-center justify-between rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
 								>
 									{#if currentCategoryForDisplay !== null}
