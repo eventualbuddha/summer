@@ -29,6 +29,11 @@ backups/
 .surrealdb/
 history.txt
 
+# devenv / Nix
+.devenv
+.devenv.flake.nix
+devenv.lock
+
 # Claude Code
 .claude/settings.local.json
 TODO.md
