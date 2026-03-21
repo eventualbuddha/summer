@@ -37,10 +37,10 @@
 	class="inline-flex items-center rounded-full {colorMap[variant]} px-2 py-0.5 {textSize} {focused
 		? 'ring-2 ring-offset-1'
 		: ''}"
-	role={onclick ? 'button' : undefined}
-	tabindex={onclick ? 0 : undefined}
+	role={onclick && !onremove ? 'button' : undefined}
+	tabindex={onclick && !onremove ? 0 : undefined}
 	{onclick}
-	onkeydown={onclick
+	onkeydown={onclick && !onremove
 		? (e) => {
 				if (e.key === 'Enter' || e.key === ' ') {
 					e.preventDefault();
