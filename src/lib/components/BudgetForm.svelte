@@ -22,6 +22,7 @@
 
 	const currentYear = new Date().getFullYear();
 
+	// svelte-ignore state_referenced_locally
 	let formData = $state({
 		name: budget?.name ?? '',
 		year: budget?.year ?? currentYear,
