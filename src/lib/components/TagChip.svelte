@@ -32,7 +32,7 @@
 	};
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events, a11y_no_noninteractive_tabindex -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <span
 	class="inline-flex items-center rounded-full {colorMap[variant]} px-2 py-0.5 {textSize} {focused
 		? 'ring-2 ring-offset-1'
