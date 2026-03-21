@@ -27,6 +27,7 @@
 	} = $props();
 
 	let detail = $state<TransactionDetail>();
+	// svelte-ignore state_referenced_locally
 	let descriptionValue = $state(transaction.description ?? '');
 	let isSelectingCategory = $state(false);
 	let descriptionInput = $state<HTMLInputElement>();

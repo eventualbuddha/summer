@@ -32,11 +32,22 @@
 	};
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <span
 	class="inline-flex items-center rounded-full {colorMap[variant]} px-2 py-0.5 {textSize} {focused
 		? 'ring-2 ring-offset-1'
 		: ''}"
+	role={onclick && !onremove ? 'button' : undefined}
+	tabindex={onclick && !onremove ? 0 : undefined}
 	{onclick}
+	onkeydown={onclick && !onremove
+		? (e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					onclick();
+				}
+			}
+		: undefined}
 >
 	{name}
 	{#if onremove}

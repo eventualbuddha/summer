@@ -30,12 +30,15 @@
 		initialFocus?: { month: number; year: number };
 	} = $props();
 
+	// svelte-ignore state_referenced_locally
 	let displayYear = $state(value?.year ?? initialFocus?.year ?? new Date().getFullYear());
 
 	// Capture the value when picker opened, for the "old value" ring indicator
+	// svelte-ignore state_referenced_locally
 	const initialValue = value;
 
 	// Keyboard cursor position (0–11 = Jan–Dec, 12 = Clear button)
+	// svelte-ignore state_referenced_locally
 	let focusedIndex = $state(
 		value !== null && value.year === displayYear
 			? value.month - 1

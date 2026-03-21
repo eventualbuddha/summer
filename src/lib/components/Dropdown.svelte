@@ -120,6 +120,7 @@
 			style="inset: unset; position: fixed; margin: 0; padding: 0; border: none; background: none; overflow: visible;"
 		>
 			{#if isOpen}
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
 					class="fixed inset-0"
 					data-dropdown-overlay
