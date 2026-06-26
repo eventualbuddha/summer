@@ -263,8 +263,11 @@
 			}
 		}
 
-		// If no transactions found, fall back to current month
-		return maxMonth > 0 ? maxMonth : new Date().getMonth() + 1;
+		// Cap at the current month: future-dated transactions (e.g. an effective date
+		// later this year) must not fill the progress bar past where we actually are in
+		// the year. Fall back to the current month when there's no spending yet.
+		const currentMonth = new Date().getMonth() + 1;
+		return maxMonth > 0 ? Math.min(maxMonth, currentMonth) : currentMonth;
 	});
 
 	// Stable filtered data that doesn't update while loading
