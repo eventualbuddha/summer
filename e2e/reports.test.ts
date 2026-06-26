@@ -116,6 +116,61 @@ test('view budget reports with filtering', async ({ page, createBudget, createCa
 	await expect(page.getByText('Transportation Budget').first()).toBeVisible();
 });
 
+test('current-year progress fill is capped at the current month, ignoring future effective dates', async ({
+	page,
+	createBudget,
+	createCategory,
+	createTransaction,
+	createStatement,
+	surreal
+}) => {
+	const currentYear = new Date().getFullYear();
+	const currentMonth = new Date().getMonth() + 1;
+
+	const category = await createCategory({ name: 'Food', emoji: '🍕' });
+
+	await createBudget({
+		name: 'Food Budget',
+		year: currentYear,
+		amount: -120000, // $1,200 annual budget
+		categories: [category.id]
+	});
+
+	// A normal transaction early in the year.
+	const janStatement = await createStatement({ date: new Date(currentYear, 0, 15) });
+	await createTransaction({
+		statement: janStatement.id,
+		category: category.id,
+		amount: -10000,
+		date: new Date(currentYear, 0, 15),
+		statementDescription: 'Groceries Jan'
+	});
+
+	// A transaction whose *effective date* is in December of the current year — i.e. the
+	// future. This must NOT inflate the year-progress fill beyond where we are in the year.
+	const decStatement = await createStatement({ date: new Date(currentYear, 11, 15) });
+	const futureTx = await createTransaction({
+		statement: decStatement.id,
+		category: category.id,
+		amount: -10000,
+		date: new Date(currentYear, 11, 15),
+		statementDescription: 'Future Groceries'
+	});
+	await surreal.query('UPDATE $id SET effectiveDate = <datetime>$date', {
+		id: futureTx.id,
+		date: `${currentYear}-12-31T00:00:00.000Z`
+	});
+
+	await page.goto('/reports');
+
+	await expect(page.getByText('Loading budget data...')).not.toBeVisible();
+
+	// The fill should reflect progress through the year (current month), not be pushed to
+	// December (12 of 12) by the future-dated transaction.
+	const fill = page.locator('[title$="based on latest transaction"]').first();
+	await expect(fill).toHaveAttribute('title', new RegExp(`^${currentMonth} of 12 months`));
+});
+
 test('reports page with no data', async ({ page }) => {
 	await page.goto('/reports');
 
